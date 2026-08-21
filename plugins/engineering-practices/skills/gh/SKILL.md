@@ -151,6 +151,36 @@ Sometimes useful data isn't on the typed commands. Examples:
   destructive. Fetch the current body (`gh pr view --json body`), merge your
   change additively, and show the proposed body before writing.
 
+## Issue authoring
+
+For filing follow-up work discovered mid-task (or capturing a problem
+before switching contexts), keep the issue short and actionable:
+
+- **Title**: clear and action-oriented — "Fix missing error handling for
+  address monitoring", not a symptom dump.
+- **Body**: three sections, passed via heredoc so Markdown survives:
+
+  ```markdown
+  ## Problem
+
+  [2-3 sentences max. What's broken or missing? What's the user impact?]
+
+  ## Root Cause
+
+  [1-2 sentences. Why is this happening?]
+
+  ## Fix
+
+  [What needs to be done to resolve it?]
+  ```
+
+- No file paths, code snippets, or investigation details; don't document
+  the solution implementation — that belongs in the PR.
+- Reference a parent/tracking issue with `#<number>` for follow-up work.
+- Labels: only ones that exist on the repo (`gh label list` when unsure) —
+  `bug` for fixes, `enhancement` for improvements, plus an area label when
+  one clearly applies. Default assignee: `--assignee @me`.
+
 ## Outward text discipline
 
 Issue bodies, PR descriptions, review comments, and release notes are published
