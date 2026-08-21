@@ -3,8 +3,8 @@
   "version": "2.6.0",
   "description": "Reusable planning, handoff, verification, and workflow skills for agents.",
   "author": {
-    "name": "Allen Eubank",
-    "email": "bigboss@metalrodeo.xyz"
+    "name": "Cristopher Ortega",
+    "email": "ortega.cpp@gmail.com"
   },
   "repository": "https://github.com/crisog/agent-profile",
   "skills": "./skills",
@@ -14,7 +14,7 @@
     "displayName": "Agent Workflows",
     "shortDescription": "Reusable workflow skills for coding agents",
     "longDescription": "Workflow skills for handoffs, planning, review routing, issue triage, e2e improvement, and safe autonomous execution.",
-    "developerName": "Allen Eubank",
+    "developerName": "Cristopher Ortega",
     "category": "Productivity",
     "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [

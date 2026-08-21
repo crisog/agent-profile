@@ -3,8 +3,8 @@
   "version": "1.7.0",
   "description": "Language, tooling, and delivery-practice skills for agentic coding.",
   "author": {
-    "name": "Allen Eubank",
-    "email": "bigboss@metalrodeo.xyz"
+    "name": "Cristopher Ortega",
+    "email": "ortega.cpp@gmail.com"
   },
   "repository": "https://github.com/crisog/agent-profile",
   "skills": "./skills",
@@ -14,7 +14,7 @@
     "displayName": "Engineering Practices",
     "shortDescription": "Language and tooling skills for coding agents",
     "longDescription": "Reusable engineering-practice skills for language idioms, tests, git, specs, briefs, and tool-specific workflows.",
-    "developerName": "Allen Eubank",
+    "developerName": "Cristopher Ortega",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [

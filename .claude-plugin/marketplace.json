@@ -2,8 +2,8 @@
   "name": "agent-profile",
   "description": "Shared agent instructions and installable workflow/practice skills for Claude Code and Codex CLI.",
   "owner": {
-    "name": "Allen Eubank",
-    "email": "bigboss@metalrodeo.xyz"
+    "name": "Cristopher Ortega",
+    "email": "ortega.cpp@gmail.com"
   },
   "plugins": [
     {
@@ -12,8 +12,8 @@
       "description": "Language, tooling, and delivery-practice skills for agentic coding.",
       "version": "1.7.0",
       "author": {
-        "name": "Allen Eubank",
-        "email": "bigboss@metalrodeo.xyz"
+        "name": "Cristopher Ortega",
+        "email": "ortega.cpp@gmail.com"
       },
       "keywords": ["skills", "engineering", "codex", "claude"],
       "category": "developer-tools"
@@ -24,8 +24,8 @@
       "description": "Reusable planning, handoff, verification, and workflow skills for agents.",
       "version": "2.6.0",
       "author": {
-        "name": "Allen Eubank",
-        "email": "bigboss@metalrodeo.xyz"
+        "name": "Cristopher Ortega",
+        "email": "ortega.cpp@gmail.com"
       },
       "keywords": ["skills", "workflow", "agents", "codex", "claude"],
       "category": "workflow"
