@@ -1,7 +1,7 @@
 {
   "name": "agent-profile",
   "version": "1.0.0",
-  "description": "Pi package for alleneubank/agent-profile: engineering-practices + agent-workflows skills and their pi hook equivalents (instruction fingerprint, verifier-bypass guard).",
+  "description": "Pi package for crisog/agent-profile: engineering-practices + agent-workflows skills and their pi hook equivalents (instruction fingerprint, verifier-bypass guard).",
   "license": "MIT",
   "keywords": [
     "pi-package",
