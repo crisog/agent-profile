@@ -8,7 +8,7 @@ argument-hint: "[spec path] [base branch, default: the repo's default branch]"
 
 Ship the PR stack defined in the spec: $ARGUMENTS
 
-The spec's own PR sections define the count and scope — one branch and one PR per section, in the spec's order. If no spec is given, use the one produced in this session; if there is none, stop and run `/specout` first.
+The spec's own PR sections define the count and scope — one branch and one PR per section, in the spec's order. If no spec is given, use the one produced in this session; if there is none, stop and report that an approved spec is required.
 
 ## Fixed decisions (do not re-ask)
 
@@ -20,8 +20,8 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 
 ## Per-PR pipeline
 
-1. **Plan** — `/planout` the spec's PR(N) section. If execution disproves the plan (a task cannot go green as ordered), amend the plan file with a REPLANNED note and continue; record it in the ledger.
-2. **Implement** — `superpowers:subagent-driven-development`, one reviewed task at a time. Every fix wave goes back to the reviewer that raised the findings until its verdict is clean.
+1. **Plan** — plan the spec's PR(N) section. If execution disproves the plan (a task cannot go green as ordered), amend the plan file with a REPLANNED note and continue; record it in the ledger.
+2. **Implement** — one reviewed task at a time. Every fix wave goes back to the reviewer that raised the findings until its verdict is clean.
 3. **Ultra-review gate** — `rl:ultra-review` on the finished branch, from a detached worktree at the branch tip with the stack parent as the range base (satisfies the HEAD guard and sidesteps dirty-tree WIP). Retry once on an environmental failure (dead coordinator, detector shard error); a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
 4. **Draft PR** — final-state narrative body per the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
 5. **Score gate** — comment `@greptileai review`; poll the score comment (it edits in place). Repeat fix → reply → resolve → re-trigger until it shows the target score for the branch head. Real findings get a fix commit + a reply citing the SHA; false positives get an evidence reply. Resolve each thread either way.
@@ -35,7 +35,7 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 
 ## Durable progress
 
-Keep a ledger file (`.superpowers/sdd/progress.md`) updated after every task, gate, and triage decision — it is the recovery map across context loss. Never commit spec or plan docs.
+Keep a ledger file (`.ship-stack/progress.md`) updated after every task, gate, and triage decision — it is the recovery map across context loss. Never commit spec or plan docs.
 
 ## Done
 
