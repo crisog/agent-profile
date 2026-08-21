@@ -56,6 +56,8 @@ Specs are freeform markdown. No rigid template, no YAML frontmatter, no required
 
 **Mutation policy**: the spec is the human+agent contract — do not reshape it without direction, and a component the spec does not name is a scope change, not an implementation detail. A reversible interior call that refines spec territory may land as a dated provisional Decisions entry, ratified at the boundary. When spec/implementation drift is found, surface it immediately — the user decides whether to update spec or code.
 
+**Pre-ship compatibility is out of scope**: if the feature has not shipped, compatibility with its experimental behavior is not a requirement unless the user states it is.
+
 **Spec vs. plan**: specs describe what and why; plans describe how and when. Plans are ephemeral. Absorb durable decisions into the spec; delete the plan doc.
 
 ## Lifecycle

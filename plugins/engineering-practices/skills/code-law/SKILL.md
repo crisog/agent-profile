@@ -31,6 +31,14 @@ violation is what holds. Build the detector when you name the property.
 - Errors are handled or propagated, never swallowed; fail loudly; validate
   at system boundaries; external calls carry explicit timeouts and bounded
   retries with backoff; handle edge cases explicitly.
+- Guard only real contracts: delete defensive checks that protect
+  impossible states already guaranteed upstream, and never add fallback
+  logic that hides a real failure without a product requirement. Tighten a
+  weak boundary at the correct layer instead of spreading checks
+  everywhere.
+- Production paths stay clean of test accommodation: a runtime branch
+  added only to make a test pass is a defect — fix the seam in the tests
+  (fixtures, factories, explicit setup) instead.
 - Refactor with clean breaks: update all callers, complete the migration,
   delete superseded code — supersession is the default; confirm
   replace-vs-add in one line only when genuinely ambiguous. Review findings
@@ -102,6 +110,15 @@ A side-effecting unit that emits nothing is not done. This is the property
 that gets retrofitted in a batch later; ship it with the unit instead.
 Structured fields, not prose log lines; the correlation id on every record
 on the path.
+
+- Prefer a canonical log line — one comprehensive record per request
+  (correlation id, endpoint, status, duration, dependency timings) — over
+  scattered per-step entries; distributed-trace spans are the richer form
+  of the same idea.
+- Logs answer "what happened"; metrics answer "is it healthy right now" —
+  grepping logs for current health is the wrong tool.
+- High-volume paths sample: keep all errors, sample successes, most
+  aggressively on the hottest endpoints.
 
 **Floor:** cause the failure, then diagnose it using only the emitted logs,
 metrics, and traces — without re-running and without adding instrumentation.

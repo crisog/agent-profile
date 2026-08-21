@@ -48,6 +48,7 @@ Start with:
 **Scope:** <what this plan covers>
 **Non-goals:** <what this plan intentionally avoids>
 **Risks:** <key technical or rollout risks>
+**First working milestone:** <the smallest end-to-end result and how it will be observed>
 ```
 
 Then include:
@@ -59,6 +60,7 @@ Then include:
 
 ### Task N: <name>
 - Outcome: <what is true when this task is done>
+- Reuse: <existing code and behavior it builds on>
 - Steps:
   - Write or update the failing test
   - Run the targeted check and confirm the expected failure
@@ -81,6 +83,14 @@ Then include:
 - Keep unrelated refactors out unless they are required to make the change safe.
 - Give each task a risk class; the ADF law defines the high-risk set and its approval requirement.
 - Include a back-of-envelope resource sketch for data-plane work (per-request/per-item hot paths).
+- Plan the first working vertical slice before hardening or optimization; organize tasks around observable behavior, not technical layers.
+
+## Complexity Check
+
+Before presenting the plan, state which systems it touches, any new
+infrastructure it introduces, the requirement supporting each addition, and
+why the existing flow is insufficient. An addition without a supporting
+requirement moves out of the plan into deferred work.
 
 ## Execution Handoff
 

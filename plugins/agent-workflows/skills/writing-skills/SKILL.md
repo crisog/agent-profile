@@ -68,6 +68,11 @@ Description rules:
 - Name real tools and files agents actually have — across every harness the
   skill ships to.
 - Prefer concrete triggers over broad abstractions.
+- Skill archetypes that assume one harness's primitives — bootstrap hooks,
+  subagent dispatch and reviewer task typing, a plan/progress mechanism —
+  don't survive porting to another runtime. Write to the capability
+  ("your harness's plan mechanism, when one exists") or mark the skill
+  harness-specific.
 - When several rules share a shape, mint the concept once and state one weak
   rule over it, instead of enumerating strong variants.
 - Cut repeated explanations aggressively.

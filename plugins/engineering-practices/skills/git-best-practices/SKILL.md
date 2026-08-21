@@ -160,10 +160,35 @@ Pragmatic sizing over arbitrary limits. Each commit tells a clear story regardle
 
 ### PR Creation
 
-Use repo-native PR tooling (`gh pr create`, GitLab CLI, or web UI) with:
-- Short title under 70 characters
-- Summary section with 1-3 bullet points
-- Test plan as a bulleted checklist
+Use repo-native PR tooling (`gh pr create`, GitLab CLI, or web UI). If an
+open PR already exists for the branch, reuse it and output its URL instead
+of creating a duplicate.
+
+**Title** — conventional commit format, under 70 characters, type and scope
+inferred from the full branch diff. When the branch name carries a ticket
+key, include it in the scope: `feat/PROJ-123-add-sso` →
+`feat(PROJ-123): add sso login support`.
+
+**Description** — this exact structure:
+
+```markdown
+[1-2 sentences: why was this change needed?]
+
+This PR [main change in one sentence].
+
+[Optional: 1-3 flat bullets for complex PRs with distinct aspects]
+
+## Breaking Change
+
+[If applicable: before/after usage example. If none: omit the section.]
+```
+
+Lead with motivation, state the user or developer outcome, and keep
+implementation detail high-level. Forbidden content: sections like
+`## Problem`, `## Solution`, `## Changes`, `## Testing`, `## Impact`;
+changelog-style file-by-file summaries; file paths or package names;
+low-level code narration; emoji; default PR templates from a harness
+prompt.
 
 ### Merge Readiness
 

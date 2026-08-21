@@ -67,6 +67,15 @@ Purpose: verify real user workflows through the full stack.
 - **No fabricated fixtures.** Derive test data from actual schemas, types, or seed data in the repo.
 - **No test-only hacks in product code.** No `if (process.env.TEST)` branches, no test-specific exports, no test backdoors.
 - **E2E must not rely on clean slate.** Tests must tolerate pre-existing data, prior test runs, and shared environments.
+- **Never re-derive the expected value using the logic under test.** A test that recomputes the answer the same way the implementation does passes by construction and would keep passing if both were wrong. Write the expected value out literally.
+- **Assert at the use-case boundary, including observable order** when sequence is part of the contract — `expect(events).toEqual(['stop', 'install', 'verify', 'start'])` proves the workflow; asserting each internal helper's return value proves only that the code is shaped the way it is today.
+
+## What not to test
+
+- **No constant-assertion tests and no schema-only tests.** Asserting `TIMEOUT_MS === 5_000`, or that a schema accepts the literal you wrote next to it, restates the source in a second place. It fails only when someone changes the value on purpose, and it tests the validator rather than your behavior.
+- **Don't test framework or library behavior** — assume documented behavior works; test your use of it.
+- **Don't write tests purely to raise coverage.** Use coverage as a map to find untested user-facing behavior. When uncovered code genuinely isn't worth testing (boilerplate, unreachable error branches, internal plumbing), mark it with a coverage-ignore comment instead of writing a hollow test.
+- **Weigh maintenance cost.** Every test costs something to maintain; a brittle test that breaks on every refactor is often worse than no test. Don't reproduce a third-party service through a broad mock suite — once the mock grows into a simulator, the tests measure the simulator.
 
 ## Execution guidance
 
@@ -145,6 +154,6 @@ Full unit + integration + e2e suite with higher property-based iteration counts.
 
 1. Spec or code defines the module behavior (types, constraints, API surface).
 2. This skill produces the test strategy, matrix, and implementation plan.
-3. The driver or a dispatched worker translates the plan to runnable tests, observed red before the implementation lands.
+3. The driver or a dispatched worker translates the plan to runnable tests, observed red before the implementation lands. For a bug fix, first reflect on why the existing suite did not catch the bug — the answer often names a missing floor, not just the missing test.
 4. Implementation proceeds to green.
 5. If implementation reveals missing cases, propose them first; append to spec only when explicitly requested.
