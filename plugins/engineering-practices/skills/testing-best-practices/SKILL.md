@@ -68,6 +68,7 @@ Purpose: verify real user workflows through the full stack.
 - **No test-only hacks in product code.** No `if (process.env.TEST)` branches, no test-specific exports, no test backdoors.
 - **E2E must not rely on clean slate.** Tests must tolerate pre-existing data, prior test runs, and shared environments.
 - **Never re-derive the expected value using the logic under test.** A test that recomputes the answer the same way the implementation does passes by construction and would keep passing if both were wrong. Write the expected value out literally.
+- **No ticket, PRD, or issue references in `describe()` blocks or test names; name the behavior under test.**
 - **Assert at the use-case boundary, including observable order** when sequence is part of the contract — `expect(events).toEqual(['stop', 'install', 'verify', 'start'])` proves the workflow; asserting each internal helper's return value proves only that the code is shaped the way it is today.
 
 ## What not to test

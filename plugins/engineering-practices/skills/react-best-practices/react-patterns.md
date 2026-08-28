@@ -514,3 +514,141 @@ function handleAdd() {
   listRef.current.lastChild.scrollIntoView();
 }
 ```
+
+## Application Patterns
+
+### Children as a Re-render Boundary
+
+```tsx
+// BAD: PureChild re-renders on every count change
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <PureChild />
+    </div>
+  );
+}
+
+// GOOD: children are created by the parent, so count changes leave them alone
+function Counter({ children }) {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      {children}
+    </div>
+  );
+}
+
+<Counter>
+  <PureChild />
+</Counter>
+```
+
+### Route-Level Code Splitting
+
+```tsx
+const Dashboard = lazy(() => import('./features/dashboard'));
+const Settings = lazy(() => import('./features/settings'));
+
+function App() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </Suspense>
+  );
+}
+```
+
+### API Layer
+
+```tsx
+// lib/api-client.ts - one configured instance
+export const api = axios.create({ baseURL: env.API_URL });
+
+// features/users/api/get-users.ts - colocated with the feature
+export const getUsers = () => api.get('/users');
+
+export const getUsersQueryOptions = () => ({
+  queryKey: ['users'],
+  queryFn: getUsers,
+});
+
+export const useUsers = () => useQuery(getUsersQueryOptions());
+```
+
+### Cross-Cutting API Errors
+
+```tsx
+// lib/api-client.ts
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    toast.error(error.response?.data?.message ?? 'An error occurred');
+    if (error.response?.status === 401) logout();
+    return Promise.reject(error);
+  }
+);
+```
+
+### Granular Error Boundaries
+
+```tsx
+// BAD: one failure blanks the whole app
+<ErrorBoundary>
+  <App />
+</ErrorBoundary>
+
+// GOOD: each region fails on its own
+<Layout>
+  <ErrorBoundary fallback={<SidebarError />}>
+    <Sidebar />
+  </ErrorBoundary>
+  <ErrorBoundary fallback={<ContentError />}>
+    <MainContent />
+  </ErrorBoundary>
+</Layout>
+```
+
+### Rendering User Content
+
+```tsx
+// BAD: raw HTML from a user
+<div dangerouslySetInnerHTML={{ __html: content }} />
+
+// GOOD: sanitize first
+<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
+
+// BEST: a renderer that sanitizes for you
+<ReactMarkdown>{content}</ReactMarkdown>
+```
+
+### Authorization Components
+
+```tsx
+// Role-based
+function RequireRole({ allowedRoles, children }) {
+  const { user } = useAuth();
+  return allowedRoles.includes(user.role) ? children : null;
+}
+
+<RequireRole allowedRoles={['ADMIN']}>
+  <DeleteUserButton />
+</RequireRole>;
+
+// Permission-based, for rules that depend on the resource
+function CanDelete({ resource, children }) {
+  const { user } = useAuth();
+  const allowed = user.role === 'ADMIN' || resource.authorId === user.id;
+  return allowed ? children : null;
+}
+
+<CanDelete resource={comment}>
+  <DeleteButton onClick={() => deleteComment(comment.id)} />
+</CanDelete>;
+```
