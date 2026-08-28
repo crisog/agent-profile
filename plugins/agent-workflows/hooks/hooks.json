@@ -30,6 +30,16 @@
             "type": "command",
             "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/verifier-bypass-guard.sh",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/secret-guard.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/publish-guard.sh",
+            "timeout": 5
           }
         ]
       },
@@ -39,6 +49,16 @@
           {
             "type": "command",
             "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/verifier-bypass-guard.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/secret-guard.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"/hooks/publish-guard.sh",
             "timeout": 5
           }
         ]
