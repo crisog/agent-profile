@@ -1,6 +1,6 @@
 ---
 name: react-best-practices
-description: Use when reading or writing React components (.tsx, .jsx files with React imports).
+description: Use when reading, writing, or structuring React code (.tsx, .jsx files with React imports), including effects, hooks, composition, project layout, state choice, performance, and client-side security.
 ---
 
 # React Best Practices
@@ -60,5 +60,67 @@ Synchronizing with **external systems**: browser APIs (WebSocket, IntersectionOb
 - Render JSX directly for UI variation; avoid config-array mini-frameworks unless the config is real domain data
 - Lift the provider boundary when sibling or external controls need access to the same state/actions
 - Use `flushSync` when you need to read the DOM synchronously after a state update
+
+- Extract a nested render function into its own component rather than calling it from the parent's JSX
+- Wrap a third-party component in a local component so the dependency can be swapped in one place
+
+## Project Structure
+
+Organize by feature, not by file type:
+
+```text
+src/
+├── app/          # application layer (routes, providers)
+├── components/   # shared UI components
+├── features/     # feature modules, each with api/, components/, hooks/, stores/, types/
+├── hooks/        # shared hooks
+├── lib/          # preconfigured libraries
+└── utils/        # shared utilities
+```
+
+- Dependencies flow one way: `shared -> features -> app`
+- No cross-feature imports; compose features at the app layer
+- Colocate code with the feature that uses it
+- Avoid barrel files, which defeat tree-shaking
+- kebab-case file and folder names
+- Absolute imports (`@/`) over relative paths, configured via `compilerOptions.paths`
+
+## State Management
+
+Pick the state type before picking a library:
+
+| Type | Holds | Typical tools |
+|------|-------|---------------|
+| Component | Local UI state | `useState`, `useReducer` |
+| Server cache | API data | React Query, SWR |
+| Form | Inputs and validation | React Hook Form + Zod |
+| URL | Filters, pagination, tabs | Router params |
+| Global | Theme, modals, toasts | Zustand, Jotai, Context |
+
+Server data belongs in a server-cache library, not in component state kept in sync by an Effect. See `react-query`.
+
+## Performance
+
+- Pass an expensive subtree as `children` so it keeps its own identity and does not re-render when the wrapper's state changes
+- Code-split at route boundaries with `lazy` plus a `Suspense` fallback
+- Context is for low-velocity values (theme, user, locale); split contexts by update frequency and reach for a store when values change often
+- Try lifting state or composing with `children` before reaching for Context
+
+## API Layer
+
+- One configured client instance in `lib/`, consumed everywhere
+- Colocate request functions and their query hooks with the feature that owns them
+- Export query options alongside the hook so callers can prefetch and reuse the same key
+
+## Error Handling
+
+- Handle cross-cutting API failures once in a client interceptor: surface the message, log out on 401, and re-reject so callers still see the error
+- Use several error boundaries, not one app-wide boundary: one per route, independent widget, and third-party component, each with a fallback scoped to what it wraps
+
+## Security
+
+- Never pass unsanitized user content to `dangerouslySetInnerHTML`; prefer a renderer with built-in sanitization, and sanitize explicitly when raw HTML is unavoidable
+- Auth tokens live in HttpOnly cookies set by the server, never in `localStorage`
+- Gate privileged UI behind an authorization component (role-based or permission-based) rather than inline checks scattered through the tree; UI gating is a usability affordance, and the server still enforces the rule
 
 See `react-patterns.md` for code examples and detailed patterns.
