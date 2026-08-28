@@ -10,7 +10,7 @@
       "name": "engineering-practices",
       "source": "./plugins/engineering-practices",
       "description": "Language, tooling, and delivery-practice skills for agentic coding.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Cristopher Ortega",
         "email": "ortega.cpp@gmail.com"
@@ -22,7 +22,7 @@
       "name": "agent-workflows",
       "source": "./plugins/agent-workflows",
       "description": "Reusable planning, handoff, verification, and workflow skills for agents.",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "author": {
         "name": "Cristopher Ortega",
         "email": "ortega.cpp@gmail.com"
