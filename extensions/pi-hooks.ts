@@ -6,7 +6,7 @@
  * the canonical shell scripts — never an inline copy of hook policy.
  *
  *   hooks.json SessionStart            -> session_start  (instruction fingerprint)
- *   hooks.json PreToolUse (Bash/shell) -> tool_call      (verifier-bypass guard)
+ *   hooks.json PreToolUse (Bash/shell) -> tool_call      (the three guards)
  *   hooks.json SubagentStart           -> (skipped: pi has no native subagents)
  *
  * Both hooks fail open by design: a script error, timeout, missing output, or
@@ -20,7 +20,12 @@ const HOOKS_DIR = fileURLToPath(
   new URL("../plugins/agent-workflows/hooks", import.meta.url),
 );
 const FINGERPRINT_SCRIPT = `${HOOKS_DIR}/instruction-fingerprint.sh`;
-const GUARD_SCRIPT = `${HOOKS_DIR}/verifier-bypass-guard.sh`;
+/** Every PreToolUse guard hooks.json registers, in the same order. */
+const GUARD_SCRIPTS = [
+  `${HOOKS_DIR}/verifier-bypass-guard.sh`,
+  `${HOOKS_DIR}/secret-guard.sh`,
+  `${HOOKS_DIR}/publish-guard.sh`,
+];
 
 /** Matching hooks.json timeouts; hard bounds so a hook can never hang pi. */
 const FINGERPRINT_TIMEOUT_MS = 10_000;
@@ -131,27 +136,23 @@ export default function agentProfilePiHooks(pi: ExtensionAPI): void {
     }
   });
 
-  // PreToolUse (Bash) -> verifier-bypass guard. The script reads the command
-  // from stdin and answers a deny JSON for the two bypass shapes it polices.
+  // PreToolUse (Bash) -> the guards. Each script reads the command from stdin
+  // and answers a deny JSON for the shapes it polices; the first deny wins, so
+  // a blocked command is never handed to a later guard.
   pi.on("tool_call", async (event, ctx) => {
     if (!isToolCallEventType("bash", event)) return;
     const command = event.input.command ?? "";
     const payload = JSON.stringify({ tool_input: { command } });
-    const result = await runHook(
-      GUARD_SCRIPT,
-      [],
-      payload,
-      ctx.cwd,
-      GUARD_TIMEOUT_MS,
-    );
-    if (result.timedOut || result.code !== 0) return; // fail open
-    const deny = parseHookOutput(result.stdout)?.hookSpecificOutput;
-    if (deny?.permissionDecision === "deny") {
-      return {
-        block: true,
-        reason:
-          deny.permissionDecisionReason ?? "Blocked by verifier-bypass-guard hook",
-      };
+    for (const script of GUARD_SCRIPTS) {
+      const result = await runHook(script, [], payload, ctx.cwd, GUARD_TIMEOUT_MS);
+      if (result.timedOut || result.code !== 0) continue; // fail open
+      const deny = parseHookOutput(result.stdout)?.hookSpecificOutput;
+      if (deny?.permissionDecision === "deny") {
+        return {
+          block: true,
+          reason: deny.permissionDecisionReason ?? `Blocked by ${script}`,
+        };
+      }
     }
     return undefined;
   });

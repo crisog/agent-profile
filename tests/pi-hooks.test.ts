@@ -131,3 +131,59 @@ describe("verifier-bypass guard (tool_call)", () => {
     expect(result).toBeUndefined();
   });
 });
+
+// The extension is the pi consumer of hooks.json, so every guard hooks.json
+// registers must block here too, or pi silently runs without that floor.
+describe("secret and publish guards (tool_call)", () => {
+  it("blocks printing a secret-bearing file", async () => {
+    const { pi, handlers } = makeStub();
+    agentProfile(pi);
+    const handler = handlers.get("tool_call")!;
+    const result = (await handler(bashCall("cat .env"), {
+      cwd: process.cwd(),
+    })) as { block: boolean; reason: string } | undefined;
+
+    expect(result).toEqual(expect.objectContaining({ block: true }));
+    expect(result!.reason).toContain("SECRET_GUARD_APPROVED=1");
+  });
+
+  it("blocks a push to a deploying ref", async () => {
+    const { pi, handlers } = makeStub();
+    agentProfile(pi);
+    const handler = handlers.get("tool_call")!;
+    const result = (await handler(bashCall("git push origin main"), {
+      cwd: process.cwd(),
+    })) as { block: boolean; reason: string } | undefined;
+
+    expect(result).toEqual(expect.objectContaining({ block: true }));
+    expect(result!.reason).toContain("MERGE_APPROVED=1");
+  });
+
+  it("allows the guards' escape hatches", async () => {
+    const { pi, handlers } = makeStub();
+    agentProfile(pi);
+    const handler = handlers.get("tool_call")!;
+    expect(
+      await handler(bashCall("SECRET_GUARD_APPROVED=1 cat .env"), {
+        cwd: process.cwd(),
+      }),
+    ).toBeUndefined();
+    expect(
+      await handler(bashCall("MERGE_APPROVED=1 git push origin main"), {
+        cwd: process.cwd(),
+      }),
+    ).toBeUndefined();
+  });
+
+  it("leaves the permitted neighbors alone", async () => {
+    const { pi, handlers } = makeStub();
+    agentProfile(pi);
+    const handler = handlers.get("tool_call")!;
+    expect(
+      await handler(bashCall("cat .env.example"), { cwd: process.cwd() }),
+    ).toBeUndefined();
+    expect(
+      await handler(bashCall("git push origin feat/x"), { cwd: process.cwd() }),
+    ).toBeUndefined();
+  });
+});

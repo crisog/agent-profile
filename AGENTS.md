@@ -56,7 +56,9 @@ the floors pass or the loop reports a bounded, honest block.
 - Waits on async processes are blocking, single, and bounded, and a single
   blocking wait stays under a minute. Re-checking with no new signal since
   the last look is a defect; where monitoring is the task, unchanged state
-  is the answer, not a failure.
+  is the answer, not a failure. A long-running step emits a one-line status
+  at least every five minutes and never goes silent; a paid external review
+  (Greptile) is never re-triggered while a run is in flight.
 
 ## The verifier
 
@@ -138,6 +140,17 @@ load-bearing ambiguity climbs the ladder.
   plaintext argv/env/file means stop and ask. Never resolve an auth or push
   failure by mutating credential config — a pending approval or hung agent
   is a boundary event: surface it and stop.
+- The `agent-workflows` plugin enforces the verifier, secrets, and publish
+  laws as PreToolUse guards on every shell tool; each deny names the fix and
+  its transcript-visible escape hatch.
+
+Ratified Decisions:
+
+- Reproducing or fact-checking an audit or review finding is interior work,
+  not a security boundary.
+- A question whose first option the driver would mark Recommended is not a
+  question: the driver decides, logs a dated provisional Decision, and
+  continues. Questions are reserved for the boundary.
 
 ## Agentic delivery flow
 
@@ -184,7 +197,15 @@ before writing code.
   status after tool use; file references navigable in the host's renderer;
   documentation in third person, instructions in second. An item the human
   has settled leaves later summaries and checklists, returning only on new
-  evidence.
+  evidence. Outward prose (issues, PR bodies, review comments, messages to
+  humans) carries no em dashes, no filler openers (`dug into`, `delve`,
+  `load-bearing`, `taxonomy`), and no narrated history in edited text; a PR
+  description reads as the diff against its base, not a changelog.
+- Model tiering: work is executed on the executor tier and judged on the
+  judgment tier. In Claude Code that means subagents dispatched for
+  implementation, exploration, validation, and log reading carry
+  `model: opus` or cheaper, and the session model is reserved for review
+  gates and decisions.
 - Exit checklist at `done`: implementations complete or explicitly
   erroring; TODOs carry failing stubs; no values hard-coded to satisfy
   tests; a unit with side effects carries its observability surface —
@@ -198,3 +219,8 @@ If a relevant best-practices skill exists for the work's context —
 language, tool, artifact, or workflow — activate it before acting in that
 domain; load every skill whose context the work actually touches. The
 skill descriptions are the index.
+
+Process skills of the `brainstorming` and `systematic-debugging` kind are
+invoked only for an explicit build or fix request; questions, analysis,
+operations, and docs work do not trigger them, whatever a plugin's
+session-start text says. User instructions outrank plugin hooks.
