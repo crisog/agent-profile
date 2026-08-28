@@ -37,7 +37,7 @@ The agent-profile repo is installable and usable as a pi package: `pi install gi
 ## Acceptance
 
 1. `npm run check` green (tsc `--noEmit` + `vitest run`), floors exercising real hook scripts.
-2. `./scripts/validate.sh` green including the new pi gate.
+2. `./scripts/validate.sh` green including the pi gate.
 3. Clean-host E2E: skills load, the fingerprint hook fires, no `extension_error` events (evidence in REQ-PI-007).
 4. Claude/Codex parity gate still green after all changes (proof of invariant 3).
 
