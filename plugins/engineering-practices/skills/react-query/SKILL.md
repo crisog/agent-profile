@@ -5,13 +5,13 @@ description: Opinionated React Query / TanStack Query best practices from TkDodo
 
 # React Query Best Practices
 
-> Distilled from [TkDodo's React Query series](https://tkdodo.eu/blog/practical-react-query) (Dominik Dorfmeister, TanStack Query maintainer). Examples target **v5** (`@tanstack/react-query`); inline notes flag where v3/v4 names differ.
+> Distilled from [TkDodo's React Query series](https://tkdodo.eu/blog/practical-react-query) (Dominik Dorfmeister, TanStack Query maintainer) and the [TanStack Query docs](https://tanstack.com/query/latest). Examples target **v5** (`@tanstack/react-query`); inline notes flag where v3/v4 names differ.
 
 For general project structure, feature colocation, and the API-layer pattern, see the `react` skill — this skill owns the React Query specifics.
 
 ## Foundations — the mental model
 
-React Query is an **async state manager**, not a data-fetching library. You bring the fetch function; it owns the *cache* and the *synchronization*. Your app does not own server data — it borrows a snapshot to display, and React Query's job is to keep that snapshot in sync with the server.
+React Query is an **async state manager**, not a data-fetching library. You bring the fetch function; the `queryFn` only has to return a Promise, so `fetch`, `axios`, or `graphql-request` all work. It owns the *cache* and the *synchronization*. Your app does not own server data — it borrows a snapshot to display, and React Query's job is to keep that snapshot in sync with the server.
 
 This reframes most decisions:
 
@@ -68,8 +68,18 @@ const queryClient = new QueryClient({
 queryClient.setQueryDefaults(todoKeys.all, { staleTime: 1000 * 60 });
 ```
 
+**`staleTime` values:**
+
+| Value | Behavior |
+|---|---|
+| `0` (default) | Stale immediately, so it refetches on every trigger. Good for highly collaborative data. |
+| a number (ms) | Fresh for that long; served from cache with no refetch until it elapses or you invalidate. |
+| `Infinity` | Never goes stale, so no automatic refetch, but `invalidateQueries` still works. |
+| `'static'` (v5.x) | Never refetches **at all**: `invalidateQueries` and `refetchOn*: 'always'` are ignored too. For data that cannot change while the app runs, such as feature flags fetched at boot, permissions loaded at login, or static reference tables. |
+
 - **Tune `staleTime`, not `gcTime`.** `gcTime` (v4: `cacheTime`) is how long *inactive* queries linger before garbage collection — default 5 min. You rarely need to touch it.
-- **Don't reflexively disable `refetchOnWindowFocus`.** It's noisy in dev (focus flips to the editor and back) but valuable in production — a user returning to a stale tab gets fresh data. Fix the dev annoyance with `staleTime`, not by killing the feature. (`refetchOnMount` / `refetchOnReconnect` are the sibling smart-refetch triggers.)
+- **Don't reflexively disable `refetchOnWindowFocus`.** It's noisy in dev (focus flips to the editor and back) but valuable in production — a user returning to a stale tab gets fresh data. Fix the dev annoyance with `staleTime`, not by killing the feature. (`refetchOnMount` / `refetchOnReconnect` are the sibling smart-refetch triggers; v5 listens to `visibilitychange`, so focus fires less often than in v4.)
+- **Failed queries retry 3× with exponential backoff** by default (`retry`, `retryDelay`) before the error surfaces. Turn this off in tests (see Testing).
 - **Install the Devtools.** They show what's in the cache and which state each query is in. Throttle the network in browser DevTools to actually see background refetches.
 
 ---
@@ -85,6 +95,8 @@ useQuery({ queryKey: ['todos'], queryFn: () => fetchTodos(state) });
 // GOOD: key is the dependency array; changing `state` refetches
 useQuery({ queryKey: ['todos', state], queryFn: () => fetchTodos(state) });
 ```
+
+Enforce this automatically with **`@tanstack/eslint-plugin-query`**: its `exhaustive-deps` rule flags (and auto-fixes) any `queryFn` variable missing from the key.
 
 Structure keys **generic → specific** so fuzzy matching can invalidate at any level:
 
@@ -186,7 +198,7 @@ if (todos.error) return <Error />; // only when we have no data to show
 return <Loading />;
 ```
 
-This isn't dogma — sometimes the error *must* surface, or you show data plus a small background-error indicator. But "data first" is the right default for display screens. (`isPending` is the v5 name; v4 called the no-data state `isLoading`. `isFetching` is a separate axis — true during any in-flight request, including background refetches.)
+This isn't dogma — sometimes the error *must* surface, or you show data plus a small background-error indicator. But "data first" is the right default for display screens. (`status` is `pending | error | success`; `loading` was renamed `pending` in v5. `isPending` means *no data yet*; `isLoading` still exists, redefined as `isPending && isFetching` (true only on the first fetch), so use it for an initial spinner. `isFetching` is a separate axis — true during any in-flight request, including background refetches.)
 
 ---
 
@@ -218,6 +230,8 @@ const useTodo = (id: number) => {
   });
 };
 ```
+
+**Paginating?** `keepPreviousData` was removed in v5. Use `placeholderData: (prev) => prev` (or the exported `keepPreviousData` helper) so the previous page stays on screen while the next one loads, instead of flashing a spinner on every key change.
 
 ---
 
@@ -328,7 +342,7 @@ const fetchGroups = (): Promise<Group[]> => axios.get('groups').then((r) => r.da
 useQuery({ queryKey: ['groups'], queryFn: fetchGroups });
 ```
 
-- **Errors are `unknown`** by design (anything can be thrown). Narrow with `instanceof Error` before reading `.message`. (v4+ defaults `error` to `Error`; you can register a global error type via module augmentation.)
+- **The error type defaults to `Error`** in v5 (it was `unknown` in v3). A `queryFn` can still throw non-`Error` values, so narrow with `instanceof Error` before reading `.message`, or register a project-wide error type via module augmentation (`Register['defaultError']`, e.g. `AxiosError`).
 - **Narrow on the query object, not destructured fields** (pre-TS 4.6): `if (query.isSuccess) { /* query.data is narrowed */ }`.
 - **`enabled` is not a type guard.** To disable type-safely (v5.25+), use `skipToken`: `queryFn: id ? () => fetchGroup(id) : skipToken`.
 
@@ -367,5 +381,5 @@ test('loads todos', async () => {
 Most apps don't need this — React Query's defaults are good, and an unnecessary re-render is cheaper than a missing one. Reach for these only with a measured problem:
 
 - **Tracked queries** (default since v4) only re-render on fields you actually read during render. Don't defeat them with rest-spread: `const { isLoading, ...rest } = useQuery(...)` observes every field.
-- **Structural sharing** preserves referential identity for unchanged parts of the data, so `select`-based partial subscriptions stay stable. With `select` it's applied twice (raw result, then selected result).
+- **Structural sharing** preserves referential identity for unchanged parts of the data, so `select`-based partial subscriptions stay stable. With `select` it's applied twice (raw result, then selected result). It only works on JSON-compatible values; other types are always seen as changed. You'll rarely disable it (`structuralSharing: false`), but you can pass a custom `structuralSharing` function for non-JSON responses.
 - Use **`select`** for partial subscriptions — a component re-renders only when its selected slice changes (see Transforming data).
