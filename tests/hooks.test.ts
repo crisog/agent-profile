@@ -77,23 +77,49 @@ function checkFailOpen(script: string): void {
 }
 
 const HEX64 = "a".repeat(64);
+const HEX40 = "b".repeat(40);
 const GHP = `ghp_${"A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8".slice(0, 36)}`;
 
 describe("secret-guard: secret literals in argv", () => {
   checkCases(SECRET_GUARD, [
     ["curl -H \"Authorization: Bearer sk-live1234567890abcdefghij\" https://api.example.com", true],
     ["export ANTHROPIC_API_KEY=sk-ant-api03-abc", true],
-    [`cast send --private-key 0x${HEX64} 0xdead`, true],
     [`git remote set-url origin https://${GHP}@github.com/o/r.git`, true],
     ["echo github_pat_11ABCDEFG0abcdefg", true],
     ["aws configure set aws_access_key_id AKIA1234567890ABCDEF", true],
     ["curl -d token=xoxb-1234567890-abcdefghij", true],
     ["echo \"-----BEGIN RSA PRIVATE KEY-----\" > key.pem", true],
     ["curl -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.sig\"", true],
-    // Near-misses: hex and key-shaped words that are not secrets.
+    // Near-misses: key-shaped words that are not secrets. `sk-` needs a left
+    // boundary or every hyphenated service name denies.
     ["cast call 0xdeadbeef balanceOf", false],
     ["echo sk-short", false],
+    ["kubectl logs task-scheduler-service-name", false],
+    ["kubectl get pod helpdesk-notification-service-0", false],
+    ["docker ps --filter name=risk-assessment-service-v2", false],
+    ["pip install flask-sqlalchemy-migrations", false],
     ["npm test", false],
+  ]);
+});
+
+// A 64-hex literal is only a secret in a key-shaped context: EVM tx hashes,
+// block hashes, storage slots, and image digests share the shape exactly.
+describe("secret-guard: 64-hex in key context", () => {
+  checkCases(SECRET_GUARD, [
+    [`cast send --private-key 0x${HEX64} 0xdead`, true],
+    [`cast send --pk 0x${HEX64} 0xdead`, true],
+    [`forge create -k ${HEX64} src/A.sol:A`, true],
+    [`PRIVATE_KEY=${HEX64} forge script Deploy`, true],
+    [`export DEPLOYER_PRIVATE_KEY=0x${HEX64}`, true],
+    [`export FOO_SECRET=${HEX64}`, true],
+    [`MNEMONIC=${HEX64} npm run seed`, true],
+    // The same shape, with no key context: these are public identifiers.
+    [`cast receipt 0x${HEX64}`, false],
+    [`cast tx 0x${HEX64}`, false],
+    [`cast storage 0x${HEX40} 0x${HEX64}`, false],
+    [`git show ${HEX40}`, false],
+    [`docker pull img@sha256:${HEX64}`, false],
+    [`open https://basescan.org/tx/0x${HEX64}`, false],
   ]);
 });
 
@@ -101,6 +127,8 @@ describe("secret-guard: printing a secret-bearing file", () => {
   checkCases(SECRET_GUARD, [
     ["cat .env", true],
     ["cat apps/api/.env.production", true],
+    ["cat prod.env", true],
+    ["cat config/backend.env", true],
     ["head -20 .env.local", true],
     ["tail -n 5 .env", true],
     ["less .env", true],
@@ -128,6 +156,7 @@ describe("secret-guard: printing a secret-bearing file", () => {
     ["cp .env.example .env", false],
     ["direnv reload", false],
     ["cat package.json", false],
+    ["cat src/env.ts", false],
     ["git log --oneline | head -20", false],
   ]);
 });
@@ -141,6 +170,7 @@ describe("secret-guard: dumping the environment", () => {
     ["printenv | sort", true],
     ["op item get aws --reveal", true],
     ["op read op://Private/aws/secret", true],
+    ["op read op://Private/aws/secret; echo | cat", true],
     // Permitted neighbors: piping the secret instead of printing it.
     ["op read op://Private/aws/secret | docker login --password-stdin", false],
     ["op run -- npm run deploy", false],
@@ -183,6 +213,8 @@ describe("publish-guard: pushes to a deploying ref", () => {
     ["git push -u origin dev", true],
     ["git push --force origin main", true],
     ["git push origin main:main", true],
+    ["git push origin \"main\"", true],
+    ["git push origin 'dev'", true],
     // A push of any other branch stays allowed, including near-miss names.
     ["git push origin feat/doctrine-floors", false],
     ["git push -u origin feat/main-line", false],

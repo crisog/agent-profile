@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # PreToolUse hook: publish is the human's. Law (AGENTS.md, "Publish is the
 # human's, per-artifact and per-ref"): merging a tracked ref publishes to that
-# environment, so the approval must exist before the command runs. The law had
-# no floor, and an autonomous loop merged its own work.
+# environment, so the approval must exist before the command runs.
 #
 # Weakest-valid scope: the shapes that publish, and nothing adjacent.
 #   1. `gh pr merge` in any form, and the `gh api .../merge` equivalent.
@@ -62,7 +61,9 @@ is_deploying_ref() {
 
 # The destination half of a refspec is what gets published: HEAD:dev -> dev.
 refspec_is_deploying() {
-    local dst="${1##*:}"
+    local ref="${1//\"/}"
+    ref="${ref//\'/}"
+    local dst="${ref##*:}"
     dst="${dst#+}"
     dst="${dst#refs/heads/}"
     is_deploying_ref "$dst"

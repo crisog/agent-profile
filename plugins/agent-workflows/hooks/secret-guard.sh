@@ -2,10 +2,11 @@
 # PreToolUse hook: keep secret values out of the transcript. Law (AGENTS.md,
 # "Secrets never enter the loop"): all chat and tool traffic is persisted, so a
 # secret in argv, in a printed file, or in an environment dump is already
-# leaked the moment the tool call is logged. The law had no floor.
+# leaked the moment the tool call is logged.
 #
 # Weakest-valid scope: three observed shapes only.
-#   1. A secret literal in argv (fixed key formats, not entropy heuristics).
+#   1. A secret literal in argv: the fixed vendor key formats, plus a 64-hex
+#      value only where a key-shaped flag or assignment names it.
 #   2. A reader command applied to a secret-bearing file.
 #   3. A whole-environment dump, or a secret manager asked to print a value.
 # Named permitted neighbors that must keep working: env templates
@@ -45,9 +46,8 @@ fi
 # Shape 1: a secret literal anywhere in the command. Fixed vendor formats only
 # — an entropy heuristic would deny hashes, SHAs, and base64 payloads.
 literals=(
-    '0x[0-9a-fA-F]{64}'
-    'sk-ant-'
-    'sk-[A-Za-z0-9_-]{20,}'
+    '(^|[^A-Za-z0-9_-])sk-ant-'
+    '(^|[^A-Za-z0-9_-])sk-[A-Za-z0-9_-]{20,}'
     'ghp_[A-Za-z0-9]{36}'
     'github_pat_'
     'AKIA[0-9A-Z]{16}'
@@ -61,13 +61,27 @@ for pattern in "${literals[@]}"; do
     fi
 done
 
+# A 64-hex value is a secret only where a key-shaped flag or assignment puts it.
+# Lowercased first so the assignment names match in either case.
+lowered="$(printf '%s' "$command" | tr '[:upper:]' '[:lower:]')"
+key_flag_pattern='(^|[[:space:]])(--private-key|--pk|-k)[[:space:]=]+(0x)?[0-9a-f]{64}([^0-9a-f]|$)'
+key_assign_pattern='(^|[^a-z0-9_])[a-z0-9_]*(private_key|priv_key|secret|mnemonic|seed)[a-z0-9_]*=(0x)?[0-9a-f]{64}([^0-9a-f]|$)'
+if [[ "$lowered" =~ $key_flag_pattern ]] || [[ "$lowered" =~ $key_assign_pattern ]]; then
+    deny "this command carries a private key in argv, and every tool call is persisted. $FIX $HATCH"
+fi
+
 # Shape 3a: a secret manager asked to print a value. `op read` writes the
 # secret to stdout, so it is safe only when piped into a consumer; `op run`
 # never prints one.
-if [[ "$command" =~ (^|[^A-Za-z0-9_.-])op[[:space:]]+read[[:space:]] ]] \
-    && [[ ! "$command" =~ op[[:space:]]+read[^|]*\| ]]; then
-    deny "a bare op read prints the secret into the transcript. $FIX $HATCH"
-fi
+op_segments="${command//&&/$'\n'}"
+op_segments="${op_segments//||/$'\n'}"
+op_segments="${op_segments//;/$'\n'}"
+while IFS= read -r op_segment; do
+    if [[ "$op_segment" =~ (^|[^A-Za-z0-9_.-])op[[:space:]]+read[[:space:]] ]] \
+        && [[ ! "$op_segment" =~ op[[:space:]]+read[^|]*\| ]]; then
+        deny "a bare op read prints the secret into the transcript. $FIX $HATCH"
+    fi
+done <<<"$op_segments"
 if [[ "$command" =~ (^|[^A-Za-z0-9_.-])op[[:space:]]+item[[:space:]]+get[^|]*--reveal ]]; then
     deny "op item get --reveal prints the secret into the transcript. $FIX $HATCH"
 fi
@@ -83,8 +97,10 @@ is_secret_path() {
         *.example | *.sample | *.template) return 1 ;;
         *.pem | .npmrc | .netrc | id_rsa | id_ed25519) return 0 ;;
     esac
-    # .env, .env.local, .env.production — but not .envrc, which direnv owns.
-    [[ "$base" =~ ^\.env(\.[A-Za-z0-9_-]+)?$ ]]
+    # Any file whose name ends in .env, with an optional suffix: .env,
+    # prod.env, .env.local. Not .envrc, which direnv owns, and not env.ts,
+    # which has no dot before env.
+    [[ "$base" =~ \.env(\.[A-Za-z0-9_-]+)?$ ]]
 }
 
 # Shapes 2 and 3b are per-simple-command: the command word decides whether the
