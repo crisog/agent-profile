@@ -8,7 +8,7 @@ description: Use when writing or changing code in any language — the craft law
 The craft law for code. `AGENTS.md` keeps the law whose violation is
 unrecoverable — boundary, secrets, publish, self-approval, done-claims.
 This skill carries the law whose violation the harness and the review gate
-catch, which is why it can live here.
+catch.
 
 **A property you want held gets a detector, not a paragraph.** A sentence
 saying "be deterministic" changes nothing; the floor that reddens on a
@@ -29,20 +29,26 @@ violation is what holds. Build the detector when you name the property.
   boundaries; push `if`s up and `for`s down — parents own control flow and
   state, leaves stay pure.
 - Errors are handled or propagated, never swallowed; fail loudly; validate
-  at system boundaries; external calls carry explicit timeouts and bounded
-  retries with backoff; handle edge cases explicitly.
-- Guard only real contracts: delete defensive checks that protect
-  impossible states already guaranteed upstream, and never add fallback
-  logic that hides a real failure without a product requirement. Tighten a
-  weak boundary at the correct layer instead of spreading checks
-  everywhere.
+  at system boundaries and only there — a check protecting a state an upstream
+  boundary already guarantees is deleted, not kept for safety. External calls
+  carry explicit timeouts and bounded retries with backoff; handle edge cases
+  explicitly.
+- Guard only real contracts: never add fallback logic that hides a real
+  failure without a product requirement. Tighten a weak boundary at the
+  correct layer instead of spreading checks everywhere.
 - Production paths stay clean of test accommodation: a runtime branch
   added only to make a test pass is a defect — fix the seam in the tests
   (fixtures, factories, explicit setup) instead.
 - Refactor with clean breaks: update all callers, complete the migration,
   delete superseded code — supersession is the default; confirm
   replace-vs-add in one line only when genuinely ambiguous. Review findings
-  never restructure a PR or rollout without confirmation.
+  never restructure a PR or rollout without confirmation. An unshipped feature
+  has no compatibility surface: its experimental behavior is not a contract, so
+  it earns no shim, no dual path, and no deprecation window. Tests that redden
+  under a supposedly behavior-preserving refactor are first suspected of having
+  caught a regression it introduced; only the ones asserting the old call
+  sequence rather than an outcome are change detectors, and those are part of
+  the migration — rewrite them against behavior or delete them.
 - Name precisely: nouns and verbs that carry the mental model; no
   abbreviations; long-form flags; units and qualifiers last by descending
   significance (`latency_ms_max`).
@@ -57,6 +63,10 @@ violation is what holds. Build the detector when you name the property.
 
 Each property is a class of defect plus the cheap floor that catches it.
 Reach for the floor before the prose — the floor is the part that survives.
+
+Determinism, hermeticity, idempotency, isolation, and observability are law:
+an instance that cannot hold one carries a waiver. Evented and contextual are
+defaults: they yield to a named alternative, and no waiver is owed.
 
 ### Deterministic — same inputs, same outputs, same interleaving
 
@@ -106,8 +116,8 @@ isolation defect, not a flake.
 
 ### Observable — the failure is diagnosable from artifacts alone
 
-A side-effecting unit that emits nothing is not done. This is the property
-that gets retrofitted in a batch later; ship it with the unit instead.
+A side-effecting unit that emits nothing is not done. Ship the surface with
+the unit; instrumentation retrofitted in a later pass is the defect.
 Structured fields, not prose log lines; the correlation id on every record
 on the path.
 
@@ -167,11 +177,3 @@ permanent exemption. Debt names what would remove it.
 A waiver is written prose a reviewer can judge, never a suppression flag. A
 waiver list that grows without its debt entries shrinking means the property
 was stated too strongly — weaken the property, don't grow the list.
-
-## Evidence strength
-
-Determinism, hermeticity, idempotency, isolation, and observability each
-have motivating incidents behind them. **Evented and contextual are
-defaults, not laws** — they were adopted on stated intent, without an
-incident corpus, so they yield to a named alternative rather than requiring
-a waiver. Promote them when incidents arrive.

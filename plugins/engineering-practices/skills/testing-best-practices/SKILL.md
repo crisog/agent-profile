@@ -63,9 +63,28 @@ Purpose: verify real user workflows through the full stack.
 
 ## Hard rules
 
+A test is a **second, independent statement of the contract**. Every rule below
+follows from that: where the test stops being independent of the code it grades,
+it stops being a test and becomes a mirror.
+
+- **Expected values are written down, not computed.** A test that derives its
+  expectation the way the implementation does passes by construction, and keeps
+  passing when both sides are wrong. Write the literal. The same failure at a
+  larger scale is a mock that grows into a simulator — past that point the suite
+  measures the simulator.
+- **Tests assert observable behavior, not the call sequence that produced it.**
+  Mocking every collaborator and verifying the calls in order restates the
+  implementation in a second syntax — a change detector: it reddens on
+  behavior-preserving refactors of the code it mirrors, and a correct and an
+  incorrect implementation are equally likely to pass it. The tell is mechanical
+  maintenance: one edit applied across many tests to keep a no-op change green.
+  Such a test is negative value, not neutral — rewrite it against the outcome or
+  delete it. An interaction assertion is legitimate only where the interaction
+  *is* the contract (a retry budget, an audit emission, an exactly-once side
+  effect), and then it names the guarantee, not the call.
 - **Never invent signatures, source locations, or line numbers.** Only reference what you have read from the codebase.
 - **No fabricated fixtures.** Derive test data from actual schemas, types, or seed data in the repo.
-- **No test-only hacks in product code.** No `if (process.env.TEST)` branches, no test-specific exports, no test backdoors.
+- **No test-only hacks in product code.** No `if (process.env.TEST)` branches, no test-specific exports, no test backdoors. A runtime branch added to make a test pass is a defect in the test's setup — fix the seam there (fixtures, factories, explicit construction) instead.
 - **E2E must not rely on clean slate.** Tests must tolerate pre-existing data, prior test runs, and shared environments.
 - **Never re-derive the expected value using the logic under test.** A test that recomputes the answer the same way the implementation does passes by construction and would keep passing if both were wrong. Write the expected value out literally.
 - **No ticket, PRD, or issue references in `describe()` blocks or test names; name the behavior under test.**

@@ -72,15 +72,28 @@ faithful, cheap, few and broad, realistic, and briefed when it is a review
 - **Independent** — objective floors run in the harness; subjective
   dimensions go to the brief's oracle. Self-review is never reported as
   independent, and the driver never approves its own work.
+  An oracle is **fresh-context** (has not seen the reasoning that produced
+  the work — a subagent forked from the driver's own context is disqualified
+  by construction), **disinterested** (not the author), **briefed** (carries
+  the contract and the declared deferrals, so it grades against the law and
+  not its own taste), and **severity-scaled** (findings on a named scale, so
+  the terminal is a floor rather than approval). Which oracle is an interior
+  decision, and the cheapest sufficient one wins: the harness alone where the
+  dimension is objective, then a fresh subagent in-session, then a different
+  model where stakes are high or where correlated blind spots are the risk —
+  the one thing a same-model reviewer cannot catch.
 - **Fail-closed** — silently passing without actually checking manufactures
   false confidence; an unavailable, broken, or bypassed oracle means
   `blocked`, not `done`.
 - A finding the harness should have caught earns a new floor, not just a
   patch.
 - Integrity: tests verify correctness — they do not define the solution.
-  Fix root causes; never weaken assertions or game a test. Labeling a
-  failure "pre-existing"/"unrelated" or deferring a discovered bug requires
-  cited evidence. A fix for a review finding still owes an observed red.
+  Fix root causes; never weaken assertions or game a test. A test that
+  mirrors the implementation's call sequence grades nothing — it reddens on
+  refactors while passing defects; assert observable behavior instead.
+  Labeling a failure "pre-existing"/"unrelated" or deferring a discovered
+  bug requires cited evidence. A fix for a review finding still owes an
+  observed red.
 - Done claims carry evidence: name the verifier that ran and cite its
   output. An authored-but-unexecuted verifier is "authored, NOT run".
 
@@ -190,9 +203,14 @@ before writing code.
   project conventions. Default to analysis and recommendation; mutate only
   when requested or clearly implied, and live-state first: read the current
   state — if already applied, no-op and report.
-- direnv auto-loads `.envrc` on every `cd`; never `direnv allow` or
-  re-source manually. A missing expected var means the `.envrc` is blocked
-  or absent — read it before inventing workarounds.
+- direnv is late-binding: each tool call gets a fresh shell whose rc re-runs
+  `direnv export`, so an `.envrc` allowed moments ago in another terminal
+  lands on the next call. Never re-source or re-export by hand, and never
+  `direnv allow` (a trust decision the human makes). When an expected var is
+  missing, read `DIRENV_DIR`: set means direnv ran, so the `.envrc` is blocked
+  or does not define the var — read it before inventing workarounds. Empty
+  means no rc reached this shell; run the command as `direnv exec <dir> <cmd>`,
+  which fails loudly rather than silently when the `.envrc` is blocked.
 - Communication: concise teammate tone, plain text, no emojis; one-line
   status after tool use; file references navigable in the host's renderer;
   documentation in third person, instructions in second. An item the human
@@ -210,8 +228,7 @@ before writing code.
   erroring; TODOs carry failing stubs; no values hard-coded to satisfy
   tests; a unit with side effects carries its observability surface —
   instrumentation retrofitted in a later pass is the defect; touched-phase
-  gates passed or a waiver recorded; non-trivial changesets carry the
-  review sidecar (`hunk-notes`) unless opted out.
+  gates passed or a waiver recorded.
 
 ## Skills
 

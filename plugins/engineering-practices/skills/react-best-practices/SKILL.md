@@ -62,6 +62,7 @@ Synchronizing with **external systems**: browser APIs (WebSocket, IntersectionOb
 - Use `flushSync` when you need to read the DOM synchronously after a state update
 - Extract a nested render function into its own component rather than calling it from the parent's JSX
 - Wrap a third-party component in a local component so the dependency can be swapped in one place
+- Never `vi.mock` a child and assert on the props it received — that grades the parent's implementation, not what renders; assert on the real tree with `screen.getByRole` (the change-detector shape in `testing-best-practices`)
 
 ## Project Structure
 
