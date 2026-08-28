@@ -112,6 +112,9 @@ describe("secret-guard: 64-hex in key context", () => {
     [`PRIVATE_KEY=${HEX64} forge script Deploy`, true],
     [`export DEPLOYER_PRIVATE_KEY=0x${HEX64}`, true],
     [`export FOO_SECRET=${HEX64}`, true],
+    // Quoting the value changes nothing about the leak.
+    [`export PRIVATE_KEY="0x${HEX64}"`, true],
+    [`cast send --private-key '0x${HEX64}' 0xdead`, true],
     [`MNEMONIC=${HEX64} npm run seed`, true],
     // The same shape, with no key context: these are public identifiers.
     [`cast receipt 0x${HEX64}`, false],

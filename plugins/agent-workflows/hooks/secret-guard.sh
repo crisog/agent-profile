@@ -64,6 +64,9 @@ done
 # A 64-hex value is a secret only where a key-shaped flag or assignment puts it.
 # Lowercased first so the assignment names match in either case.
 lowered="$(printf '%s' "$command" | tr '[:upper:]' '[:lower:]')"
+# Quoting the value hides none of it, so the quotes come off before matching.
+lowered="${lowered//\"/}"
+lowered="${lowered//\'/}"
 key_flag_pattern='(^|[[:space:]])(--private-key|--pk|-k)[[:space:]=]+(0x)?[0-9a-f]{64}([^0-9a-f]|$)'
 key_assign_pattern='(^|[^a-z0-9_])[a-z0-9_]*(private_key|priv_key|secret|mnemonic|seed)[a-z0-9_]*=(0x)?[0-9a-f]{64}([^0-9a-f]|$)'
 if [[ "$lowered" =~ $key_flag_pattern ]] || [[ "$lowered" =~ $key_assign_pattern ]]; then
