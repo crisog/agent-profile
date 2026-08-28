@@ -140,15 +140,9 @@ load-bearing ambiguity climbs the ladder.
   plaintext argv/env/file means stop and ask. Never resolve an auth or push
   failure by mutating credential config — a pending approval or hung agent
   is a boundary event: surface it and stop.
-- **The floors are hooks, not reminders.** The `agent-workflows` plugin
-  registers PreToolUse guards on every shell tool: `verifier-bypass-guard`
-  (`--no-verify`, `core.hooksPath=/dev/null`), `secret-guard` (a secret
-  literal in argv, printing a secret-bearing file, dumping the
-  environment), and `publish-guard` (`gh pr merge`, and a push or merge
-  targeting a deploying ref). Each denies with the fix and a
-  transcript-visible escape hatch — `HOOK_BYPASS_APPROVED=1`,
-  `SECRET_GUARD_APPROVED=1`, `MERGE_APPROVED=1` — that only the human's
-  order sets.
+- The `agent-workflows` plugin enforces the verifier, secrets, and publish
+  laws as PreToolUse guards on every shell tool; each deny names the fix and
+  its transcript-visible escape hatch.
 
 Ratified Decisions:
 
