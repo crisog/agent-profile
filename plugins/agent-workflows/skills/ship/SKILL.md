@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Commit staged/unstaged changes and push to the remote branch
+description: Use when the user wants the current work committed and pushed. Commits staged and unstaged changes as Conventional Commits and pushes to the remote branch.
 disable-model-invocation: true
 ---
 

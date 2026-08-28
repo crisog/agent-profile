@@ -60,7 +60,6 @@ Synchronizing with **external systems**: browser APIs (WebSocket, IntersectionOb
 - Render JSX directly for UI variation; avoid config-array mini-frameworks unless the config is real domain data
 - Lift the provider boundary when sibling or external controls need access to the same state/actions
 - Use `flushSync` when you need to read the DOM synchronously after a state update
-
 - Extract a nested render function into its own component rather than calling it from the parent's JSX
 - Wrap a third-party component in a local component so the dependency can be swapped in one place
 
@@ -97,7 +96,9 @@ Pick the state type before picking a library:
 | URL | Filters, pagination, tabs | Router params |
 | Global | Theme, modals, toasts | Zustand, Jotai, Context |
 
-Server data belongs in a server-cache library, not in component state kept in sync by an Effect. See `react-query`.
+Server data belongs in a server-cache library, not in component state kept in sync by an Effect. See `engineering-practices:react-query`.
+
+- Pass an initializer function to `useState` when the initial value is expensive to compute
 
 ## Performance
 

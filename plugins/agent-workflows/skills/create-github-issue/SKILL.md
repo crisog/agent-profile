@@ -15,7 +15,7 @@ An issue states a problem. It never prescribes an implementation.
 
 - Problem-first: what is wrong, who it hurts, and the evidence that it is real.
 - A solution may appear as a single hinted line at most. A plan, a task list, a file-by-file breakdown, or a code sketch belongs in the PR, not the issue.
-- No references to anything outside the repository's own organization: no other companies, no cross-company links, no tooling names from elsewhere.
+- No references to anything outside the repository's own organization: no other companies, no cross-company links.
 - Draft the full issue text and show it to the user before publishing. Never publish an issue the user has not seen.
 
 ## Steps

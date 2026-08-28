@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create clean git commits from current changes and open a Pull Request on GitHub
+description: Use when the user wants a pull request opened for the current branch. Creates clean git commits from the current changes and opens a PR on GitHub with a generated description.
 disable-model-invocation: true
 ---
 

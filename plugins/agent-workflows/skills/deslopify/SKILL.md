@@ -1,6 +1,6 @@
 ---
 name: deslopify
-description: Simplify the current branch by removing unnecessary code and tightening weak boundaries
+description: Use when the user wants the current branch simplified. Removes vestigial code, unnecessary fallbacks, and test-driven runtime branches, and tightens weak boundaries.
 disable-model-invocation: true
 ---
 
