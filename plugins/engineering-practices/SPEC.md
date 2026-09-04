@@ -75,6 +75,17 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
 - **REQ-DOCTRINE-013 — Trigger contracts:** every skill description starts with
   `Use when...`; portable provenance metadata remains legal when every target
   harness and repository validation accept it.
+- **REQ-DOCTRINE-014 — Minimal construction:** `code-law` orders construction
+  choices after the problem is understood — omit, reuse, standard library,
+  platform, installed dependency, one line, minimum — governs how requested
+  behavior is built rather than whether it is built, never cuts trust-boundary
+  validation, data-loss handling, security, accessibility, or hardware
+  calibration for size, records a deliberate ceiling as a harvestable waiver,
+  and reports skipped rungs with the evidence that would add them.
+- **REQ-DOCTRINE-015 — Complexity pass:** `code-review` offers a bounded review
+  scoped to unnecessary complexity with a fixed finding vocabulary, a severity
+  floor tied to the construction ladder, a line-count terminal, and no
+  application of fixes; the minimal runnable check is never a finding.
 
 ## Invariants
 
@@ -108,6 +119,17 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
 - A new skill is a backward-compatible capability and releases as a minor
   version; publication still requires per-artifact authorization. (2026-09-03,
   ratified)
+- The construction ladder and complexity pass are distilled from
+  [Ponytail](https://github.com/DietrichGebert/ponytail) into the skills that
+  already own construction and review judgment; the Ponytail plugin is not
+  installed alongside, because its per-prompt injection duplicates always-loaded
+  law, its intensity modes add mutable session state, and its ship-the-lazy-
+  version stance conflicts with the no-shallow-requested-work law. The
+  distilled ruleset is pinned at Ponytail 4.9.0, commit `974d940a1c53`, as
+  `tests/provenance/ponytail-AGENTS.md`; `scripts/check-provenance.sh` diffs
+  the source's current ruleset against that snapshot on demand and at each
+  upstream sync, and a drift that changes a decision is re-distilled, never
+  copied. (2026-09-04, provisional)
 
 ## Acceptance criteria
 
@@ -126,6 +148,10 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
 - [x] Routine host cleanup and OrbStack troubleshooting contain no implicit
       data-deletion path.
 - [x] The description-shape gate passes for every shipped skill.
+- [x] Scenarios 11 through 14 in `tests/engineering-practices-scenarios.md`
+      are observed red against the prior skills and green after the revision,
+      covering REQ-DOCTRINE-014 and REQ-DOCTRINE-015 with no material-or-higher
+      finding in fresh context.
 
 ## Test traceability
 
@@ -137,3 +163,8 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
 - REQ-DOCTRINE-010 through REQ-DOCTRINE-013 —
   `tests/agentic-engineering-scenarios.md`, `./scripts/validate.sh`, and the
   fresh-context scenario oracle.
+- REQ-DOCTRINE-014 and REQ-DOCTRINE-015 — scenarios 11 through 14 in
+  `tests/engineering-practices-scenarios.md`, `./scripts/validate.sh`, and the
+  fresh-context scenario oracle.
+- Ponytail provenance — `tests/provenance/ponytail.pin` and
+  `scripts/check-provenance.sh` (network-bound, on demand; not a validate gate).

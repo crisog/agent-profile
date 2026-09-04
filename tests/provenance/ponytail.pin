@@ -1,0 +1,6 @@
+repo=DietrichGebert/ponytail
+path=AGENTS.md
+commit=974d940a1c5344210874150b98ff0d2c861fab6a
+version=4.9.0
+snapshot=tests/provenance/ponytail-AGENTS.md
+license=MIT

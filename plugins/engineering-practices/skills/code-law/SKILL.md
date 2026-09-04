@@ -1,6 +1,6 @@
 ---
 name: code-law
-description: Use when writing or changing code in any language — the craft law (types, assertions, bounds, errors, naming, comments, scope) and the system properties (deterministic, hermetic, idempotent, isolated, observable, evented, contextual) with the floor that proves each one. Not for prose, docs-only, or config-only changes.
+description: Use when writing or changing code in any language, or choosing whether to add a dependency or abstraction — the craft law (types, assertions, bounds, errors, naming, comments, scope) and the system properties (deterministic, hermetic, idempotent, isolated, observable, evented, contextual) with the floor that proves each one. Not for prose, docs-only, or config-only changes.
 ---
 
 # Code Law
@@ -13,6 +13,38 @@ verification catch.
 **A property you want held gets a detector, not a paragraph.** A sentence
 saying "be deterministic" changes nothing; the floor that reddens on a
 violation is what holds. Build the detector when you name the property.
+
+## Minimal construction
+
+Understand first: read the code the change touches and trace the real flow end
+to end. Then, for each thing about to be written, stop at the first rung that
+holds:
+
+1. **Omit** — nothing in the request or a named requirement needs it.
+2. **Reuse** — a helper, type, or pattern already in this codebase does it.
+3. **Standard library** — the language's stdlib does it.
+4. **Platform** — a native feature does it: the browser's date input over a
+   picker, CSS over script, a database constraint over application code.
+5. **Installed dependency** — something already in the lockfile does it.
+6. **One line** — it fits in one.
+7. **Minimum** — the least code that works; a new dependency or abstraction only
+   when every rung above it demonstrably fails.
+
+The ladder shortens the solution, never the reading: a small diff in the wrong
+place is a second bug. It governs how requested behavior is built, not whether
+it is built — requested work is never shipped shallow, and a request that names
+an approach gets that approach. At equal size, take the option that is correct
+on edge cases.
+
+Never cut for size: validation at trust boundaries (a client outside the
+process guarantees nothing, so a front-end check never retires a server
+check), error handling that prevents data loss, security, accessibility, and
+the calibration real hardware needs. A deliberate simplification with a known ceiling (a global lock, a
+quadratic scan, a naive heuristic) is a waiver — see Waivers — naming the
+ceiling and the trigger that upgrades it.
+
+Report what the ladder left out in at most three lines: the omission and the
+evidence that would justify adding it.
 
 ## Craft
 
@@ -217,6 +249,16 @@ permanent exemption. Debt names what would remove it.
 ```
 // <property>: <why this instance cannot hold it>. <Debt — removed by X | Permanent — X makes it impossible.>
 ```
+
+A deliberate simplification uses the same form with `ceiling` in the property
+slot, so every ceiling is harvested with one search for `ceiling:`:
+
+```
+// ceiling: <the limit and why it holds today>. Debt — <the trigger that upgrades it>.
+```
+
+A ceiling without a trigger rots into a permanent shortcut; a harvest that
+finds one is a finding, not a ledger row.
 
 A waiver is written prose a maintainer can evaluate, never a suppression flag. A
 waiver list that grows without its debt entries shrinking means the property
