@@ -129,7 +129,7 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   `tests/provenance/ponytail-AGENTS.md`; `scripts/check-provenance.sh` diffs
   the source's current ruleset against that snapshot on demand and at each
   upstream sync, and a drift that changes a decision is re-distilled, never
-  copied. (2026-09-04, provisional)
+  copied. (2026-09-04, ratified)
 
 ## Acceptance criteria
 
