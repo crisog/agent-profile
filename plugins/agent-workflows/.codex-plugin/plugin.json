@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "Agent Workflows",
     "shortDescription": "Reusable workflow skills for coding agents",
-    "longDescription": "Workflow skills for handoffs, planning, review routing, issue triage, e2e improvement, and safe autonomous execution.",
+    "longDescription": "Workflow skills for handoffs, planning, behavior-first bug bashes, issue triage, e2e improvement, and safe autonomous execution.",
     "developerName": "Cristopher Ortega",
     "category": "Productivity",
     "capabilities": ["Interactive", "Read", "Write"],

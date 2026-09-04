@@ -1,6 +1,6 @@
 ---
 name: typescript-backend-architecture
-description: Vertical-slice backend architecture for TypeScript services — feature-first scaffolding, controller/service/repository layering, component isolation, data-access and transaction patterns, config validation, and authorization placement. Use when designing, scaffolding, reviewing, or refactoring a backend service, API, or any module that owns persistence and external I/O.
+description: Use when designing, scaffolding, reviewing, or refactoring a TypeScript backend service, API, or any module that owns persistence and external I/O — vertical-slice architecture with feature-first scaffolding, controller/service/repository layering, component isolation, data-access and transaction patterns, config validation, and authorization placement.
 ---
 
 # TypeScript Backend Architecture

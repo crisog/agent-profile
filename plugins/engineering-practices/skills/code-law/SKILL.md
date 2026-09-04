@@ -7,8 +7,8 @@ description: Use when writing or changing code in any language — the craft law
 
 The craft law for code. `AGENTS.md` keeps the law whose violation is
 unrecoverable — boundary, secrets, publish, self-approval, done-claims.
-This skill carries the law whose violation the harness and the review gate
-catch.
+This skill carries the law whose violation the harness and behavior-first
+verification catch.
 
 **A property you want held gets a detector, not a paragraph.** A sentence
 saying "be deterministic" changes nothing; the floor that reddens on a
@@ -25,14 +25,24 @@ violation is what holds. Build the detector when you name the property.
   prefer the cheaper rung (compile-time > runtime > test). Put a limit on
   everything: every loop, queue, buffer, cache, retry, and recursion
   carries an explicit bound; intentionally infinite loops assert it.
+- Optimize for the reader's cognitive load. Keep each function at one level of
+  abstraction; order statements with their data flow; keep relevant details
+  close and hide only details whose abstraction reduces what the reader must
+  hold. Abstraction and indirection are costs too, so add them only when the
+  resulting contract is clearer.
 - Prefer immutability and pure functions; isolate side effects at system
   boundaries; push `if`s up and `for`s down — parents own control flow and
-  state, leaves stay pure.
-- Errors are handled or propagated, never swallowed; fail loudly; validate
-  at system boundaries and only there — a check protecting a state an upstream
-  boundary already guarantees is deleted, not kept for safety. External calls
-  carry explicit timeouts and bounded retries with backoff; handle edge cases
-  explicitly.
+  state, leaves stay pure. Use guard clauses for exceptional paths and short
+  cases; use `else` when complementary branches are both core logic. Break up
+  nested control flow and mixed boolean expressions into named decisions.
+- Errors are handled or propagated, never swallowed. Keep the failure region
+  narrow: wrap only the operation whose failure is handled, catch only the error
+  meant to be handled, and preserve the original cause when adding context.
+  Validate at system boundaries and only there — a check protecting a state an
+  upstream boundary already guarantees is deleted, not kept for safety. Publish
+  externally visible state only after every fallible operation succeeds, so a
+  failure leaves the prior state intact. External calls carry explicit timeouts
+  and bounded retries with backoff; handle edge cases explicitly.
 - Guard only real contracts: never add fallback logic that hides a real
   failure without a product requirement. Tighten a weak boundary at the
   correct layer instead of spreading checks everywhere.
@@ -41,32 +51,65 @@ violation is what holds. Build the detector when you name the property.
   (fixtures, factories, explicit setup) instead.
 - Refactor with clean breaks: update all callers, complete the migration,
   delete superseded code — supersession is the default; confirm
-  replace-vs-add in one line only when genuinely ambiguous. Review findings
-  never restructure a PR or rollout without confirmation. An unshipped feature
-  has no compatibility surface: its experimental behavior is not a contract, so
-  it earns no shim, no dual path, and no deprecation window. Tests that redden
+  replace-vs-add in one line only when genuinely ambiguous. When existing
+  structure fights the requested change, make a behavior-preserving prefactor
+  unit first when it can stay independently green and focused. Local unpublished
+  work may be regrouped this way; changing declared scope, rollout, or a
+  published contract still requires confirmation. An unshipped feature has no
+  compatibility surface: its experimental behavior is not a contract, so it
+  earns no shim, no dual path, and no deprecation window. Tests that redden
   under a supposedly behavior-preserving refactor are first suspected of having
   caught a regression it introduced; only the ones asserting the old call
   sequence rather than an outcome are change detectors, and those are part of
   the migration — rewrite them against behavior or delete them.
-- Name precisely: nouns and verbs that carry the mental model; no
-  abbreviations; long-form flags; units and qualifiers last by descending
-  significance (`latency_ms_max`).
-- Comment liberally — intent, rationale, and non-obvious constraints only,
-  never what the code does; this overrides a harness default to match the
-  surrounding file's comment density. A blatantly true assertion beats a
-  comment for a critical, surprising condition.
-- Declare variables at the smallest scope, computed closest to use. Extract
-  configuration immediately: magic values live in config, not code.
+- Name clearly and precisely at the code's abstraction level. Omit type words,
+  surrounding context, and filler the reader already has; prefer a longer name
+  to an ambiguous one. Established abbreviations such as `RPC` are useful when a
+  future reader in the domain will understand them; expand obscure or local
+  abbreviations. Name booleans positively, use long-form flags, and put units and
+  qualifiers last by descending significance (`latency_ms_max`).
+- Comments earn their place by explaining intent, rationale, non-obvious
+  constraints, or an apparent rule violation. Preserve comments that protect an
+  ordering or safety constraint. Replace narration of what code does with clearer
+  names or structure, and replace enforceable assumptions with assertions.
+  Public API comments state the contract, not implementation details.
+- Declare variables at the smallest scope, computed closest to use. A value the
+  environment, operator, or caller must choose belongs in configuration; a fixed
+  domain invariant belongs in a clearly named constant or type.
+
+## Interfaces and abstraction
+
+- Make the correct call easy and misuse hard. Prefer compiler-enforced contracts,
+  then runtime checks, then documentation. Return fully initialized values, use
+  domain types for constrained values and units, and group parameters that form
+  one concept into a value object. Put lifetime collaborators in construction and
+  pass per-call work to the operation.
+- Choose defaults by the cost of a mistake. Destructive or irreversible behavior
+  is explicit opt-in; environment-specific targets that cannot be chosen safely
+  are required rather than guessed. A convenient default is valid only when its
+  accidental use is acceptably safe.
+- Deduplicate when evidence shows one shared concept that should evolve together,
+  not merely identical syntax today. Keep coincidentally equal domain rules
+  separate; when evidence is insufficient, tolerate duplication until the common
+  abstraction becomes clear. Build for current and planned use cases, not merely
+  possible ones. A test seam is justified by its real consumer, but speculative
+  generality is not.
+- Wrap an external API when doing so clearly bounds change or gives the domain a
+  better contract; do not wrap familiar standard types by reflex.
+- When a CLI, API, control plane, or automation surface is operated by agents,
+  load `agent-operability`. Its inspect/plan/apply/verify contract is the public
+  expression of this skill's deterministic, idempotent, atomic, observable,
+  evented, and contextual properties—not a second implementation path.
 
 ## Properties
 
-Each property is a class of defect plus the cheap floor that catches it.
-Reach for the floor before the prose — the floor is the part that survives.
-
-Determinism, hermeticity, idempotency, isolation, and observability are law:
-an instance that cannot hold one carries a waiver. Evented and contextual are
-defaults: they yield to a named alternative, and no waiver is owed.
+Apply each property where its failure mode exists; non-applicability needs no
+waiver. Builds and deterministic test harnesses owe determinism, hermeticity,
+and isolation. Retried effects, reconcilers, and at-least-once consumers owe
+idempotency. Operations that can expose partial state owe atomicity. Side-
+effecting and live surfaces owe observability. Async coordination should be
+evented, and authority-bearing effects should be contextual. When an applicable
+property cannot hold, carry a waiver.
 
 ### Deterministic — same inputs, same outputs, same interleaving
 
@@ -116,10 +159,8 @@ isolation defect, not a flake.
 
 ### Observable — the failure is diagnosable from artifacts alone
 
-A side-effecting unit that emits nothing is not done. Ship the surface with
-the unit; instrumentation retrofitted in a later pass is the defect.
-Structured fields, not prose log lines; the correlation id on every record
-on the path.
+Emit structured fields rather than prose-only log lines, with enough context to
+identify the failing operation and state.
 
 - Prefer a canonical log line — one comprehensive record per request
   (correlation id, endpoint, status, duration, dependency timings) — over
@@ -133,10 +174,12 @@ on the path.
 **Floor:** cause the failure, then diagnose it using only the emitted logs,
 metrics, and traces — without re-running and without adding instrumentation.
 
-### Evented — react to state change, don't poll or nap
+### Evented — react to state change, don't mistake time for state
 
-Wait on a condition, not a duration. A bare `sleep` used as synchronization
-is the defect. Two pairings matter more than the property itself:
+Wait on a condition, not a duration. A duration-only sleep used as proof that a
+condition now holds is the defect. Bounded backoff before rechecking a condition
+is valid when no event source exists; the condition and deadline, never elapsed
+time alone, decide success. Two pairings matter more than the property itself:
 
 - **Level-triggered, edge-woken.** Pure edge-triggered systems drop events
   and never recover. The event says *when* to reconcile; the desired-state
@@ -144,8 +187,9 @@ is the defect. Two pairings matter more than the property itself:
 - **Delivery is at-least-once, so consumers must be idempotent.** Evented
   without idempotent is a duplicate-effect bug waiting for its first retry.
 
-**Floor:** ban bare sleeps structurally; assert the teardown or convergence
-latency, not the sleep duration.
+**Floor:** reject duration-only success; assert the condition and a deadline.
+Where polling is unavoidable, perturb the backoff and prove the same terminal
+state.
 
 ### Contextual — the call carries what dictates its possibilities
 
@@ -174,6 +218,6 @@ permanent exemption. Debt names what would remove it.
 // <property>: <why this instance cannot hold it>. <Debt — removed by X | Permanent — X makes it impossible.>
 ```
 
-A waiver is written prose a reviewer can judge, never a suppression flag. A
+A waiver is written prose a maintainer can evaluate, never a suppression flag. A
 waiver list that grows without its debt entries shrinking means the property
 was stated too strongly — weaken the property, don't grow the list.
