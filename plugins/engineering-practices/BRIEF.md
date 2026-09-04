@@ -77,6 +77,9 @@ wiki mirror, a list of absolutes, or a harness-specific procedure.
 - Engineering-practices 4.1.0 and agent-workflows 4.1.0 publication plus fleet
   rollout are authorized for the current agentic-engineering campaign.
   (2026-09-03, ratified)
+- Minimal-construction and complexity-review mechanics live in `code-law` and
+  `code-review`; no always-on injection, intensity mode, or third-party plugin
+  carries them. (2026-09-04, provisional)
 
 ## Boundary — requires the human
 

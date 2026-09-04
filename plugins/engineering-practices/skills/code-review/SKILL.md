@@ -5,6 +5,14 @@ description: Use when reviewing PRs, diffs, or code changes — conducts solutio
 
 # Code Review
 
+## Scope
+
+This shape is the human-facing review written for a change's author. As a
+delivery gate it is never generic: a gate is a bounded specialist review that
+names one risk, a severity floor, and a round budget — the Complexity Pass
+below is one — and its terminal is findings at or above the floor, not a
+verdict.
+
 ## Philosophy
 
 Code review is stewardship. The decisions made today—the patterns established, the shortcuts taken, the standards upheld or relaxed—compound over time. Future contributors will look at what exists and assume it's the way things are done here.
@@ -20,7 +28,7 @@ This is fundamentally different from "does this code work?" or "does it follow s
 Before examining any code, understand what problem is being solved.
 
 - Read the PR description, linked issues, or commit messages
-- If the problem isn't clear, ask for clarification before reviewing
+- If the problem isn't clear, locate it — description, issue, commits, tests — before reviewing; what stays unclear is a finding, not a question
 - Identify: What behavior is changing? Why?
 
 ### 2. Evaluate the Approach
@@ -132,7 +140,8 @@ Is this business logic in a controller? UI logic in a model? Data access in a se
 
 ### Over-Engineering
 
-Does the abstraction serve a real need, or is it speculative?
+Does the abstraction serve a real need, or is it speculative? When the review
+is scoped to this risk alone, run the complexity pass below.
 
 ### Under-Engineering
 
@@ -142,6 +151,31 @@ Is this a quick fix for something that will recur? Will the next person copy thi
 
 Does this change normalize something that shouldn't be normal?
 
+## Complexity Pass
+
+A review scoped to one risk — unnecessary complexity — is a bounded specialist
+review: it names that risk, a severity floor, and a round budget, and leaves
+correctness, security, and performance to their own pass. The diff's best
+outcome is getting shorter.
+
+One line per finding, replacing the Output Format below:
+`<file>:L<lines>: <tag> <what to cut>. <replacement>.`
+
+- `delete:` dead code, unused flexibility, a speculative feature. Replacement: nothing.
+- `stdlib:` hand-rolled code the standard library ships. Name the function.
+- `native:` a dependency or code doing what the platform already does. Name the feature.
+- `yagni:` an abstraction with one implementation, configuration nobody sets, a layer with one caller.
+- `shrink:` the same logic in fewer lines. Show the shorter form.
+
+Severity: `delete`, `stdlib`, `native`, and `yagni` findings are material,
+since each removes a dependency, abstraction, or layer that a higher rung of
+the `code-law` ladder covers; `shrink` is minor; material is the blocking
+floor. The default budget is one round plus a fix-up that confirms the
+findings. The smallest runnable check for new logic is required, never a
+finding. End with
+`net: -<N> lines, -<M> dependencies possible`, or `Lean already.` when nothing
+can go. The pass lists cuts and applies none.
+
 ## Output Format
 
 Structure your review as:
@@ -150,4 +184,4 @@ Structure your review as:
 2. **Approach** (if concerns): High-level questions about the solution direction
 3. **Implementation** (if concerns): Specific issues with blocking vs non-blocking clearly marked
 4. **Precedent** (if relevant): Whether this establishes patterns worth following
-5. **Verdict**: Approve, Request Changes, or Comment
+5. **Verdict**: Approve, Request Changes, or Comment — for the human-facing review; a gate reports findings against its floor instead

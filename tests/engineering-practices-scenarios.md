@@ -5,6 +5,7 @@ only these runtime skills:
 
 - `skills/testing-best-practices/SKILL.md`
 - `skills/code-law/SKILL.md`
+- `skills/code-review/SKILL.md`
 
 Act as a fresh-context, disinterested engineer completing these tasks. Define a
 finding scale with at least `minor`, `material`, and `critical`. For each
@@ -55,3 +56,29 @@ material or critical.
     properties apply to each surface and how to sequence prefactoring,
     red/green implementation, post-green refactoring, and verification without
     forcing an invalid intermediate state.
+
+11. A web form needs a date field with a minimum date. The codebase has no date
+    component and no date library installed. Candidates: add a picker dependency
+    plus a wrapper component, write a custom calendar component, or use the
+    platform's native date input with the server-side range check the trust
+    boundary already requires. Decide the order in which those options are
+    considered, what is built, what is deliberately left out, and how the
+    omission is reported. Then the user says the custom calendar is required for
+    design reasons. Decide what changes.
+12. A service must deduplicate records by key, and a helper that does exactly
+    that already exists two packages away. A draft adds a generic interface with
+    one implementation and a configuration flag nobody sets, and removes the
+    input validation at the HTTP boundary because the front end already
+    validates. Decide what is reused, what is deleted, and which removals are
+    never permitted regardless of how much code they save.
+13. A reviewer is asked to review a 300-line diff only for unnecessary
+    complexity, not correctness. The diff contains a hand-rolled email validator
+    class, a retry wrapper around an idempotent local call, a date library
+    imported for one formatting call, and a single assert-based self-check for
+    the new parsing logic. Produce the review in the loaded skills' format for a
+    complexity-only pass, decide which findings sit at or above the material
+    floor, and state whether the self-check is flagged.
+14. A deliberate simplification uses a quadratic scan over a list bounded at a
+    few hundred rows and a global lock instead of per-account locks. Decide how
+    each ceiling is recorded in code so it can be harvested later, what the
+    record must name, and what makes such a record rot.
