@@ -5,6 +5,9 @@
 > Decisions, marked and dated. Working memory lives in the campaign's LOOP.md State, not here;
 > floor waivers are dated Decisions below.
 
+Mission (only if declared): <`.mission/mission.yaml` id and relevant rubric ids>. This BRIEF
+governs surface quality and does not duplicate a mission's strategic success rubric.
+
 ## Bar
 
 <One sentence: what "shippable" means for this surface. The north-star "done.">
@@ -30,9 +33,12 @@ The minimum on each dimension, *with how it's measured*. The gate, not the ceili
 
 ## Oracle
 
-The independent verifier — what runs, who judges, and **why it can't be gamed** (maker ≠ judge).
+The independent verifier — what runs, who executes or judges, and **why it can't
+be gamed** (maker ≠ terminal judge). For an operable surface, name the exact
+artifact/environment, roles, representative tasks, evidence, severity floor, and
+task or time budget of its fresh-participant bug bash.
 
-- **Pre-ship:** <the harness/judge that runs the Floors before ship>
+- **Pre-ship:** <the harness, bug-bash participant, or specialized judge that runs the Floors before ship>
 - **Post-ship (live systems only):** <the telemetry/signals that confirm it stays good>
 
 ## Never — instant fail

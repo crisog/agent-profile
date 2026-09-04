@@ -1,6 +1,6 @@
 ---
 name: create-github-issue
-description: Create a GitHub issue from the current conversation context using the gh CLI. Use when the user wants to file a GitHub issue, track follow-up work discovered mid-task, or capture a problem before switching contexts.
+description: Use when the user wants to file a GitHub issue, track follow-up work discovered mid-task, or capture a problem before switching contexts — creates the issue from the current conversation context using the gh CLI.
 argument-hint: [optional extra context]
 disable-model-invocation: true
 ---

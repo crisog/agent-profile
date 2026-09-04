@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Conduct solution-oriented code reviews that evaluate whether changes represent the best approach to the problem, not just whether they work. Use when reviewing PRs, diffs, or code changes.
+description: Use when reviewing PRs, diffs, or code changes — conducts solution-oriented reviews that evaluate whether a change is the best approach to the problem, not just whether it works.
 ---
 
 # Code Review

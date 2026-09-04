@@ -33,7 +33,11 @@ If the request covers multiple independent changes, split it into separate plans
 
 ## Plan Format
 
-When a `LOOP.md` charter exists for the branch, the plan lives in its "Work plan" section, not a separate doc.
+When a `LOOP.md` exists for the branch, the plan is its `units` list, not a
+separate doc. Each unit names the SPEC requirements, BRIEF floors, or mission
+rubric ids it advances (`targets`). A unit that advances no target is omitted
+unless a SPEC invariant or safety requirement makes it necessary; cite that
+requirement in the unit.
 
 Otherwise, save the plan where the user asked. If they did not specify a location, use:
 
@@ -59,6 +63,7 @@ Then include:
 - Test: `path/to/test_file`
 
 ### Task N: <name>
+- Targets: `<REQ-ID | Floor | RUBRIC-ID>`
 - Outcome: <what is true when this task is done>
 - Reuse: <existing code and behavior it builds on>
 - Steps:
@@ -66,6 +71,7 @@ Then include:
   - Run the targeted check and confirm the expected failure
   - Implement the minimal change
   - Re-run targeted verification
+  - Apply the code-health law, refactor while green, and re-run the targeted check
   - Run broader regression checks if needed
 - Verification:
   - `exact command`
@@ -76,14 +82,25 @@ Then include:
 ## Planning Rules
 
 - Use exact file paths.
-- Prefer tasks that can be reviewed independently.
+- Prefer tasks that can be verified independently.
 - Encode test-first thinking when the task changes runtime behavior.
+- Start from a written QA design: map each material risk to the cheapest faithful
+  evidence instead of filling every test layer by habit.
+- When the existing structure fights the feature, put a behavior-preserving
+  prefactor unit first when it can be independently green. Keep the behavior
+  change in the following unit so either step is understandable and reversible.
 - Include commands that can actually be run from the repo.
 - Keep steps concrete: "add parser for X in `foo.ts`", not "improve parsing".
 - Keep unrelated refactors out unless they are required to make the change safe.
 - Give each task a risk class; the ADF law defines the high-risk set and its approval requirement.
 - Include a back-of-envelope resource sketch for data-plane work (per-request/per-item hot paths).
 - Plan the first working vertical slice before hardening or optimization; organize tasks around observable behavior, not technical layers.
+- For an operable surface, keep the bug-bash artifact, environment, task or time
+  budget, and severity floor explicit. High-risk ADF classes default to a
+  matching bounded specialist review unless the human records a PLAN waiver;
+  other classes add one only for a named risk that execution cannot decide. Put
+  selected review before the terminal bug bash and never invent an open-ended
+  review loop.
 
 ## Complexity Check
 

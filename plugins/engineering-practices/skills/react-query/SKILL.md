@@ -1,6 +1,6 @@
 ---
 name: react-query
-description: Opinionated React Query / TanStack Query best practices from TkDodo's series — the server-state mental model and staleTime, query keys & key factories, select transforms, data-first status checks, error handling, mutations, and TypeScript. Use when writing, reviewing, or architecting data fetching with React Query (useQuery, useMutation, QueryClient).
+description: Use when writing, reviewing, or architecting data fetching with React Query / TanStack Query (useQuery, useMutation, QueryClient) — opinionated practices from TkDodo's series covering the server-state mental model and staleTime, query keys and key factories, select transforms, data-first status checks, error handling, mutations, and TypeScript.
 ---
 
 # React Query Best Practices
