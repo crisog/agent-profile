@@ -79,7 +79,7 @@ wiki mirror, a list of absolutes, or a harness-specific procedure.
   (2026-09-03, ratified)
 - Minimal-construction and complexity-review mechanics live in `code-law` and
   `code-review`; no always-on injection, intensity mode, or third-party plugin
-  carries them. (2026-09-04, provisional)
+  carries them. (2026-09-04, ratified)
 
 ## Boundary — requires the human
 
