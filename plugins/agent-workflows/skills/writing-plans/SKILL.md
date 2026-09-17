@@ -27,7 +27,9 @@ Do not use this skill when:
 
 1. Read the relevant code, docs, and existing specs.
 2. Confirm the scope is one coherent unit of work.
-3. Stop and clarify if the plan would depend on guessed requirements.
+3. Investigate missing facts and existing decisions. Clarify only unresolved
+   requirements that materially change scope, acceptance, or a boundary;
+   reversible implementation choices remain the driver's.
 
 If the request covers multiple independent changes, split it into separate plans or clearly separated task groups.
 
@@ -39,9 +41,11 @@ rubric ids it advances (`targets`). A unit that advances no target is omitted
 unless a SPEC invariant or safety requirement makes it necessary; cite that
 requirement in the unit.
 
-Otherwise, save the plan where the user asked. If they did not specify a location, use:
-
-`docs/plans/YYYY-MM-DD-<topic>.md`
+Otherwise, use a concise session plan or the harness's plan mechanism for
+bounded attended work. Save a document only when the user requests one or
+cross-session recovery needs it; use the requested location, an existing
+handoff, or the branch's `LOOP.md`. Do not create a docs tree for ordinary
+work.
 
 Start with:
 
@@ -96,7 +100,8 @@ Then include:
 - Include commands that can actually be run from the repo.
 - Keep steps concrete: "add parser for X in `foo.ts`", not "improve parsing".
 - Keep unrelated refactors out unless they are required to make the change safe.
-- Give each task a risk class; the ADF law defines the high-risk set and its approval requirement.
+- Give each task a risk class; the ADF law defines the high-risk set and its
+  approval requirement. Existing approval is not requested again.
 - Include a back-of-envelope resource sketch for data-plane work (per-request/per-item hot paths).
 - Plan the first working vertical slice before hardening or optimization; organize tasks around observable behavior, not technical layers.
 - For an operable surface, keep the bug-bash artifact, environment, task or time
