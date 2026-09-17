@@ -117,6 +117,8 @@ the current body, then write. Closed issues and comments are never edited.
 
 - The board's auto-add workflow can race a manual `item-add`. Look the item up
   by content number before editing a field, or one of the two writes is lost.
+- `gh project item-edit NUMBER --owner OWNER --url ISSUE_URL --field Status
+  --value 'In Progress'` (2.97+) sets a board field by name, not by option id; one field per edit.
 - `--type` fails when the organization does not define that type. The first
   command block lists what exists.
 - A Milestone closes with open issues still in it. The board then shows those
