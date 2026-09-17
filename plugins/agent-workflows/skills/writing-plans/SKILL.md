@@ -84,7 +84,8 @@ Then include:
 - Use exact file paths.
 - One PR by default, against the base branch; prefer independent PRs over a
   stack (`ship-stack` names the one case a stack is right). When the work came
-  through `program-planning`, the plan covers exactly one accepted issue.
+  through `program-planning`, the plan covers exactly one accepted issue, or
+  one sub-issue of a ratified split.
 - Prefer tasks that can be verified independently.
 - Encode test-first thinking when the task changes runtime behavior.
 - Start from a written QA design: map each material risk to the cheapest faithful

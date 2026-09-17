@@ -24,9 +24,9 @@ wiki mirror, a list of absolutes, or a harness-specific procedure.
 
 ## Floors
 
-- Contract fidelity: A fresh-context task runner applies both fixed engineering
-  scenario suites and reports no material-or-higher finding on its declared
-  severity scale.
+- Contract fidelity: A fresh-context task runner applies the fixed engineering
+  scenario suites under `tests/` and reports no material-or-higher finding on
+  its declared severity scale.
 - Parsimony: The scenario runner's bounded consistency pass finds no rule in the
   loaded skills that merely restates another rule or teaches generic model
   capability without changing a named decision.

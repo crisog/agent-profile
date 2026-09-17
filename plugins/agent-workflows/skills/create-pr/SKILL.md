@@ -75,6 +75,7 @@ Run these first and read the output:
      - Use bullets only for distinct multi-part changes
      - Maximum 3 bullets, no nested bullets
      - No sections except optional `## Breaking Change`
+     - Prose follows `writing-technical-english`
    - Forbidden content:
      - sections like `## Problem`, `## Solution`, `## Changes`, `## Testing`, `## Impact`
      - changelog-style file-by-file summaries

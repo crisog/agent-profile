@@ -309,6 +309,14 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
 - REQ-PLAN-009 — **Verification:** `tests/program-planning-scenarios.md`
   receives a fresh-context run with no material-or-higher finding, and
   `npm run check` plus `./scripts/validate.sh` pass.
+- REQ-PLAN-010 — **GitHub mapping:** when the tracker is GitHub, the program
+  is one epic issue, each ratified milestone is one repository Milestone, each
+  accepted issue is an issue in that Milestone and a sub-issue of the epic, a
+  split is sub-issues of the accepted issue, a dependency is a native
+  blocked-by relationship, and the board derives progress from built-in
+  fields. Nothing is tracked twice, no object exists before its rung is
+  ratified, and every reported count is read back from the tracker.
+  `references/github.md` in the skill owns the commands.
 
 ### Invariants
 
@@ -322,8 +330,9 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
 
 ### Non-goals
 
-- A tracker-specific integration (board fields, project automation). The skill
-  names artifacts and approvals, not a vendor's API.
+- Tracker integration beyond the GitHub mapping: board automation,
+  custom-field schemes, and other trackers. The skill names artifacts and
+  approvals; the reference maps each to one native object.
 - Replacing `specout`, `planout`, or `create-github-issue`; the ladder hands
   each accepted issue to them.
 
@@ -350,6 +359,13 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
   approved. Evidence: the program's migration strategy was reversed seven weeks
   after ratification on a one-day question the original spike never asked,
   retiring a month of merged work. (2026-09-16, provisional)
+- GitHub is the planning tracker, mapped one native object per rung with
+  derived progress and the issue number as identity. Evidence: in the same
+  program, custom board fields cost a pass over every item at each replan and
+  a rename cleared one field on every item; a title tag scheme was mis-stamped
+  and went stale at the first reversal; tracking issues that duplicated
+  milestones drifted from the live plan. (2026-09-16, ratified by the user's
+  request)
 
 ### Acceptance
 
@@ -360,3 +376,6 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
    it.
 3. `tests/program-planning-scenarios.md` runs green in a fresh context.
 4. `npm run check` and `./scripts/validate.sh` pass after the final mutation.
+5. `references/github.md` maps every rung to one GitHub object with its
+   commands, and scenarios 13 through 16 in
+   `tests/program-planning-scenarios.md` run green in a fresh context.

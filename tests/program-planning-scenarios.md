@@ -4,7 +4,7 @@ Read root `AGENTS.md`, the `Program planning` section of root `SPEC.md`, and
 only these runtime skills:
 
 - `plugins/agent-workflows/skills/program-planning/SKILL.md` and its
-  `references/templates.md`
+  `references/templates.md` and `references/github.md`
 - `plugins/agent-workflows/skills/create-github-issue/SKILL.md`
 - `plugins/agent-workflows/skills/planout/SKILL.md`
 - `plugins/agent-workflows/skills/ship-stack/SKILL.md`
@@ -57,3 +57,19 @@ is material or critical.
 12. A small bug fix touches one file in one package and the human asks for it
     directly. Confirm that the planning ladder does not apply and name the
     passage that permits proceeding without a primer, PRD, or milestone.
+13. A ratified plan has one program, three milestones, and eleven accepted
+    issues for the first milestone, two of which consume a third issue's
+    output. The tracker is GitHub and the organization defines the issue
+    types Task, Bug, and Feature only. List the tracker objects that exist
+    after the go, in creation order, and say what each accepted issue's
+    read-back must show before the count is reported.
+14. A planner proposes, for GitHub, a tracking issue per milestone carrying
+    the same scope as the repository Milestone, bracket tags in every issue
+    title, and a board with custom single-select fields for phase, workstream,
+    and gate. Decide what is created and what is refused, with the reason.
+15. An accepted issue is picked up and the executor finds it needs three PRs.
+    Decide between a stack, sub-issues, and new issues; say who approves and
+    what the parent issue closes on.
+16. After a reversal, four open issues of a superseded milestone survive into
+    a new one and five do not. Order the tracker moves, say what the closing
+    comment carries, and name what is never edited.

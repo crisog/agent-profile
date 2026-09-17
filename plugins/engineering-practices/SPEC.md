@@ -87,6 +87,13 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   floor tied to the construction ladder, a line-count terminal, and no
   application of fixes; the minimal runnable check is never a finding.
 
+- **REQ-DOCTRINE-016 — Technical prose:** `writing-technical-english` governs
+  prose someone else acts on: one meaning per word, active voice, simple
+  tenses, one idea per sentence, bounded sentence length, no dropped subject
+  or article, at most one hedge, and the risk or command first. Precision
+  outranks brevity, quoted text and voice-led copy are out of scope, and the
+  repository's style rules and always-loaded instructions win on conflict.
+
 ## Invariants
 
 - `AGENTS.md` continues to own only unrecoverable or always-loaded law.
@@ -131,6 +138,14 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   upstream sync, and a drift that changes a decision is re-distilled, never
   copied. (2026-09-04, ratified)
 
+- `writing-technical-english` is distilled from the
+  `writing-simplified-technical-english` skill of PostHog's agent plugin at
+  version 1.1.63 (itself MIT, from danyuchn/asd-ste100-skill) rather than
+  installed alongside, because that copy carries PostHog's house style and
+  a reference file it does not ship, and the repository's prose law must win
+  on conflict. The distinct name lets both coexist on a host without two
+  behaviors under one name. (2026-09-16, ratified by the user's request)
+
 ## Acceptance criteria
 
 - [x] Fixed baseline scenarios reproduce every named guidance defect against the
@@ -152,6 +167,8 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
       are observed red against the prior skills and green after the revision,
       covering REQ-DOCTRINE-014 and REQ-DOCTRINE-015 with no material-or-higher
       finding in fresh context.
+- [ ] `tests/technical-writing-scenarios.md` covers REQ-DOCTRINE-016 with no
+      material-or-higher finding in fresh context.
 
 ## Test traceability
 
@@ -168,3 +185,5 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   fresh-context scenario oracle.
 - Ponytail provenance — `tests/provenance/ponytail.pin` and
   `scripts/check-provenance.sh` (network-bound, on demand; not a validate gate).
+- REQ-DOCTRINE-016 — `tests/technical-writing-scenarios.md`,
+  `./scripts/validate.sh`, and the fresh-context scenario oracle.
