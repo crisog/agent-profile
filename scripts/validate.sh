@@ -322,9 +322,11 @@ def tag_commit(tag):
     return git("rev-list", "-n", "1", f"{tag}^{{commit}}").strip()
 
 
-# Direction 1: every release commit reachable from HEAD names plugin/version
-# pairs in its subject, and each pair owes a tag pointing at that same commit.
-log = git("log", "--format=%H%x00%s", "HEAD")
+# Direction 1: every release commit on the first-parent line of HEAD names
+# plugin/version pairs in its subject, and each pair owes a tag pointing at
+# that same commit. Only the first-parent line is ours: merged-in upstream
+# history carries its own release commits under its own tag namespace.
+log = git("log", "--first-parent", "--format=%H%x00%s", "HEAD")
 for line in log.splitlines():
     if not line:
         continue
