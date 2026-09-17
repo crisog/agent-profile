@@ -42,7 +42,7 @@ Related improvements that are not part of this implementation.
 
 Plan the first working vertical slice before hardening or optimization. Organize tasks around observable behavior, not technical layers. A task without an approved requirement does not belong in the plan.
 
-Use one PR by default. Split only when the approved work contains independently shippable outcomes that genuinely need separate review or rollback.
+Use one PR by default, against the base branch. Split only when the approved work contains independently shippable outcomes that genuinely need separate review or rollback, and then prefer independent PRs over a stack; `ship-stack` names the one case a stack is right. When the work came through `program-planning`, the plan covers exactly one accepted issue.
 
 Do not pre-write implementation code in the plan unless an interface must be fixed for coordination.
 

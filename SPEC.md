@@ -259,3 +259,104 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
 3. Ordinary cleanup examples contain no implicit volume deletion or factory
    reset path.
 4. `npm run check` and `./scripts/validate.sh` pass after the final mutation.
+
+## Program planning
+
+### Requirements
+
+- REQ-PLAN-001 — **Ladder:** work larger than one pull request or one campaign
+  is planned as primer, PRD, milestones, issues, approval, build, and each rung
+  is approved by the human before the next is minted. The `program-planning`
+  skill owns the rungs and their templates.
+- REQ-PLAN-002 — **End state and assumptions:** the primer states the
+  properties every later decision must keep and lists each load-bearing
+  technical assumption as proven by a spike with a decision record or as
+  untested. A milestone that depends on an untested assumption is not approved
+  unless a dated decision record names the human and the accepted risk.
+- REQ-PLAN-003 — **Outcome milestones:** every milestone ends with an outcome a
+  user or operator can observe on the assembled surface, names its verifier and
+  the environment that can express its risk, and carries an estimate with its
+  assumptions and inventory. Environment promotion, audits, and rollout ladders
+  are steps inside a milestone, never milestones.
+- REQ-PLAN-004 — **Just-in-time, problem-first issues:** issues are minted for
+  an approved milestone only, state the problem, evidence, why it matters, and
+  observable acceptance, carry no implementation contract or copied constants,
+  and partition the files or packages they touch so accepted issues run in
+  parallel without collision.
+- REQ-PLAN-005 — **Independent PRs:** the default build shape is one PR per
+  accepted issue against the base branch. A stack is used only when one issue's
+  change must land as several reviewable steps of one atomic behavior change,
+  and it merges the same day it goes green. Parallel work is never linearized
+  into a stack afterwards; the pre-merge drive runs on a disposable integration
+  branch that is neither a review target nor a packet base.
+- REQ-PLAN-006 — **Approval before mutation:** the human sees the milestone
+  list and the first milestone's issue list, accepts or skips each issue, and
+  gives the go before more than a few tracker items are created or edited.
+  Skipped issues close the same day with the reason.
+- REQ-PLAN-007 — **Reversal and adoption protocol:** when a load-bearing
+  decision reverses, or when the ladder is adopted over an existing plan, the
+  driver writes a dated decision record with its approvals, freezes the
+  superseded plan in a collapsed block, re-derives the milestones, re-reads
+  every open issue, epic, and milestone description against the tree, adopts
+  survivors into an approved milestone with corrected bodies, and closes the
+  rest on the day of the go, without rewriting closed issues or comments.
+- REQ-PLAN-008 — **Gates that run:** a milestone relies on a check only after
+  confirming it executes on the artifact it claims to cover; a named unproven
+  seam blocks promotion rather than appearing as a stated risk, and the block
+  lifts only through a dated decision record naming the human, the accepted
+  risk, and alternative evidence executed on the artifact the seam covers with
+  its output cited.
+- REQ-PLAN-009 — **Verification:** `tests/program-planning-scenarios.md`
+  receives a fresh-context run with no material-or-higher finding, and
+  `npm run check` plus `./scripts/validate.sh` pass.
+
+### Invariants
+
+- The ladder never applies to a change the human asks for directly that fits
+  one pull request; the skill's trigger excludes it.
+- Primers and PRDs are shared context, not law; durable decisions live in the
+  nearest `SPEC.md` Decisions, and plan documents remain uncommitted where the
+  repository says so.
+- No always-loaded law is added for planning; the skill carries the mechanics
+  and points at the existing ADF gates.
+
+### Non-goals
+
+- A tracker-specific integration (board fields, project automation). The skill
+  names artifacts and approvals, not a vendor's API.
+- Replacing `specout`, `planout`, or `create-github-issue`; the ladder hands
+  each accepted issue to them.
+
+### Decisions
+
+- The planning ladder is primer, PRD, milestones, issues, approval, build, with
+  human approval between rungs, per the operator's request on 2026-09-16 after
+  a retrospective over an eight-week platform migration program. (2026-09-16,
+  ratified by the user's request)
+- Independent PRs per issue are the default build shape; stacks are the named
+  exception. Evidence: in the same program, stacked PRs merged an order of
+  magnitude slower than PRs cut from the base, every lower-layer fix cascaded
+  a rebase and a paid re-review, and unrelated base changes reddened whole
+  stacks. (2026-09-16, provisional)
+- Milestones are user outcomes, not environment stages. Evidence: most of the
+  program's phases closed with zero users on the new path, and the first real
+  user run found several blocking defects only after the milestone's PRs had
+  merged. (2026-09-16, provisional)
+- Issues carry no implementation contract. Evidence: the cohort of issues
+  written with locked contracts needed several times the body edits of every
+  other cohort, and every contract line naming a mechanism was overturned
+  within days. (2026-09-16, provisional)
+- Load-bearing assumptions get a spike before the dependent milestone is
+  approved. Evidence: the program's migration strategy was reversed seven weeks
+  after ratification on a one-day question the original spike never asked,
+  retiring a month of merged work. (2026-09-16, provisional)
+
+### Acceptance
+
+1. `plugins/agent-workflows/skills/program-planning/SKILL.md` validates and its
+   templates cover primer, PRD, milestone, issue, and the approval checklist.
+2. `ship-stack`, `planout`, `create-github-issue`, and `writing-plans` point at
+   the ladder where they touch PR topology or issue minting, without restating
+   it.
+3. `tests/program-planning-scenarios.md` runs green in a fresh context.
+4. `npm run check` and `./scripts/validate.sh` pass after the final mutation.
