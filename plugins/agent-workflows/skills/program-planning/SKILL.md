@@ -19,6 +19,8 @@ BUILD       one PR per issue against the base branch; specout and planout per is
 ```
 
 Templates for each rung are in [references/templates.md](references/templates.md).
+When the tracker is GitHub, [references/github.md](references/github.md) maps each
+rung to one native object and lists the commands in ladder order.
 A change the human asks for directly that fits one pull request skips the
 ladder entirely; the ladder governs programs, not fixes.
 
@@ -120,7 +122,8 @@ ladder entirely; the ladder governs programs, not fixes.
   them unposted, fact-check every claim in them against the tree, restate the
   plan, and wait for the go. Decide the identity scheme, the hierarchy, and the
   board layout before the first item exists; relabeling after creation costs a
-  pass over every item.
+  pass over every item. The GitHub mapping in the reference is the default
+  scheme; a variant is ratified with the milestone list.
 - After a reversal, and when adopting the ladder over an existing plan: write a
   dated decision record with its approvals, freeze the superseded plan in a
   collapsed block, re-derive the milestones, re-read every
@@ -143,17 +146,20 @@ ladder entirely; the ladder governs programs, not fixes.
   review target and never a packet base. The milestone's driver owns the drive;
   a fix lands in the PR that owns the file it touches.
 - The executor packet carries the milestone's simplicity bar, the house style
-  for comments, PR bodies, and issue tone, and the verifier. Taste stated in
+  for comments, PR bodies, and issue tone (`writing-technical-english` where
+  the repository states none), and the verifier. Taste stated in
   review is the expensive path; state it in the packet.
 - A named unproven seam blocks promotion. An open issue that says the seam is
   unproven is not a risk row on a promotion; it is the gate. The block lifts
   only through a dated decision record naming the human, the accepted risk, and
   alternative evidence that was executed on the artifact the seam covers, with
   its output cited in the record.
-- An unrequested deliverable that touches an authorization, safety, or
-  emergency path is removed before review and re-enters only as its own
-  problem-first issue under the high-risk gate.
-- A human drives the assembled surface once before the milestone's PRs merge.
+- An unrequested deliverable already built is held out of the PR until the
+  human answers; one that touches an authorization, safety, or emergency path
+  is removed before review and re-enters only as its own problem-first issue
+  under the high-risk gate.
+- A human drives the assembled integration branch once before the milestone's
+  PRs merge, in addition to each issue's bug bash.
 
 ## Red flags
 
@@ -167,12 +173,15 @@ ladder entirely; the ladder governs programs, not fixes.
 - A gate the plan names that runs on nothing (no CI on drafts, a matrix that
   reports skipped, a nightly suite red for weeks, a freeze on a moving branch).
 - A deliverable nobody approved.
+- Two tracker objects for one rung, or a board field that mirrors what the
+  tracker derives.
 
 ## Handoff
 
 Per accepted issue: `specout` when the outcome needs clarification, then
 `planout`, then build, then `bugbash` on the assembled surface. Issue filing
-mechanics live in `create-github-issue`; durable requirements and decisions in
-`spec-best-practices`; the stack exception in `ship-stack`. `specout` and
-`create-github-issue` are user-invoked; a driver filing without them applies
-the issue law in the Issues rung directly.
+mechanics live in `create-github-issue`, the GitHub object mapping in
+`references/github.md`, and flag detail in the `gh` skill; durable
+requirements and decisions in `spec-best-practices`; the stack exception in
+`ship-stack`. `specout` and `create-github-issue` are user-invoked; a driver
+filing without them applies the issue law in the Issues rung directly.

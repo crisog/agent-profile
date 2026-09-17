@@ -70,7 +70,8 @@ signals that prove it.
 
 Outcome: what is true on the assembled surface when this milestone closes.
 Verifier: what runs, where, and the environment that can express the risk.
-Estimate: <days> assuming <assumptions>; inventory: <link to the inventory>.
+Estimate: <days> assuming <assumptions>; inventory: <link>, the list of
+surfaces, files, and external waits counted to produce the estimate.
 External waits: <step>, <expected wait>, <owner>, or "none".
 Gate: one gate, with its evidence, or "none".
 Issues: minted when this milestone is approved.

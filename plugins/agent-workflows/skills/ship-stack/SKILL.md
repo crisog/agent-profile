@@ -33,7 +33,7 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 3. **Ultra-review gate** — `rl:ultra-review` on the finished branch, from a detached worktree at the branch tip with the stack parent as the range base (satisfies the HEAD guard and sidesteps dirty-tree WIP). Retry once on an environmental failure (dead coordinator, detector shard error); a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
 4. **Draft PR** — final-state narrative body per the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
 5. **Score gate** — comment `@greptileai review`; poll the score comment (it edits in place). Repeat fix → reply → resolve → re-trigger until it shows the target score for the branch head. Real findings get a fix commit + a reply citing the SHA; false positives get an evidence reply. Resolve each thread either way.
-6. **CI** — investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.
+6. **CI** — confirm the checks execute on a draft in this repository before treating CI as a gate; where they do not, run them on the branch tip and cite the output. Investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.
 
 ## Findings triage (both gates)
 

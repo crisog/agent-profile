@@ -18,6 +18,7 @@ An issue states a problem. It never prescribes an implementation.
 - No implementation contract, no locked mechanism, no numeric constants copied from a plan. Acceptance is observable behavior an operator can produce. The implementation plan is a comment written when the issue is picked up.
 - An issue belongs to an approved milestone. Minting issues for milestones that are not yet approved is `program-planning`'s red flag, not filing.
 - No references to anything outside the repository's own organization: no other companies, no cross-company links.
+- The body's prose follows `writing-technical-english`: one verb per action, active voice, one idea per sentence.
 - Draft the full issue text and show it to the user before publishing. Never publish an issue the user has not seen.
 
 ## Steps

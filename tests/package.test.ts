@@ -70,6 +70,11 @@ describe("public skill catalog", () => {
       marker: "Interview, complete, or find gaps in a `SPEC.md`",
       reference: "references/interview.md",
     },
+    {
+      skill: "plugins/agent-workflows/skills/program-planning/SKILL.md",
+      marker: "When the tracker is GitHub",
+      reference: "references/github.md",
+    },
   ])("routes $marker only to $reference", ({ skill, marker, reference }) => {
     expect(referencesOnLine(resolve(ROOT, skill), marker)).toEqual([reference]);
   });
@@ -91,6 +96,10 @@ describe("public skill catalog", () => {
       [
         "plugins/engineering-practices/skills/spec-best-practices/SKILL.md",
         "Interview, complete, or find gaps in a `SPEC.md`",
+      ],
+      [
+        "plugins/agent-workflows/skills/program-planning/SKILL.md",
+        "When the tracker is GitHub",
       ],
     ] as const;
 
