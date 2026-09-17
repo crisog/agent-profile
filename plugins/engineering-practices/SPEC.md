@@ -164,14 +164,14 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
 
 - Assertions are never compiled out for production; what varies per system
   is the crash boundary, and the precondition for any boundary smaller than
-  the process is state isolation. (2026-09-10, provisional — from the
+  the process is state isolation. (2026-09-10, ratified 2026-09-17; from the
   eng-wiki TigerStyle/matklad ingest)
 - Checkers for craft rules come from the toolchain's rule engine and
   configuration, never from hand-written scripts; a rule the toolchain cannot
   check is applied at review. Bespoke craft-rule scripts became change
   detectors and token sinks in practice. The repository's own harness gates and
   the Ponytail provenance diff check repository contracts rather than craft
-  rules, so they are outside this decision. (2026-09-10, provisional)
+  rules, so they are outside this decision. (2026-09-10, ratified 2026-09-17)
 
 ## Acceptance criteria
 
@@ -194,7 +194,7 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
       are observed red against the prior skills and green after the revision,
       covering REQ-DOCTRINE-014 and REQ-DOCTRINE-015 with no material-or-higher
       finding in fresh context.
-- [ ] `tests/technical-writing-scenarios.md` covers REQ-DOCTRINE-016 with no
+- [x] `tests/technical-writing-scenarios.md` covers REQ-DOCTRINE-016 with no
       material-or-higher finding in fresh context.
 - [x] Scenarios 15 and 16 in `tests/engineering-practices-scenarios.md` cover
       REQ-DOCTRINE-017 through REQ-DOCTRINE-019 with no material-or-higher

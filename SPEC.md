@@ -349,19 +349,19 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
   exception. Evidence: in the same program, stacked PRs merged an order of
   magnitude slower than PRs cut from the base, every lower-layer fix cascaded
   a rebase and a paid re-review, and unrelated base changes reddened whole
-  stacks. (2026-09-16, provisional)
+  stacks. (2026-09-16, ratified 2026-09-17)
 - Milestones are user outcomes, not environment stages. Evidence: most of the
   program's phases closed with zero users on the new path, and the first real
   user run found several blocking defects only after the milestone's PRs had
-  merged. (2026-09-16, provisional)
+  merged. (2026-09-16, ratified 2026-09-17)
 - Issues carry no implementation contract. Evidence: the cohort of issues
   written with locked contracts needed several times the body edits of every
   other cohort, and every contract line naming a mechanism was overturned
-  within days. (2026-09-16, provisional)
+  within days. (2026-09-16, ratified 2026-09-17)
 - Load-bearing assumptions get a spike before the dependent milestone is
   approved. Evidence: the program's migration strategy was reversed seven weeks
   after ratification on a one-day question the original spike never asked,
-  retiring a month of merged work. (2026-09-16, provisional)
+  retiring a month of merged work. (2026-09-16, ratified 2026-09-17)
 - GitHub is the planning tracker, mapped one native object per rung with
   derived progress and the issue number as identity. Evidence: in the same
   program, custom board fields cost a pass over every item at each replan and
