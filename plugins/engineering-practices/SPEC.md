@@ -93,6 +93,22 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   or article, at most one hedge, and the risk or command first. Precision
   outranks brevity, quoted text and voice-led copy are out of scope, and the
   repository's style rules and always-loaded instructions win on conflict.
+- **REQ-DOCTRINE-017 — Human reader:** `code-law` names the reader as a human
+  maintainer without the authoring conversation, sets the bar at prose-like
+  readability with reviewer struggle as a code defect, and forbids task,
+  conversation, history, or reasoning artifacts in names, comments, or
+  structure.
+- **REQ-DOCTRINE-018 — Bounds and assertions:** `code-law` requires a named
+  bound on every input decided at design time, capacities derived from those
+  bounds with exceedance handled as an operating error, assertions that stay
+  on in production with the crash boundary at the smallest restartable unit
+  sharing no mutable state, and branches that account for their complement.
+- **REQ-DOCTRINE-019 — Checker placement:** checkable craft rules are enforced
+  through the toolchain's own configuration or custom-rule engine; rules with
+  no such checker are review-list items and recurring review comments are
+  uplifted into the project style document; bespoke craft-rule checker scripts
+  are not introduced, while the repository's own harness gates and provenance
+  diffs remain legitimate.
 
 ## Invariants
 
@@ -146,6 +162,17 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   on conflict. The distinct name lets both coexist on a host without two
   behaviors under one name. (2026-09-16, ratified by the user's request)
 
+- Assertions are never compiled out for production; what varies per system
+  is the crash boundary, and the precondition for any boundary smaller than
+  the process is state isolation. (2026-09-10, provisional — from the
+  eng-wiki TigerStyle/matklad ingest)
+- Checkers for craft rules come from the toolchain's rule engine and
+  configuration, never from hand-written scripts; a rule the toolchain cannot
+  check is applied at review. Bespoke craft-rule scripts became change
+  detectors and token sinks in practice. The repository's own harness gates and
+  the Ponytail provenance diff check repository contracts rather than craft
+  rules, so they are outside this decision. (2026-09-10, provisional)
+
 ## Acceptance criteria
 
 - [x] Fixed baseline scenarios reproduce every named guidance defect against the
@@ -169,6 +196,9 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
       finding in fresh context.
 - [ ] `tests/technical-writing-scenarios.md` covers REQ-DOCTRINE-016 with no
       material-or-higher finding in fresh context.
+- [x] Scenarios 15 and 16 in `tests/engineering-practices-scenarios.md` cover
+      REQ-DOCTRINE-017 through REQ-DOCTRINE-019 with no material-or-higher
+      finding in fresh context.
 
 ## Test traceability
 
@@ -187,3 +217,6 @@ rules while naming the tradeoffs and exceptions that change an agent's decision.
   `scripts/check-provenance.sh` (network-bound, on demand; not a validate gate).
 - REQ-DOCTRINE-016 — `tests/technical-writing-scenarios.md`,
   `./scripts/validate.sh`, and the fresh-context scenario oracle.
+- REQ-DOCTRINE-017 through REQ-DOCTRINE-019 — scenarios 15 and 16 in
+  `tests/engineering-practices-scenarios.md`, `./scripts/validate.sh`, and the
+  fresh-context scenario oracle.

@@ -82,3 +82,18 @@ material or critical.
     few hundred rows and a global lock instead of per-account locks. Decide how
     each ceiling is recorded in code so it can be harvested later, what the
     record must name, and what makes such a record rot.
+15. A long-running service reads variable-length messages into a growable
+    buffer, holds them in an unbounded queue, and retries a downstream call
+    with no cap. A reviewer proposes a 30-line script that fails CI when a
+    function has fewer than two assertions, while the linter already supports
+    function-length and complexity rules. Separately, a request handler
+    catches a panic and returns 500 while the handler shares a mutable cache
+    with other requests, and a guard clause returns early with nothing
+    handling or asserting the other case. Decide the bounds, where each check
+    lives, whether the panic catch is recovery or corruption, and what the
+    guard clause needs.
+16. Generated code names a function `handleNewRequestV2`, comments
+    `// added per the request to also cover empty lists`, collapses three
+    decisions into one nested ternary, and a reviewer reports needing a
+    minute to follow a ten-line function. Decide what is a defect, who the
+    code is written for, and what the minimum rewrite is.
