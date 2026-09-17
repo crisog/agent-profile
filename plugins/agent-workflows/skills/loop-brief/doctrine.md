@@ -24,11 +24,10 @@ archive.
 - Run it before asserting it: commands, endpoints, and fixes are presented
   with executed output; behavior is test-driven before being codified into
   docs or skills.
-- Claims carry sources: causal explanations and external facts (versions,
-  vendor behavior) cite docs, a live check, or an experiment — pretrained
-  memory is not a source.
-- "Running" means observed running: report an async process as live only
-  after observing it at claim time (job state, pid liveness, log growth).
+- Campaign control artifacts never merge into a shared branch — any branch
+  others build on, not only the default one. `LOOP.md` and
+  `.mission/mission.yaml` leave the tracked tree before the merge; a loop on
+  a shared branch is a campaign every later session tries to resume.
 - Re-read live state before reporting, not only before mutating — the
   world moves between turns.
 - Verify exhaustion before terminating on it: a budget or quota block
@@ -39,21 +38,17 @@ archive.
   different question and fails closed.
 - Use the designated tool, script, or skill for its domain; when it
   resists, debug the usage — never silently fall back to raw commands.
-  Bypasses such as `--no-verify` are never a shortcut.
 - Edit the generating source, never the rendered output; hand-edited
   generated artifacts are defects even when the diff looks right.
 - Labeling a step human-attended requires citing the instruction that
   makes it so; locally-verifiable steps belong to the loop.
-- An empty or erroring query is never evidence of absence: enumerate the
-  namespace and validate the query shape against a known-present item
-  before concluding "not found."
 
 ## Standing orders
 
 - Independent required executor genuinely unavailable → interior work
   continues on deterministic floors up to the experiential gate; that gate is
-  a clean stop plus handoff. Do not re-dispatch per iteration against a dead
-  broker or substitute generative critique for product use.
+  a clean stop plus handoff. Do not re-dispatch against an established outage
+  or substitute generative critique for product use.
 - Defect escaped a gate → root-cause twice: the bug, and the instruction,
   check, or harness that should have caught it; propose the amendment that
   closes the gap.
@@ -106,9 +101,10 @@ archive.
   invariant or safety requires it; useful adjacency is a future campaign, not
   silent scope growth.
 - Campaign reaches a terminal → `missionctl close`: route durable decisions
-  to SPEC/BRIEF, cite evidence on any linked mission rubric items, delete the
-  loop; never merge a later attempt into the same `LOOP.md`. Compact at
-  milestones so the loop stays a bounded working set, never a journal.
+  to SPEC/BRIEF, cite evidence on any linked mission rubric items, file each
+  unfinished unit as a tracker issue, delete the loop; never merge a later
+  attempt into the same `LOOP.md`. Compact at milestones so the loop stays a
+  bounded working set, never a journal.
 - Bug-bash capacity varies by repository and surface → declare its task or time
   budget and severity floor in the campaign contract; never replace it with a
   global issue count or an open-ended "until approval" loop.
@@ -117,7 +113,9 @@ archive.
 - Secret provisioning → scaffold the full structure (items, references,
   wiring); the human injects only the secret material.
 - Agreed plan about to execute → restate the scope as a self-contained
-  achievable goal first; attended, the restatement awaits the go.
+  achievable goal first. The restatement declares what the iteration runs
+  against; it is not a request for a second go-ahead, and existing
+  authorization carries through it.
 - Campaign shipped, or a docs cleanup called → dissolve narrative,
   planning, and loop docs: migrate anything important, necessary, or
   authoritative into the standing docs (VISION, BRIEF, SPEC, README),
@@ -131,6 +129,6 @@ archive.
 - Stateless derivation from the source of truth over local state plus
   cleanup machinery; exhaust the upstream API before caching.
 - Faithful evidence over ceremony: produce verification evidence where the
-  tools are; the bar is a fair look for the judge, not process theater.
+  tools run; file ceremony earns no confidence.
 - Deliverables unify into one narrative answering the stated question;
   reference issues and PRs as links, not bare identifiers.

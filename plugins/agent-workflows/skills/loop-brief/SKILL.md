@@ -1,6 +1,6 @@
 ---
 name: loop-brief
-description: Use when a feature branch or campaign needs an autonomous multi-session loop — the user asks for a LOOP.md or a self-driving plan to finish a branch, says they are stepping away with work in flight, or a session must run or resume a campaign that has a LOOP.md (legacy path .claude/loop.md).
+description: Use when a feature branch or campaign needs an autonomous multi-session loop — the user asks for a LOOP.md or a self-driving plan to finish a branch, says they are stepping away with multi-session work in flight, or a session must run or resume a campaign that has a LOOP.md (legacy path .claude/loop.md).
 ---
 
 # Loop Brief
@@ -27,14 +27,21 @@ Harness-agnostic by design: any driver that can read the repo can run an
 iteration — an interval scheduler, a cron'd headless run, a detached
 worker, or a human-started session told to continue the campaign.
 
-- `LOOP.md` absent → author one (below), restate its objective and targets
-  for confirmation if the user is present, then run iteration 1.
+- `LOOP.md` absent → author one (below) only when the work is unattended
+  and multi-session or needs cross-session recovery; a bounded task finishes
+  on its session plan and a handoff. Restate the loop's objective and
+  targets for confirmation if the user is present, then run iteration 1.
 - `LOOP.md` present → `missionctl check`, then run one iteration per the
   protocol. An invalid loop is repaired before work continues; never work
   around a validation error by ignoring it.
 - `missionctl inspect` reports `legacy-untyped` or `legacy-mission-control`
   → `missionctl adopt --write`, review the draft, then proceed. Legacy loops
   are adopted deliberately, never treated as comparable.
+- Driven by a recurring scheduler → a terminal state ends the schedule; a
+  later tick that finds no `LOOP.md` after `close` stops instead of
+  authoring a new campaign. A tick that finds the campaign already closed
+  never starts another attempt from the old seed; a fresh attempt needs its
+  own agreement and loop.
 
 ## Authoring
 
@@ -69,8 +76,9 @@ next, and the terminal bug bash on the resulting artifact last.
 5. Write back: unit states, `iteration`, `phase`, `updated_at`, provisional
    decisions, blockers, and State notes (facts learned, walls hit or
    cleared, evidence pointers, commit SHAs). `missionctl check`, then commit
-   the loop with the work. An iteration that learned something but wrote
-   nothing back wasted it.
+   the loop with the work. A signing prompt is a boundary, not permission to
+   bypass signing. An iteration that learned something but wrote nothing back
+   wasted it.
 6. At a milestone — a unit done, decisions accumulating, the body growing —
    `missionctl compact prepare` → dispositions → `validate` → `apply`
    (mission-command skill). Context stays bounded because the loop does.
@@ -102,28 +110,43 @@ next, and the terminal bug bash on the resulting artifact last.
 ## Terminal states
 
 - `done` — every gate `green`, the targeted floors have admissible evidence,
-  and any required bug-bash gate is `green` against the current artifact. Stop
-  the loop and write the handoff for the human's boundary
-  steps. Once the boundary clears, `missionctl close` routes durable
-  decisions to SPEC/BRIEF, marks linked mission rubric items with evidence,
-  and deletes the loop — a closed campaign's loop left on the branch is a
-  defect (doctrine standing order). Campaign done never implies mission
-  achieved.
+  and any required bug-bash gate is `green` against the current artifact.
+  `missionctl close` then routes durable decisions to SPEC/BRIEF, marks
+  linked mission rubric items with evidence, and deletes the loop; each
+  unfinished unit is filed as a tracker issue. Close lands before the branch
+  merges — the handoff for the human's boundary steps carries what the loop
+  held, and a loop that reaches a shared branch is a defect (doctrine law).
+  Campaign done never implies mission achieved.
 - `blocked` — the numbered blocker batch with proposed answers. The human's
   answers land as `ratified` decisions; the loop resumes.
 - `budget-exhausted` — `iteration` reached `iteration_budget`, or — earlier
   — three consecutive iterations moved no unit or gate (structural
   non-convergence): stop honestly with what was tried and why it cannot
-  converge. Raising the budget is the human's.
+  converge. A declared budget is checked against its authoritative counter,
+  never inferred from latency or model intuition. Raising the budget is the
+  human's.
 - `superseded` — a named replacement campaign takes over; close this loop
   with its evidence dispositions and start the replacement fresh.
+
+Every terminal shares one write-back, whichever state it is. Settle the loop
+(`close` for `done` and `superseded`; write back and commit for `blocked` and
+`budget-exhausted`, which resume after the human acts). Clean up what the
+campaign started — processes, fixtures, containers, worktrees, untracked
+scratch files — so nothing outlives it that the next session did not ask
+for. Save non-obvious findings to persistent memory, when the harness has
+one. Then report a sitrep (sitrep skill): attended, the reply is the report;
+unattended, it also lands in `~/.handoffs/` so it outlives the session. A
+required write-back that cannot run is reported as that limitation with its
+recovery path, never laundered into a clean terminal.
 
 ## Red flags
 
 - Narrative accumulating in the body instead of being compacted; decisions
   restated in prose instead of the `decisions` list.
 - State stale while work advanced — the loop is part of the product.
-- Gate `state` asserted without the gate having run this iteration.
+- Gate `state` asserted without evidence bound to the current identity
+  (revision and dirty state, artifact, environment, task); a matching
+  earlier run is evidence, and unchanged identity needs no rerun.
 - A consult treated as approval authority, or run before investigating.
 - A mid-loop interactive question (attended: answer it, then it goes into
   decisions; unattended: a ladder defect).
