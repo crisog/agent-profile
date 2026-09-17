@@ -137,6 +137,10 @@ than diluting the sample.
   skill load before the action, only after a miss, or not at all? Report the
   denominator of applicable actions, not just sessions containing the skill
   name.
+- **Context and process cost** — compare unnecessary questions, repeated skill
+  reads, unnecessary campaign documents, and reruns on unchanged evidence.
+  Report counts alongside missed gates and boundary errors; smaller prompts or
+  fewer calls alone do not establish an improvement.
 
 ## Red Flags
 
