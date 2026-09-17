@@ -65,18 +65,20 @@ prepare again after any edit.
 ## Close at a terminal
 
 A loop closes only from `done` (every gate green), `budget-exhausted`, or
-`superseded`. `close prepare` lists every unit not done (`complete` | `drop`),
-every decision (`route:spec` | `route:brief` | `drop`), every blocker, every
-body section (`drop` | `migrated`), and — when a mission is linked — each
-targeted rubric item (`met` with evidence, `open`, `waived` with reason).
+`superseded`. `close prepare` lists every unit not done (`complete` | `drop`;
+a dropped unit is filed as a tracker issue first), every decision
+(`route:spec` | `route:brief` | `drop`), every blocker, every body section
+(`drop` | `migrated`), and — when a mission is linked — each targeted
+rubric item (`met` with evidence, `open`, `waived` with reason).
 `close apply` routes, updates the mission, and deletes `LOOP.md`. Git is the
 archive: no copy, no ledger, no sidecar. A later attempt starts a fresh loop.
 
 ## Declare a mission only when earned
 
-Create `.mission/mission.yaml` when the outcome is multi-campaign, unattended
-multi-phase, or cross-repository. Its rubric items are the enduring floors
-campaigns advance through `targets.mission`; their `status` moves through
+Create `.mission/mission.yaml` when the outcome spans campaigns or
+repositories. Unattended or multi-phase work alone does not require one. Its
+rubric items are the enduring floors campaigns advance through
+`targets.mission`; their `status` moves through
 `close` dispositions, and `evidence` is a reference into the native verifier,
 CI, review, or release system — never a narrative. A cross-repository loop
 links by `mission.source` (repository, ref, path), resolved from a sibling
@@ -88,4 +90,7 @@ mission.
 
 Publishing, tracked-ref merges, release tags, live secrets, biometrics, and
 genuine unknowns remain human actions. Local validation, projection,
-compaction, closure, and adoption remain interior work.
+compaction, closure, and adoption remain interior work. A closure that needs a
+tracker issue honors existing posting authorization; without it, prepare the
+issue content and report pending closure rather than posting or dropping the
+unit silently.
