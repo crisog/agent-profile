@@ -21,7 +21,13 @@ def main() -> int:
         skills = sorted(skill_root.glob("*/SKILL.md"))
         if not skills:
             errors.append(f"empty skill catalog: {skill_root.relative_to(ROOT)}")
-        runtime_docs.extend(sorted(skill_root.rglob("*.md")))
+        runtime_docs.extend(
+            sorted(
+                path
+                for path in skill_root.rglob("*.md")
+                if "node_modules" not in path.parts
+            )
+        )
 
     for path in runtime_docs:
         text = path.read_text(encoding="utf-8")
