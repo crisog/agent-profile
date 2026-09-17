@@ -14,7 +14,9 @@ File the problem found in the current session as a GitHub issue.
 An issue states a problem. It never prescribes an implementation.
 
 - Problem-first: what is wrong, who it hurts, and the evidence that it is real.
-- A solution may appear as a single hinted line at most. A plan, a task list, a file-by-file breakdown, or a code sketch belongs in the PR, not the issue.
+- A solution may appear as a single hinted line at most. A plan, a task list, a file-by-file breakdown, or a code sketch belongs in the PR, not the issue. An issue minted for a `program-planning` milestone takes that skill's stricter rule: no mechanism at all.
+- No implementation contract, no locked mechanism, no numeric constants copied from a plan. Acceptance is observable behavior an operator can produce. The implementation plan is a comment written when the issue is picked up.
+- An issue belongs to an approved milestone. Minting issues for milestones that are not yet approved is `program-planning`'s red flag, not filing.
 - No references to anything outside the repository's own organization: no other companies, no cross-company links.
 - Draft the full issue text and show it to the user before publishing. Never publish an issue the user has not seen.
 
@@ -42,12 +44,20 @@ An issue states a problem. It never prescribes an implementation.
    ```markdown
    ## Problem
 
-   What is wrong, for whom, and the evidence. Name the observed behavior and
-   how it was seen.
+   What is wrong, for whom, and how it was seen.
+
+   ## Evidence
+
+   Dated, with links, counts, or file paths.
 
    ## Why it matters
 
    The cost of leaving it: who is blocked, what breaks, what it risks.
+
+   ## Acceptance
+
+   Observable behavior an operator can produce, one line each. The issue
+   closes on a prose evidence comment mapping each line to its proof.
 
    ## Related
 

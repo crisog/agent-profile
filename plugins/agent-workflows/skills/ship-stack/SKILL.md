@@ -8,6 +8,14 @@ argument-hint: "[spec path] [base branch, default: the repo's default branch]"
 
 Ship the PR stack defined in the spec: $ARGUMENTS
 
+A stack is the exception, not the default shape. The default for work that
+came through `program-planning` is one independent PR per accepted issue
+against the base branch. Use this skill only when one change must land as
+several reviewable steps of one atomic behavior change, and plan to merge the
+whole stack the same day it goes green: a stack held open pays a rebase and a
+review round for every unrelated change on the base. Work fanned out to
+parallel executors is never linearized into a stack afterwards.
+
 The spec's own PR sections define the count and scope — one branch and one PR per section, in the spec's order. If no spec is given, use the one produced in this session; if there is none, stop and report that an approved spec is required (`agent-workflows:specout` produces one).
 
 ## Fixed decisions (do not re-ask)

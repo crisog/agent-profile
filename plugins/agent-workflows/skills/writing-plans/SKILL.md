@@ -82,6 +82,9 @@ Then include:
 ## Planning Rules
 
 - Use exact file paths.
+- One PR by default, against the base branch; prefer independent PRs over a
+  stack (`ship-stack` names the one case a stack is right). When the work came
+  through `program-planning`, the plan covers exactly one accepted issue.
 - Prefer tasks that can be verified independently.
 - Encode test-first thinking when the task changes runtime behavior.
 - Start from a written QA design: map each material risk to the cheapest faithful
@@ -124,6 +127,7 @@ delegation stream (rules of engagement).
 
 - Plans that rely on tool names from another harness
 - Tasks that touch the same files from multiple parallel workers
+- Parallel workers whose packets base on each other's branches (sequencing dressed as parallelism)
 - Missing verification steps
 - Hidden migrations, schema changes, or contract changes buried in generic wording
 - Placeholder language like "update as needed" or "handle edge cases"

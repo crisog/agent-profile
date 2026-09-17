@@ -90,6 +90,12 @@ archive.
 - About to invent a component the spec does not name → stop and re-derive
   from the spec with the human; new apps, services, and abstractions are
   scope changes, not implementation details.
+- About to lock a plan, a contract, or a constant on an assumption nobody has
+  tested → a spike whose exit is a decision record comes first; a lock cites a
+  closed decision or a measurement, never a placeholder from an open ticket.
+- A size or time estimate is about to reach a human → the inventory that
+  produced it exists and travels with it; a number without its assumptions is
+  a promise nobody sized.
 - Toolchain broken by an environment update → cheapest reversible fix on
   stable versions (patch or downgrade, 30-second option first); never bump
   to unstable dev versions; save the repair as an idempotent script.
