@@ -125,9 +125,9 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
 - 2026-08-29 — The stack diagram lists MISSION last as optional rather than removing it, so cross-campaign outcomes keep a named home. **provisional (driver)**
 - 2026-08-30 — Keep afk public and make no archival or renaming changes in this campaign. **ratified (human)**
 - 2026-08-30 — When exact and bare aliases overlap within one host/source, preserve exact invocation totals and report honest distinct-session union bounds unless the population proves an exact union. **provisional (driver)**
-- 2026-09-16 — The four evidence-honesty laws (never bypass a required check, claims carry sources, a process is running only on current evidence, an empty query is not absence) are stated in `AGENTS.md` rather than only in `loop-brief/doctrine.md`, because a session that never loads `loop-brief` would otherwise miss them. The doctrine keeps no second copy. **provisional (driver)**
-- 2026-09-16 — The delegation default stands: fix-shaped work delegates. Only the independence sentence ("authoring and judging are separate concerns; direct implementation does not waive independence") is adopted; flipping the default is an operator call. **provisional (driver)**
-- 2026-09-16 — `AGENTS.md` carries no word cap, and any instruction validator carries only the link and catalog checks. A cap the fork's model cannot meet is a gate that gets disabled on its first red. **provisional (driver)**
+- 2026-09-16 — The four evidence-honesty laws (never bypass a required check, claims carry sources, a process is running only on current evidence, an empty query is not absence) are stated in `AGENTS.md` rather than only in `loop-brief/doctrine.md`, because a session that never loads `loop-brief` would otherwise miss them. The doctrine keeps no second copy. **ratified 2026-09-17**
+- 2026-09-16 — The delegation default stands: fix-shaped work delegates. Only the independence sentence ("authoring and judging are separate concerns; direct implementation does not waive independence") is adopted; flipping the default is an operator call. **ratified 2026-09-17**
+- 2026-09-16 — `AGENTS.md` carries no word cap, and any instruction validator carries only the link and catalog checks. A cap the fork's model cannot meet is a gate that gets disabled on its first red. **ratified 2026-09-17**
 
 ## Behavior-first verification profile
 
