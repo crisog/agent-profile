@@ -78,10 +78,10 @@ run_python_with_yaml() {
 }
 
 # Cross-manifest parity gate. The other checks lint each manifest in isolation;
-# this asserts the parallel Claude and Codex manifests describe the same plugins
-# at the same versions, so a release can't ship mismatched claude vs codex (the
-# failure the rest of validate.sh is blind to). Pure stdlib so the pre-push hook
-# has no dependency beyond python3.
+# this asserts the marketplace and the parallel Claude and Codex plugin manifests
+# describe the same plugins at the same versions. Both harnesses read
+# .claude-plugin/marketplace.json. Pure stdlib so the pre-push hook has no
+# dependency beyond python3.
 check_manifest_parity() {
   python3 - "$ROOT" <<'PY'
 import json
@@ -106,28 +106,17 @@ def load(path):
 plugin_dirs = sorted(p for p in plugins_dir.iterdir() if p.is_dir())
 dir_names = {p.name for p in plugin_dirs}
 
-# Versioned Claude marketplace: name -> entry.
+# Versioned marketplace: name -> entry.
 claude_mp = load(root / ".claude-plugin" / "marketplace.json")
 claude_mp_entries = {}
 if claude_mp is not None:
     for entry in claude_mp.get("plugins", []):
         claude_mp_entries[entry.get("name")] = entry
 
-# Root (Codex-style) marketplace carries no versions, only the plugin set.
-codex_mp = load(root / "marketplace.json")
-codex_mp_names = set()
-if codex_mp is not None:
-    codex_mp_names = {e.get("name") for e in codex_mp.get("plugins", [])}
-
 if set(claude_mp_entries) != dir_names:
     errors.append(
         ".claude-plugin/marketplace.json plugin set "
         f"{sorted(claude_mp_entries)} != plugin dirs {sorted(dir_names)}"
-    )
-if codex_mp_names != dir_names:
-    errors.append(
-        f"marketplace.json plugin set {sorted(codex_mp_names)} "
-        f"!= plugin dirs {sorted(dir_names)}"
     )
 
 FIELDS = ("name", "version", "description")
@@ -277,7 +266,6 @@ print("release tags ok")
 PY
 }
 
-require_json "$ROOT/marketplace.json"
 require_json "$ROOT/.claude-plugin/marketplace.json"
 require_json "$ROOT/plugins/engineering-practices/.codex-plugin/plugin.json"
 require_json "$ROOT/plugins/engineering-practices/.claude-plugin/plugin.json"
