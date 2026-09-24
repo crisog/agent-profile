@@ -92,12 +92,12 @@ next, and the terminal bug bash on the resulting artifact last.
    orders, conventions), and memory. A standing answer is applied, not
    re-asked.
 3. **Consult** — after two passes without a new fact, or at a genuine design
-   fork: `rl consult`, backgrounded (the completion notification is the
-   signal — no polling). The prompt carries the evidence, the candidate
-   approaches with tradeoffs, the relevant spec excerpts, and the decision
-   axiom (simplest, most correct, effort no factor). Consults inform; the
-   driver decides. The value is independent eyes without the driver's
-   sunk-cost bias.
+   fork: consult an independent frontier model, backgrounded (the completion
+   notification is the signal — no polling). The prompt carries the
+   evidence, the candidate approaches with tradeoffs, the relevant spec
+   excerpts, and the decision axiom (simplest, most correct, effort no
+   factor). Consults inform; the driver decides. The value is independent
+   eyes without the driver's sunk-cost bias.
 4. **Decide provisionally** — reversible and interior: make the call, add a
    dated `decisions` entry with `status: provisional` (rationale + consult
    verdict in State), keep moving. Exercise the call through the declared

@@ -1,6 +1,6 @@
 ---
 name: ship-stack
-description: Use when the user wants a multi-PR stack shipped from an approved spec through automated review gates — e.g. "ship the N PRs in this spec", a Greptile score gate, a Codex/rl ultra-review gate, or stacked branches that must land in order.
+description: Use when the user wants a multi-PR stack shipped from an approved spec through automated review gates — e.g. "ship the N PRs in this spec", a Greptile score gate, a whole-branch review gate, or stacked branches that must land in order.
 argument-hint: "[spec path] [base branch, default: the repo's default branch]"
 ---
 
@@ -30,7 +30,7 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 
 1. **Plan** — run `agent-workflows:planout` on the spec's PR(N) section. If execution disproves the plan (a task cannot go green as ordered), amend the plan file with a REPLANNED note and continue; record it in the ledger.
 2. **Implement** — one reviewed task at a time. Every fix wave goes back to the reviewer that raised the findings until its verdict is clean.
-3. **Ultra-review gate** — `rl:ultra-review` on the finished branch, from a detached worktree at the branch tip with the stack parent as the range base (satisfies the HEAD guard and sidesteps dirty-tree WIP). Retry once on an environmental failure (dead coordinator, detector shard error); a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
+3. **Whole-branch review gate** — the final whole-branch review on the finished branch, run on the most capable available model from a detached worktree at the branch tip with the stack parent as the range base (sidesteps dirty-tree WIP). Retry once on an environmental failure; a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
 4. **Draft PR** — final-state narrative body per the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
 5. **Score gate** — comment `@greptileai review`; poll the score comment (it edits in place). Repeat fix → reply → resolve → re-trigger until it shows the target score for the branch head. Real findings get a fix commit + a reply citing the SHA; false positives get an evidence reply. Resolve each thread either way.
 6. **CI** — confirm the checks execute on a draft in this repository before treating CI as a gate; where they do not, run them on the branch tip and cite the output. Investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.

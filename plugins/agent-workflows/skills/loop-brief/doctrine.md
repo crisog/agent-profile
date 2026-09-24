@@ -31,8 +31,8 @@ archive.
 - Re-read live state before reporting, not only before mutating — the
   world moves between turns.
 - Verify exhaustion before terminating on it: a budget or quota block
-  requires the authoritative source (`rl quota`); remaining capacity means
-  keep going.
+  requires the authoritative source (the provider's quota or usage report);
+  remaining capacity means keep going.
 - Never replace a required real-use gate with a static reviewer because the
   build, environment, or executor is unavailable; that substitution answers a
   different question and fails closed.

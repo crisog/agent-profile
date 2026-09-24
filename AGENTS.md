@@ -151,8 +151,8 @@ load-bearing ambiguity climbs the ladder.
 
 - **Interior decisions are made, not asked.** The ladder: investigate
   (blockers are usually located facts) → check Decisions and the doctrine →
-  consult an independent frontier model (`rl consult`) carrying evidence
-  and candidates — consults inform, the driver decides → decide. Reversible
+  consult an independent frontier model carrying evidence and candidates —
+  consults inform, the driver decides → decide. Reversible
   interior calls are made, logged as dated provisional Decisions, exercised by
   the declared verifier where applicable, and ratified at the boundary.
   Attended, an interactive question is answered once and written into
