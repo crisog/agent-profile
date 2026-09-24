@@ -41,7 +41,7 @@ feat(install): add claude bootstrap runtime management
 </example>
 
 <example name="ticket-linked">
-Monorepo commit with ticket reference in branch and scope:
+Monorepo commit with the ticket in a footer; the scope stays the subsystem:
 
 ```
 fix(pool-party): handle stale settlement state on reconnect
@@ -62,18 +62,19 @@ chore(submodule): update shared-docs
 
 Bump shared-docs to 88d0c75 (docs(api): document webhook retries).
 ```
-
-For trivial bumps, `bump` or `bump shared-docs submodule` is acceptable.
 </example>
 
 <example name="breaking-change">
-Breaking change using `!` suffix:
+Breaking change using the `!` suffix and a `BREAKING CHANGE:` footer:
 
 ```
 refactor(api)!: change auth endpoint response format
 
 The /auth/token endpoint now returns { access_token, expires_in }
-instead of { token, expiry }. All clients must update their parsers.
+instead of { token, expiry }.
+
+BREAKING CHANGE: clients must read access_token and expires_in
+instead of token and expiry.
 ```
 </example>
 

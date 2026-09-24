@@ -4,70 +4,19 @@ description: Use when the user wants the current work committed and pushed. Comm
 disable-model-invocation: true
 ---
 
-Commit all current changes and push them to the remote.
+Commit all current changes and push them to the remote. Load
+`git-best-practices` first: it is the source of truth for commit rules.
 
 ## Steps
 
-1. Run `git status` (never use `-uall`) and `git diff` to see what changed.
-2. Draft a commit message following the Conventional Commits spec below.
-3. Stage all modified and untracked files relevant to the change (prefer naming files explicitly over `git add -A`). Never stage `.env` files or secrets.
-4. Commit using a HEREDOC for the message:
-   ```
-   git commit -m "$(cat <<'EOF'
-   <message>
-   EOF
-   )"
-   ```
-5. Push to the current branch: `git push`. If no upstream is set, use `git push -u origin HEAD`.
-6. Show the final `git status` to confirm everything is clean.
-7. Print the commit message that was used.
-
-## Conventional Commits Format
-
-```
-<type>(<optional scope>): <description>
-
-<optional body>
-
-<optional footer>
-```
-
-### Types
-
-| Type       | Purpose                                            |
-| ---------- | -------------------------------------------------- |
-| `feat`     | Add, adjust, or remove a feature                   |
-| `fix`      | Fix a bug                                          |
-| `refactor` | Rewrite/restructure code without changing behavior |
-| `perf`     | Performance improvement                            |
-| `style`    | Formatting, whitespace — no behavior change        |
-| `test`     | Add or correct tests                               |
-| `docs`     | Documentation only                                 |
-| `build`    | Build system, dependencies, project version        |
-| `ops`      | Deployment, CI/CD, infrastructure                  |
-| `chore`    | Misc tasks (.gitignore, initial commit, etc.)      |
-
-### Description Rules
-
-- Use imperative, present tense ("add" not "added" or "adds")
-- Think: "This commit will …"
-- Do not capitalize the first letter
-- Do not end with a period
-
-### Scope
-
-Optional noun in parentheses after type, e.g. `fix(auth):`. Use project-specific scopes, not issue IDs.
-
-### Breaking Changes
-
-Append `!` before the colon: `feat(api)!: remove endpoint`. Add a `BREAKING CHANGE:` footer with details.
-
-### Body & Footer
-
-- Body: optional, explains motivation and contrasts with previous behavior. Its prose follows `writing-technical-english`: one meaning per word, active voice, one idea per sentence.
-- Footer: reference issues (`Closes #123`), breaking change details.
-
-## Rules
-
-- If there are no changes to commit, say so and stop.
-- If a pre-commit hook fails, fix the issue and create a NEW commit (never amend).
+1. Run `git branch --show-current`. If the branch is `main` or `master`, stop
+   and ask the user to create a feature branch first.
+2. Run `git status` (never use `-uall`) and `git diff`. If there are no
+   changes to commit, say so and stop.
+3. Stage and commit per Commit Discipline and Conventional Commits in
+   `git-best-practices`. Unrelated changes become separate commits, so one
+   ship can make several commits.
+4. Push the current branch with `git push`. If no upstream is set, use
+   `git push -u origin HEAD`.
+5. Show the final `git status` to confirm the tree is clean, and print each
+   commit message used.
