@@ -6,7 +6,7 @@ description: Use when writing or changing code in any language, or choosing whet
 # Code Law
 
 The craft law for code. `AGENTS.md` keeps the law whose violation is
-unrecoverable — boundary, secrets, publish, self-approval, done-claims.
+unrecoverable — boundary, secrets, publish, done-claims.
 This skill carries the law whose violation the harness and behavior-first
 verification catch.
 
@@ -21,7 +21,7 @@ configuration and, where it has one, its custom-rule engine. A rule with no such
 checker is a review-list item applied by a reviewer who did not write the code;
 a review comment that recurs is uplifted into the project's style document, not
 repeated. Hand-written checker scripts for craft rules are code with no tests of
-their own and are not added; harness gates and provenance diffs check the
+their own and are not added; harness gates check the
 repository's own contracts, not craft rules, so they stay.
 
 ## Minimal construction

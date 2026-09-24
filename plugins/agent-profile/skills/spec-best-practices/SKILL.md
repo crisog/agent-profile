@@ -57,7 +57,7 @@ Specs are freeform markdown. No rigid template, no YAML frontmatter, no required
 
 **Retroactive specs are first-class**: documenting existing behavior is valid and encouraged. Read the implementation, extract requirements from actual behavior, note inconsistencies as open items (not silent omissions), map traceability to existing tests.
 
-**External-API integrations**: before locking requirements for an integration with an external provider, run a recall sweep for prior findings on that provider/API and fetch the provider's current docs — do not spec against remembered API shapes; deprecations and legacy endpoints invalidate them. Treat unexplained existing config (keys, scopes, endpoints) as an investigation trigger, not dead code.
+**External-API integrations**: before locking requirements for an integration with an external provider, search memory, issues, and past PRs for prior findings on that provider/API and fetch the provider's current docs — do not spec against remembered API shapes; deprecations and legacy endpoints invalidate them. Treat unexplained existing config (keys, scopes, endpoints) as an investigation trigger, not dead code.
 
 **Mutation policy**: the spec is the human+agent contract — do not reshape the agreed outcome without direction. A new app, service, or product capability outside that outcome changes scope; internal implementation choices within it remain the driver's. A reversible interior call that refines spec territory may land as a dated provisional Decisions entry, ratified at the boundary. When spec/implementation drift is found, investigate against existing authorization; surface unresolved contract changes for the human instead of silently changing the expected behavior.
 

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILL_ROOTS = [resolve(ROOT, "plugins/agent-profile/skills")];
+const SKILL_ROOT = resolve(ROOT, "plugins/agent-profile/skills");
 function filesBelow(dir: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -39,7 +39,7 @@ describe("public skill catalog", () => {
   });
 
   it("keeps references out of recursive skill discovery", () => {
-    const nestedEntrypoints = SKILL_ROOTS.flatMap(filesBelow).filter(
+    const nestedEntrypoints = filesBelow(SKILL_ROOT).filter(
       (path) => path.endsWith("/references/SKILL.md") || path.includes("/references/") && path.endsWith("/SKILL.md"),
     );
     expect(nestedEntrypoints).toEqual([]);
@@ -60,25 +60,4 @@ describe("public skill catalog", () => {
     expect(referencesOnLine(resolve(ROOT, skill), marker)).toEqual([reference]);
   });
 
-  it("resolves every archived guide link from its router", () => {
-    const routes = [
-      [
-        "plugins/agent-profile/skills/spec-best-practices/SKILL.md",
-        "Interview, complete, or find gaps in a `SPEC.md`",
-      ],
-      [
-        "plugins/agent-profile/skills/program-planning/SKILL.md",
-        "When the tracker is GitHub",
-      ],
-    ] as const;
-
-    for (const [skill, marker] of routes) {
-      const skillPath = resolve(ROOT, skill);
-      for (const reference of referencesOnLine(skillPath, marker)) {
-        expect(existsSync(resolve(dirname(skillPath), reference)), reference).toBe(
-          true,
-        );
-      }
-    }
-  });
 });

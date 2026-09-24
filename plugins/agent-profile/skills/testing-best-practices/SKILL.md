@@ -255,7 +255,7 @@ Full unit + integration + e2e suite with higher property-based iteration counts.
    observed red before the implementation lands. For a bug fix, first reflect
    on why the existing suite did not catch the bug — the answer often names a
    missing floor, not just the missing test.
-4. Implementation proceeds to green; apply the code-health law, refactor while
+4. Implementation proceeds to green; apply `code-law`, refactor while
    green, then rerun the affected verifier.
 5. Exercise an operable assembled surface through the declared E2E or bug-bash
    tasks when the QA design selected that evidence.

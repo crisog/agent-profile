@@ -11,7 +11,6 @@ the PreToolUse guard hooks.
 Private notes do not belong in this repo. Keep them in a local-only
 override file outside the repository.
 
-
 ---
 
 Originally derived from [alleneubank/agent-profile](https://github.com/alleneubank/agent-profile).

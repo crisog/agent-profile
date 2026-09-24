@@ -13,7 +13,7 @@ event="${1:-SessionStart}"
 
 fingerprint="unknown"
 
-# On machines managed by claude-bootstrap, ~/.claude/CLAUDE.md symlinks into
+# On machines set up by install.sh, ~/.claude/CLAUDE.md symlinks into
 # the agent-profile checkout; resolving it locates the repo without
 # hardcoding a path. pwd -P canonicalizes relative symlink targets.
 claude_md="$HOME/.claude/CLAUDE.md"

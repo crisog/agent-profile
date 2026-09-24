@@ -13,12 +13,12 @@
   "interface": {
     "displayName": "Agent Profile",
     "shortDescription": "Engineering-practice and workflow skills for coding agents",
-    "longDescription": "Skills for language idioms, tests, git, specs, briefs, planning, behavior-first bug bashes, and safe autonomous execution, with PreToolUse guards for secrets, verifier bypasses, and publishes.",
+    "longDescription": "Skills for TypeScript and React idioms, tests, git, specs, briefs, planning, behavior-first bug bashes, and safe autonomous execution, with PreToolUse guards for secrets, verifier bypasses, and publishes.",
     "developerName": "Cristopher Ortega",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
-      "Apply the right language best-practice skill",
+      "Apply the TypeScript best-practice skills",
       "Plan this work before implementation",
       "Review git workflow constraints before committing"
     ]

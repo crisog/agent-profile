@@ -33,11 +33,11 @@ prompt.
 
 A bounded task can finish in the current session on its existing plan and
 checks. For wider work, derive scope from committed artifacts: `LOOP.md`,
-handoffs, specs, recent commit messages. Uncovered decisions climb the ladder —
+specs, recent commit messages. Uncovered decisions climb the ladder —
 reversible interior calls are made and logged as dated provisional Decisions,
 not accumulated. Keep working independent items when a boundary blocks one
 action. Terminate per the loop's terminal states (`done`, `blocked: needs N
 decisions` with a numbered evidenced batch, or `budget-exhausted`), and before
-stopping write back the loop, or save the outcomes and unfinished state to an
-available persistent handoff location when no loop exists. Report the evidence,
+stopping write back the loop, or save the outcomes and unfinished state to a
+PR body, tracker comment, or persistent memory when no loop exists. Report the evidence,
 remaining decisions, and proposed next steps at the stop.

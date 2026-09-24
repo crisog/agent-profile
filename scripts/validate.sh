@@ -102,21 +102,21 @@ def load(path):
     return None
 
 # Plugins are discovered from the directory tree; that on-disk set is the source
-# of truth both marketplaces must agree with.
+# of truth the marketplace must agree with.
 plugin_dirs = sorted(p for p in plugins_dir.iterdir() if p.is_dir())
 dir_names = {p.name for p in plugin_dirs}
 
-# Versioned marketplace: name -> entry.
-claude_mp = load(root / ".claude-plugin" / "marketplace.json")
-claude_mp_entries = {}
-if claude_mp is not None:
-    for entry in claude_mp.get("plugins", []):
-        claude_mp_entries[entry.get("name")] = entry
+# Marketplace: name -> entry.
+marketplace = load(root / ".claude-plugin" / "marketplace.json")
+marketplace_entries = {}
+if marketplace is not None:
+    for entry in marketplace.get("plugins", []):
+        marketplace_entries[entry.get("name")] = entry
 
-if set(claude_mp_entries) != dir_names:
+if set(marketplace_entries) != dir_names:
     errors.append(
         ".claude-plugin/marketplace.json plugin set "
-        f"{sorted(claude_mp_entries)} != plugin dirs {sorted(dir_names)}"
+        f"{sorted(marketplace_entries)} != plugin dirs {sorted(dir_names)}"
     )
 
 FIELDS = ("name", "version", "description")
@@ -145,8 +145,8 @@ for pdir in plugin_dirs:
             f"!= directory name {name!r}"
         )
 
-    # The versioned marketplace entry must agree with the plugin manifest.
-    entry = claude_mp_entries.get(name)
+    # The marketplace entry must agree with the plugin manifest.
+    entry = marketplace_entries.get(name)
     if entry is not None:
         for field in FIELDS:
             mv, pv = entry.get(field), claude.get(field)
@@ -171,8 +171,7 @@ PY
 
 # Release-tag gate. Plugin versions are consumed by tag (`<plugin>-v<version>`),
 # so a release commit that never got its tag publishes nothing — the marketplace
-# advertises a version no consumer can resolve. Four such tags were missing and
-# had to be backfilled by hand, which is the failure this closes.
+# advertises a version no consumer can resolve.
 #
 # Both directions matter: a release commit needs its tag, and the version each
 # manifest currently advertises needs one too (a bump whose subject line strays

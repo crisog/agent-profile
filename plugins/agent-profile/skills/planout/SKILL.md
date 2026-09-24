@@ -53,7 +53,7 @@ By default, implementation and exploration run on the executor tier: dispatch th
 Each dispatched task carries the convention skills for the code it is about to write:
 
 - `agent-profile:code-law` for any code change
-- `agent-profile:typescript-best-practices`, `agent-profile:typescript-clean-code`, or the matching language skill
+- `agent-profile:typescript-best-practices` and `agent-profile:typescript-clean-code` for TypeScript; other languages carry `code-law` alone
 - `agent-profile:typescript-backend-architecture` for services and modules that own persistence or external I/O
 - `agent-profile:testing-best-practices` for tests and verifiers
 - `agent-profile:react-best-practices` for components, plus `vercel:react-best-practices` on Next.js and Vercel surfaces

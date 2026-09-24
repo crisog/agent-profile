@@ -43,8 +43,8 @@ requirement in the unit.
 
 Otherwise, use a concise session plan or the harness's plan mechanism for
 bounded attended work. Save a document only when the user requests one or
-cross-session recovery needs it; use the requested location, an existing
-handoff, or the branch's `LOOP.md`. Do not create a docs tree for ordinary
+cross-session recovery needs it; use the requested location or the branch's
+`LOOP.md`. Do not create a docs tree for ordinary
 work.
 
 Start with:
@@ -75,7 +75,7 @@ Then include:
   - Run the targeted check and confirm the expected failure
   - Implement the minimal change
   - Re-run targeted verification
-  - Apply the code-health law, refactor while green, and re-run the targeted check
+  - Apply `code-law`, refactor while green, and re-run the targeted check
   - Run broader regression checks if needed
 - Verification:
   - `exact command`
