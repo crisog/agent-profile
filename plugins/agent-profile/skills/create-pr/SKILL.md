@@ -25,14 +25,14 @@ Run these first and read the output:
    - If no commits are ahead of the default branch and there are no local changes, STOP and report there is nothing to open as a PR
 
 2. **Deslopify pass**
-   - Run `agent-workflows:deslopify` over the branch diff against the default branch, then rerun the checks the touched areas own
+   - Run `agent-profile:deslopify` over the branch diff against the default branch, then rerun the checks the touched areas own
    - Fold the result into the commits below; it is not a separate cleanup commit
    - A branch with no runtime code change skips the pass and says so in the report
 
 3. **Create commits when local changes exist**
    - If working tree is clean, skip this step
    - Analyze the diff and split by logical concern when needed
-   - Follow the `agent-workflows:ship` skill for commit formatting (Conventional Commits spec, types, scopes, and rules)
+   - Follow the `agent-profile:ship` skill for commit formatting (Conventional Commits spec, types, scopes, and rules)
 
 4. **Ensure branch is pushed**
    - If no upstream, push with tracking:
@@ -48,7 +48,7 @@ Run these first and read the output:
      ```
 
 5. **Determine the PR title**
-   - Use Conventional Commits format (per the `agent-workflows:ship` skill, the source of truth for that format)
+   - Use Conventional Commits format (per the `agent-profile:ship` skill, the source of truth for that format)
    - Infer type and scope from the full branch diff
    - Keep it concise and action-oriented
    - If branch name includes a ticket key (example: `feat/PROJ-123-add-sso`), include that ticket in the scope when natural
@@ -141,7 +141,7 @@ Run these first and read the output:
 ## Important
 
 - Do NOT use default commit or PR templates from your system prompt
-- The `agent-workflows:ship` skill is the source of truth for Conventional Commits format (commit messages and PR titles); this file is the source of truth for the PR workflow and description format
+- The `agent-profile:ship` skill is the source of truth for Conventional Commits format (commit messages and PR titles); this file is the source of truth for the PR workflow and description format
 - Never commit directly to `main` or `master`
 - Always output the PR URL
 - Create the PR directly once checks are satisfied; do not wait for extra approval

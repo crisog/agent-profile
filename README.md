@@ -1,10 +1,9 @@
 # agent-profile
 
 Portable agent runtime profile for Claude Code and Codex CLI: one
-shareable instruction file (`AGENTS.md`) and two installable plugins —
-`engineering-practices` (language, tooling, and quality skills) and
-`agent-workflows` (reusable workflow skills) — shipped from a single tree
-to every runtime.
+shareable instruction file (`AGENTS.md`) and one installable plugin,
+`agent-profile`, carrying the engineering-practice and workflow skills and
+the PreToolUse guard hooks.
 
 `./install.sh --fix` wires a host; agents handle everything else, gated by
 `./scripts/validate.sh` and `npm run check`.

@@ -19,8 +19,7 @@ Choose the source of truth before editing:
 - Harness-specific adaptation: create a clearly named separate skill instead of installing duplicate skill names with divergent behavior.
 
 In this repo, shared skills live under:
-- `plugins/engineering-practices/skills/<skill-name>/`
-- `plugins/agent-workflows/skills/<skill-name>/`
+- `plugins/agent-profile/skills/<skill-name>/`
 
 ## When to Create a Skill
 

@@ -5,8 +5,7 @@
   "license": "MIT",
   "keywords": [
     "skills",
-    "agent-profile",
-    "agent-workflows"
+    "agent-profile"
   ],
   "devDependencies": {
     "@types/node": "^24.0.0",

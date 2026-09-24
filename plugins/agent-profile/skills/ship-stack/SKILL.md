@@ -16,7 +16,7 @@ whole stack the same day it goes green: a stack held open pays a rebase and a
 review round for every unrelated change on the base. Work fanned out to
 parallel executors is never linearized into a stack afterwards.
 
-The spec's own PR sections define the count and scope — one branch and one PR per section, in the spec's order. If no spec is given, use the one produced in this session; if there is none, stop and report that an approved spec is required (`agent-workflows:specout` produces one).
+The spec's own PR sections define the count and scope — one branch and one PR per section, in the spec's order. If no spec is given, use the one produced in this session; if there is none, stop and report that an approved spec is required (`agent-profile:specout` produces one).
 
 ## Fixed decisions (do not re-ask)
 
@@ -28,11 +28,11 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 
 ## Per-PR pipeline
 
-1. **Plan** — run `agent-workflows:planout` on the spec's PR(N) section. If execution disproves the plan (a task cannot go green as ordered), amend the plan file with a REPLANNED note and continue; record it in the ledger.
+1. **Plan** — run `agent-profile:planout` on the spec's PR(N) section. If execution disproves the plan (a task cannot go green as ordered), amend the plan file with a REPLANNED note and continue; record it in the ledger.
 2. **Implement** — one reviewed task at a time. Every fix wave goes back to the reviewer that raised the findings until its verdict is clean.
-3. **Deslopify pass** — `agent-workflows:deslopify` on the branch diff against the stack parent, then rerun the objective checks and commit the result. Runs before the review gate so reviewers grade the code that ships.
+3. **Deslopify pass** — `agent-profile:deslopify` on the branch diff against the stack parent, then rerun the objective checks and commit the result. Runs before the review gate so reviewers grade the code that ships.
 4. **Whole-branch review gate** — the final whole-branch review on the finished branch, run on the most capable available model from a detached worktree at the branch tip with the stack parent as the range base (sidesteps dirty-tree WIP). Retry once on an environmental failure; a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
-5. **Draft PR** — final-state narrative body per the `agent-workflows:create-pr` description rules and the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
+5. **Draft PR** — final-state narrative body per the `agent-profile:create-pr` description rules and the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
 6. **Score gate** — comment `@greptileai review`; poll the score comment (it edits in place). Repeat fix → reply → resolve → re-trigger until it shows the target score for the branch head. Real findings get a fix commit + a reply citing the SHA; false positives get an evidence reply. Resolve each thread either way.
 7. **CI** — confirm the checks execute on a draft in this repository before treating CI as a gate; where they do not, run them on the branch tip and cite the output. Investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.
 

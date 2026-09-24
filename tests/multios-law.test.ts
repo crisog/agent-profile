@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const SKILL = new URL(
-  "../plugins/engineering-practices/skills/op-cli/SKILL.md",
+  "../plugins/agent-profile/skills/op-cli/SKILL.md",
   import.meta.url,
 );
 

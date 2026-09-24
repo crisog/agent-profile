@@ -35,8 +35,8 @@ if [[ -L "$claude_md" ]]; then
             # marketplace installs from this checkout, so these match the
             # installed skill surface. sed instead of jq — jq is not
             # guaranteed on every host and the value charset is semver-safe.
-            for plugin in engineering-practices agent-workflows; do
-                manifest="$repo_dir/plugins/$plugin/.claude-plugin/plugin.json"
+            for manifest in "$repo_dir"/plugins/*/.claude-plugin/plugin.json; do
+                plugin="$(basename "$(dirname "$(dirname "$manifest")")")"
                 if [[ -f "$manifest" ]]; then
                     v="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$manifest" | head -1)"
                     [[ -n "$v" ]] && fingerprint="$fingerprint $plugin@$v"

@@ -267,10 +267,10 @@ PY
 }
 
 require_json "$ROOT/.claude-plugin/marketplace.json"
-require_json "$ROOT/plugins/engineering-practices/.codex-plugin/plugin.json"
-require_json "$ROOT/plugins/engineering-practices/.claude-plugin/plugin.json"
-require_json "$ROOT/plugins/agent-workflows/.codex-plugin/plugin.json"
-require_json "$ROOT/plugins/agent-workflows/.claude-plugin/plugin.json"
+for plugin_dir in "$ROOT"/plugins/*/; do
+  require_json "$plugin_dir.codex-plugin/plugin.json"
+  require_json "$plugin_dir.claude-plugin/plugin.json"
+done
 
 require_json "$ROOT/package.json"
 
@@ -280,15 +280,17 @@ check_release_tags
 
 if command -v claude >/dev/null 2>&1; then
   claude plugin validate --strict "$ROOT/.claude-plugin/marketplace.json"
-  claude plugin validate --strict "$ROOT/plugins/engineering-practices"
-  claude plugin validate --strict "$ROOT/plugins/agent-workflows"
+  for plugin_dir in "$ROOT"/plugins/*/; do
+    claude plugin validate --strict "$plugin_dir"
+  done
 else
   echo "skip: claude plugin validation (claude CLI not found)"
 fi
 
 if [ -n "${CODEX_VALIDATOR:-}" ] && [ -f "$CODEX_VALIDATOR" ]; then
-  run_python_with_yaml "$CODEX_VALIDATOR" "$ROOT/plugins/engineering-practices"
-  run_python_with_yaml "$CODEX_VALIDATOR" "$ROOT/plugins/agent-workflows"
+  for plugin_dir in "$ROOT"/plugins/*/; do
+    run_python_with_yaml "$CODEX_VALIDATOR" "$plugin_dir"
+  done
 else
   # Skipping the external Codex schema validator is acceptable: it lives outside
   # this repo, and check_manifest_parity already asserts claude<->codex field

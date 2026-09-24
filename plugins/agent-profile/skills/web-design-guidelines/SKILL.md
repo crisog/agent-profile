@@ -12,7 +12,7 @@ Review UI files for compliance with the Web Interface Guidelines.
 
 1. Fetch the current guidelines before every review, from
    `https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md`.
-   Use `engineering-practices:web-fetch` when the harness has no fetch tool of
+   Use `agent-profile:web-fetch` when the harness has no fetch tool of
    its own. The fetched document carries the rules and the output format.
 2. Read the files named by `$ARGUMENTS`. If none are named, ask the user which
    files to review.
