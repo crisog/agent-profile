@@ -6,12 +6,12 @@ Concrete code for the patterns in [SKILL.md](SKILL.md), on a neutral `comments` 
 
 ### `repository.ts`
 
-Owns queries, returns explicit shapes, returns `null` on a miss, and is transaction-aware via an optional `database` handle.
+Owns queries and returns explicit shapes. Each function takes a required `database` handle, so the caller passes the client or an open transaction.
 
 ```ts
 import { z } from 'zod';
 
-import { getDb, type Db, type Tx } from '~/db';
+import type { Db, Tx } from '~/db';
 
 export const newCommentSchema = z.object({
   postId: z.string(),
@@ -30,128 +30,186 @@ export type Comment = {
 
 type InsertCommentParams = {
   input: NewComment;
-  database?: Db | Tx;
+  database: Db | Tx;
 };
 
-export async function insertComment({ input, database = getDb() }: InsertCommentParams): Promise<Comment> {
+export async function insertComment({ input, database }: InsertCommentParams): Promise<Comment> {
   return database.comment.create({ data: input });
 }
 
 type InsertMentionParams = {
   commentId: string;
   userId: string;
-  database?: Db | Tx;
+  database: Db | Tx;
 };
 
-export async function insertMention({ commentId, userId, database = getDb() }: InsertMentionParams): Promise<void> {
-  await database.commentMention.create({ data: { commentId, userId } });
+export async function insertMention({ commentId, userId, database }: InsertMentionParams): Promise<void> {
+  await database.commentMention.create({
+    data: {
+      commentId,
+      userId,
+    },
+  });
 }
 
-export async function findCommentById({ id }: { id: string }): Promise<Comment | null> {
-  return getDb().comment.findUnique({ where: { id } });
+type FindCommentByIdParams = {
+  id: string;
+  database: Db | Tx;
+};
+
+export async function findCommentById({ id, database }: FindCommentByIdParams): Promise<Comment | null> {
+  return database.comment.findUnique({ where: { id } });
 }
 
-export async function listCommentsForPost({ postId }: { postId: string }): Promise<Comment[]> {
-  return getDb().comment.findMany({ where: { postId }, orderBy: { createdAt: 'asc' } });
+type ListCommentsForPostParams = {
+  postId: string;
+  database: Db | Tx;
+};
+
+export async function listCommentsForPost({ postId, database }: ListCommentsForPostParams): Promise<Comment[]> {
+  return database.comment.findMany({
+    where: { postId },
+    orderBy: { createdAt: 'asc' },
+  });
 }
 
-export async function deleteComment({ id }: { id: string }): Promise<void> {
-  await getDb().comment.delete({ where: { id } });
+type DeleteCommentParams = {
+  id: string;
+  database: Db | Tx;
+};
+
+export async function deleteComment({ id, database }: DeleteCommentParams): Promise<void> {
+  await database.comment.delete({ where: { id } });
 }
 ```
 
 ### `service.ts`
 
-Orchestrates multi-step work and owns the transaction. It threads the `tx` into repository calls so the comment and its mentions commit atomically.
+Orchestrates multi-step work and owns the transaction. It threads the `tx` into repository calls so the comment and its mentions commit atomically. `removeComment` runs the ownership check immediately before the delete and returns a typed `kind` result, so the controller picks the transport status.
 
 ```ts
-import { getDb } from '~/db';
+import type { Db } from '~/db';
 
-import { insertComment, insertMention, findCommentById, type Comment } from './repository';
+import { deleteComment, findCommentById, insertComment, insertMention, type Comment } from './repository';
 import { parseMentionedUserIds } from './mentions';
 
 type AddCommentParams = {
   postId: string;
   authorId: string;
   body: string;
+  database: Db;
 };
 
-export async function addComment({ postId, authorId, body }: AddCommentParams): Promise<{ id: string }> {
+export async function addComment({ postId, authorId, body, database }: AddCommentParams): Promise<Comment> {
   const mentionedUserIds = parseMentionedUserIds(body);
 
-  return getDb().$transaction(async (tx) => {
-    const comment = await insertComment({ input: { postId, authorId, body }, database: tx });
+  return database.$transaction(async (tx) => {
+    const comment = await insertComment({
+      input: {
+        postId,
+        authorId,
+        body,
+      },
+      database: tx,
+    });
 
     for (const userId of mentionedUserIds) {
-      await insertMention({ commentId: comment.id, userId, database: tx });
+      await insertMention({
+        commentId: comment.id,
+        userId,
+        database: tx,
+      });
     }
 
-    return { id: comment.id };
+    return comment;
   });
 }
 
-export async function getComment({ id }: { id: string }): Promise<Comment> {
-  const comment = await findCommentById({ id });
+type RemoveCommentParams = {
+  commentId: string;
+  userId: string;
+  database: Db;
+};
 
-  if (comment === null) {
-    throw new Error('COMMENT_NOT_FOUND');
+type RemoveCommentResult =
+  | { ok: true }
+  | { ok: false; error: { kind: 'forbidden' } };
+
+export async function removeComment({ commentId, userId, database }: RemoveCommentParams): Promise<RemoveCommentResult> {
+  const comment = await findCommentById({
+    id: commentId,
+    database,
+  });
+
+  // A missing comment and another user's comment get the same kind, so the response does not reveal which comments exist
+  if (comment === null || comment.authorId !== userId) {
+    return {
+      ok: false,
+      error: { kind: 'forbidden' },
+    };
   }
 
-  return comment;
+  await deleteComment({
+    id: commentId,
+    database,
+  });
+
+  return { ok: true };
 }
 ```
 
 ### `controller.ts`
 
-Transport only: validate input, enforce authorization, delegate. No DB access, no business rules. (The exact `router`/`procedure` API is framework-specific; the shape is what matters.)
+Transport only: validate input, require authentication, delegate, and translate each error `kind` into a transport error with `toRpcError`. It runs no queries; the request context carries the database handle that the composition root builds once. (The exact `router`/`procedure` API is framework-specific; the shape is what matters.)
 
 ```ts
 import { z } from 'zod';
 
-import { authedProcedure, publicProcedure, router } from '~/rpc';
-import { assertCommentOwnedBy } from '~/authz/assert-comment-owned-by';
+import { authedProcedure, publicProcedure, router, toRpcError } from '~/rpc';
 
-import { addComment } from './service';
-import { listCommentsForPost, deleteComment } from './repository';
+import { addComment, removeComment } from './service';
+import { listCommentsForPost, newCommentSchema } from './repository';
+
+const addCommentInputSchema = newCommentSchema.pick({
+  postId: true,
+  body: true,
+});
 
 export const commentsRouter = router({
   add: authedProcedure
-    .input(z.object({ postId: z.string(), body: z.string().min(1).max(2_000) }))
-    .mutation(({ input, ctx }) => addComment({ postId: input.postId, authorId: ctx.user.id, body: input.body })),
+    .input(addCommentInputSchema)
+    .mutation(({ input, ctx }) =>
+      addComment({
+        postId: input.postId,
+        authorId: ctx.user.id,
+        body: input.body,
+        database: ctx.db,
+      }),
+    ),
 
   list: publicProcedure
     .input(z.object({ postId: z.string() }))
-    .query(({ input }) => listCommentsForPost({ postId: input.postId })),
+    .query(({ input, ctx }) =>
+      listCommentsForPost({
+        postId: input.postId,
+        database: ctx.db,
+      }),
+    ),
 
   remove: authedProcedure
     .input(z.object({ commentId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      await assertCommentOwnedBy({ userId: ctx.user.id, commentId: input.commentId });
-      await deleteComment({ id: input.commentId });
+      const result = await removeComment({
+        commentId: input.commentId,
+        userId: ctx.user.id,
+        database: ctx.db,
+      });
+
+      if (!result.ok) {
+        throw toRpcError(result.error);
+      }
     }),
 });
-```
-
-## Shared authorization helper
-
-A reusable resource-ownership check, kept in a common module rather than inside a feature.
-
-```ts
-// ~/authz/assert-comment-owned-by.ts
-import { getDb } from '~/db';
-
-type AssertCommentOwnedByParams = {
-  userId: string;
-  commentId: string;
-};
-
-export async function assertCommentOwnedBy({ userId, commentId }: AssertCommentOwnedByParams): Promise<void> {
-  const comment = await getDb().comment.findUnique({ where: { id: commentId }, select: { authorId: true } });
-
-  if (comment === null || comment.authorId !== userId) {
-    throw new Error('FORBIDDEN');
-  }
-}
 ```
 
 ## Composition root

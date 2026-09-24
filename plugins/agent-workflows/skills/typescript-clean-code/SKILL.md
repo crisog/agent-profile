@@ -1,9 +1,11 @@
 ---
 name: typescript-clean-code
-description: Use when writing, reviewing, or refactoring TypeScript in a frontend, backend, library, or CLI project.
+description: Use when reading, writing, reviewing, or refactoring TypeScript or JavaScript (.ts, .tsx, .js files, tsconfig.json) in a frontend, backend, library, or CLI project.
 ---
 
 # TypeScript Clean Code
+
+Follows `code-law` for language-agnostic law and carries TypeScript idioms only.
 
 A set of defaults for writing strict, predictable, low-noise TypeScript. Repository instructions, approved product contracts, and established local conventions outrank this skill.
 
@@ -15,8 +17,8 @@ A set of defaults for writing strict, predictable, low-noise TypeScript. Reposit
 - Narrow runtime data with a schema, never a hand-rolled `typeof` / `in` chain. A chain proves the shape and then throws the proof away; a schema hands back a typed value the rest of the code can use.
 - `void` is used only as a return type, never as an operator (no `void somePromise()`). Await promises explicitly.
 - Validate data that crosses a runtime trust boundary with the repository's existing runtime validator (Zod is a good default when none exists), then derive the static type from the schema when the library supports it. Boundaries include HTTP and webhook bodies, third-party API responses, environment variables, browser storage, `postMessage`, and URL/query parameters.
-- Parse once at the boundary. Parsing converts `unknown` into a trusted value that downstream code can use directly; do not repeat validation throughout the call graph and discard the proof each time.
-- Colocate each schema next to the code that consumes it — the hook, route, or module that fetches or reads — not in a central `schemas.ts` or a shared `types.ts`. The inferred type lives with its schema; consumers import it from there.
+- Parse once at the boundary. Parsing converts `unknown` into a trusted value that downstream code can use directly; do not repeat validation throughout the call graph and discard the proof each time. Normalize at parse time with `.transform()` (trim strings, parse dates) so downstream code receives the normalized value.
+- Colocate each schema next to the code that consumes it — the hook, route, or module that fetches or reads — not in a central `schemas.ts` or a shared `types.ts`. The inferred type lives with its schema; consumers import it from there. Derive variants with `.extend`, `.pick`, and `.omit` instead of redeclaring the fields.
 - Conversely, don't reach for Zod where there's no runtime boundary. Function and hook **params and return types**, internal or derived state, and values built in-code from literals or config are compile-time contracts — use a plain TS `type`. A schema there is dead weight that drifts from the type it mirrors.
 - At a user-facing boundary, use the validator's non-throwing API when available. Surface a clean, human-readable message; never let raw validation internals reach the user.
 - Guard deserialization itself: `await res.json()` throws on an empty or non-JSON body. Treat failure as fatal when the operation cannot complete; deliberately degrade only when the work already succeeded and the response is non-essential display data.
@@ -52,7 +54,6 @@ await sendWelcomeEmail(result.data.email);
 - Expand `??` and `||` value fallbacks into a `let` plus an `if` reassignment, or a loop. This applies to picking a business value; the documented `null` ↔ `undefined` conversions at boundaries are not fallbacks (see Null & Undefined). Boolean conditions like `if (isPaid && hasShipped)` are fine.
 - Select from a list with a `for ... of` loop and an early return rather than `.find(predicate)`, and reach for a loop wherever it beats a multi-stage `map`/`filter`/`reduce` chain. Do not name a single-use predicate just to hand it to `.find`.
 - The options object holds the collaborators and values the function genuinely needs — not a bag of optional callbacks and behavior flags. A boolean that switches behavior (`retry`, `legacy`, `isV2`) usually means two operations are sharing one name; split them instead.
-- Pass what a function needs as a parameter rather than reading optional ambient state deep in the flow. A required dependency belongs in the signature, where omitting it is a compile error.
 
 ```ts
 const MAX_RETRY_COUNT = 3;
@@ -68,7 +69,7 @@ function sendInvite({ userId, email, shouldNotify }: SendInviteParams): void {
 }
 ```
 
-Use a discriminated union with a `kind` field for mutually exclusive variants. Parse a flat external input into the union once so downstream code narrows through ordinary control flow instead of scattered type guards.
+Use a discriminated union with a `kind` field for mutually exclusive variants. Parse a flat external input into the union once so downstream code narrows through ordinary control flow instead of scattered type guards. A `switch` over the `kind` ends in a `default` that assigns the value to `never` and throws (`const unhandled: never = value;`), so a new variant fails compilation until every switch handles it.
 
 ```ts
 // Bad — a nested ternary, a clever chain, and a fallback that hides the empty case
@@ -143,8 +144,7 @@ async function update(version: Version): Promise<void> {
 - No TypeScript `enum`. For internal values, use an `as const` array and derive the union type. Add a runtime enum schema only when values cross a runtime boundary.
 - Use named exports; rely on default exports only where a framework requires them.
 - Boolean variables and props use an `is` / `has` / `should` / `can` prefix.
-- Use full domain words rather than abbreviations or single-letter variables. Conventional loop indices and established domain terms are fine.
-- Identifiers for opaque references use an `Id` suffix (e.g. `UserId`, `OrderId`).
+- Identifiers for opaque references use an `Id` suffix (e.g. `UserId`, `OrderId`). Brand them (`type UserId = string & { readonly __brand: 'UserId' }`) so the compiler rejects an `OrderId` where a `UserId` is expected.
 - Prop/param object types are named `<Name>Props` or `<Name>Params`. Zod schemas are `camelCaseSchema`; the types inferred from them are `PascalCase`.
 - Named constants are `UPPER_SNAKE_CASE`, declared at the top of the file.
 
@@ -189,14 +189,11 @@ type Server =
   | { kind: 'failed'; error: ServerError };
 ```
 
-## Errors and Side Effects
+## Errors
 
-- Separate expected failures from programmer errors. A failure the caller is expected to handle comes back as a typed result — `{ ok: true; data } | { ok: false; error: { kind } }` — so the caller can localize the message and the transport layer owns the status code. Programmer errors, unreachable states, and infrastructure that is simply down still throw.
+- A failure the caller is expected to handle comes back as a typed result, `{ ok: true; data } | { ok: false; error: { kind } }`, so the caller can localize the message and the transport layer owns the status code.
 - Never dress a failure up as success. No sentinel string, no empty object standing in for an error, no `ok: true` with a half-populated payload.
 - Discriminate errors by a `kind` field rather than by class name or message matching, and don't let a transport-shaped error type leak out of a module — translate the HTTP client or driver error at the boundary that owns it.
-- Catch only to add context, clean up, translate at a boundary, or deliberately degrade a non-critical operation. Preserve the original cause and never swallow an error accidentally.
-- Make externally invoked or retryable mutations idempotent when duplicate delivery is possible. A local mutation with no retry or duplication path does not need an idempotency abstraction.
-- Keep module imports side-effect free. Construct network, process, and storage clients at the application's composition root.
 
 ## Placement
 
@@ -206,28 +203,17 @@ type Server =
 
 ## Abstraction
 
-- Do not add barrel modules, pass-through wrappers, single-constant modules, or extension points without a current consumer. Extract a helper only when it names a useful concept, removes real duplication, or isolates a boundary.
-- Readability beats fewer lines. An abstraction introduced to shorten code usually makes it worse — an inlined query guard reads better than a helper that hides one.
+- Do not add barrel modules, pass-through wrappers, or single-constant modules. Extract a helper only when it names a useful concept, removes real duplication, or isolates a boundary.
 - If a helper's body would be shorter than its signature plus its parameter type, inline it and separate the steps with section comments.
-- Prefer the minimum diff that reuses an existing pattern, including one from a sibling package or platform. When a change is rejected, go smaller — do not answer with a different new layer.
 
 ## Evidence Before Complexity
 
-- Do not defend against an edge case until something proves it exists: a runtime log, a test reproduction, persisted bad state, or a user report. "Could", "might", and "what if" are not evidence — name the observed failure and how often it happens.
-- When evidence does arrive, fix the smallest real failure at the boundary that owns it. One incident earns one fix, not a retry framework, a lifecycle manager, or a general defense against the whole category.
-- Delete stale compatibility code, speculative safeguards, and fallback chains as you touch them. Prefer fewer branches and a net-negative diff whenever behavior allows.
+- An edge case that no contract or observation names is not handled; external calls still carry their explicit timeout and bounded retry. An observation is a runtime log, a test reproduction, persisted bad state, or a user report. "Could", "might", and "what if" are not evidence: name the observed failure and how often it happens.
 
 ## Comments
 
-- Prefer self-explanatory code. Add a comment only when it records a constraint the code cannot express.
 - Comments are one-liners. Multi-line rationale belongs in the PR body, not in source.
 - No ticket, PRD, or issue references in comments, JSDoc, or test `describe()` blocks. This holds in plan and spec documents too, whose snippets get copied into source verbatim, and a sibling file already carrying one does not excuse a new one.
 - No reassurance comments written to pre-empt a reviewer. If the concern is a non-issue, say so on the PR and leave the code alone.
 - Don't restate a constant's value far from its declaration. `// $10` beside the literal is fine; `// the $200 cool-down` in a distant service goes stale silently.
 - Do link the external source — vendor docs, contract, regulation — beside a hardcoded value that came from it, and repeat the link in the PR description. Verify the URL resolves before committing it.
-
-## General Rules
-
-- Keep changes focused. If unrelated debt does not block the requested work, leave it untouched and report it separately.
-- Do what has been asked; nothing more, nothing less. Do not create files, especially documentation, unless the task requires them.
-- Bug fixes are test-driven: write a failing test that reproduces the bug before the fix. For testing strategy in general, see the `testing-best-practices` skill.

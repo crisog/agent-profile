@@ -571,11 +571,17 @@ function App() {
 // lib/api-client.ts - one configured instance
 export const api = axios.create({ baseURL: env.API_URL });
 
+// features/users/api/user-keys.ts - one key factory per feature
+export const userKeys = {
+  all: ['users'] as const,
+  lists: () => [...userKeys.all, 'list'] as const,
+};
+
 // features/users/api/get-users.ts - colocated with the feature
 export const getUsers = () => api.get('/users');
 
 export const getUsersQueryOptions = () => ({
-  queryKey: ['users'],
+  queryKey: userKeys.lists(),
   queryFn: getUsers,
 });
 
@@ -585,15 +591,26 @@ export const useUsers = () => useQuery(getUsersQueryOptions());
 ### Cross-Cutting API Errors
 
 ```tsx
-// lib/api-client.ts
+// lib/api-client.ts - transport concerns only
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    toast.error(error.response?.data?.message ?? 'An error occurred');
     if (error.response?.status === 401) logout();
     return Promise.reject(error);
   }
 );
+
+// lib/query-client.ts - one toast per failed query, not one per consumer
+export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      // Inline error UI covers the first load; toast only background refetch failures
+      if (query.state.data !== undefined) {
+        toast.error(error.message);
+      }
+    },
+  }),
+});
 ```
 
 ### Granular Error Boundaries
