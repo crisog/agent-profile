@@ -2,8 +2,8 @@
 #
 # Install with `lefthook install`. pre-push is the gate: it runs the
 # full manifest validation (including the claude<->codex parity check) so a push
-# can't ship mismatched plugin manifests. Hooks are bypassable with --no-verify;
-# CI is the real backstop.
+# can't ship mismatched plugin manifests. There is no CI; run
+# `./scripts/validate.sh` and `npm run check` before pushing if hooks are off.
 #
 # `validate` has no glob, so on a real push (non-empty push file set) it always
 # runs and checks the whole manifest tree; `shellcheck` only fires on pushed

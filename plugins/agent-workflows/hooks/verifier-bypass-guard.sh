@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse hook: make git verifier bypasses visible and stop the silent
-# habit. Law (AGENTS.md / doctrine): bypasses such as --no-verify are never
+# habit. Law (AGENTS.md): bypasses such as --no-verify are never
 # a shortcut — but the law had no floor, and unenforced it went dead-letter.
 #
 # Weakest-valid scope: denies only the two observed bypass shapes —

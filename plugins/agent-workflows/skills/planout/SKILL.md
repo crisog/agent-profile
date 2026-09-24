@@ -52,12 +52,12 @@ By default, implementation and exploration run on the executor tier: dispatch th
 
 Each dispatched task carries the convention skills for the code it is about to write:
 
-- `engineering-practices:code-law` for any code change
-- `engineering-practices:typescript-best-practices`, `engineering-practices:typescript-clean-code`, or the matching language skill
-- `engineering-practices:typescript-backend-architecture` for services and modules that own persistence or external I/O
-- `engineering-practices:testing-best-practices` for tests and verifiers
-- `engineering-practices:react-best-practices` for components, plus `vercel:react-best-practices` on Next.js and Vercel surfaces
-- `engineering-practices:logging-best-practices` for log statements and instrumentation
+- `agent-workflows:code-law` for any code change
+- `agent-workflows:typescript-best-practices` and `agent-workflows:typescript-clean-code` for TypeScript; other languages carry `code-law` alone
+- `agent-workflows:typescript-backend-architecture` for services and modules that own persistence or external I/O
+- `agent-workflows:testing-best-practices` for tests and verifiers
+- `agent-workflows:react-best-practices` for components, plus `vercel:react-best-practices` on Next.js and Vercel surfaces
+- `agent-workflows:logging-best-practices` for log statements and instrumentation
 
 ## Complexity check
 

@@ -15,11 +15,10 @@ A skill should capture reusable judgment, not a story about one session.
 
 Choose the source of truth before editing:
 
-- Shared skill source: edit the repo-managed skill in `agent-profile`, not a generated runtime copy.
+- Shared skill source: edit the repo-managed skill in `agent-workflows`, not a generated runtime copy.
 - Harness-specific adaptation: create a clearly named separate skill instead of installing duplicate skill names with divergent behavior.
 
 In this repo, shared skills live under:
-- `plugins/engineering-practices/skills/<skill-name>/`
 - `plugins/agent-workflows/skills/<skill-name>/`
 
 ## When to Create a Skill
@@ -98,13 +97,11 @@ Validate the skill against realistic tasks:
 1. Freeze representative tasks and at least one legitimate neighboring
    behavior the rule must preserve.
 2. Observe the baseline failure or cite the external contract that establishes
-   it; record the candidate profile fingerprint.
+   it.
 3. Write or revise the skill to address that failure.
 4. Re-run the same tasks in fresh context and compare the decision or action,
    not prose similarity.
-5. After rollout, sample action-conditioned activation: whether the skill loaded
-   before the governed action, after a miss, or never.
-6. Tighten wording only where evidence still shows a loophole; weaken or remove
+5. Tighten wording only where evidence still shows a loophole; weaken or remove
    a rule that blocks the neighboring behavior.
 
 Use subagents for testing only when they add signal. They are optional, not the point.
@@ -116,8 +113,9 @@ Use subagents for testing only when they add signal. They are optional, not the 
 - Long examples that restate the same rule
 - Rules encoding one incident's surface details (tool names, paths, exact
   phrasings) where the failure was structural
-- Skills that restate AGENTS.md law or doctrine entries — skills carry
+- Skills that restate AGENTS.md law — skills carry
   mechanics and point at law
 - Vendor tool names or harness-only paths in a shared skill
 - Rules justified only by model agreement, intuition, or imagined failure
-- Eval claims based on skill mentions without the applicable-action denominator
+- Activation claims counted from skill mentions without counting the sessions
+  where the governed action occurred

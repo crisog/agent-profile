@@ -82,7 +82,7 @@ When conflicts happen:
 2. Resolve each conflicted file via the interior-decision ladder (rules of engagement):
    - Investigate first: open the file, read the surrounding code and both sides' intent — most conflicts are located facts, not judgment calls.
    - Prefer minimal, mechanical resolutions: keep upstream changes unless the feature branch deliberately supersedes them; re-run generators (lockfiles, codegen) instead of hand-editing when appropriate.
-   - Check the brief's Decisions and the doctrine for a standing answer before treating intent as ambiguous.
+   - Check the brief's Decisions for a standing answer before treating intent as ambiguous.
    - If intent is genuinely forked, consult an independent model carrying the evidence and candidate resolutions, then decide provisionally and log the call.
 3. Apply the resolution, then stage only resolved files:
    - `git add <file...>`

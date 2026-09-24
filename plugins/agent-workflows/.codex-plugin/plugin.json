@@ -1,7 +1,7 @@
 {
   "name": "agent-workflows",
-  "version": "4.3.0",
-  "description": "Reusable planning, handoff, verification, and workflow skills for agents.",
+  "version": "5.0.0",
+  "description": "Engineering-practice and workflow skills plus guard hooks for agentic coding.",
   "author": {
     "name": "Cristopher Ortega",
     "email": "ortega.cpp@gmail.com"
@@ -9,18 +9,18 @@
   "repository": "https://github.com/crisog/agent-profile",
   "skills": "./skills",
   "license": "MIT",
-  "keywords": ["skills", "workflow", "agents", "codex", "claude"],
+  "keywords": ["skills", "engineering", "workflow", "agents", "codex", "claude"],
   "interface": {
-    "displayName": "Agent Workflows",
-    "shortDescription": "Reusable workflow skills for coding agents",
-    "longDescription": "Workflow skills for handoffs, planning, behavior-first bug bashes, issue triage, e2e improvement, and safe autonomous execution.",
+    "displayName": "Agent Profile",
+    "shortDescription": "Engineering-practice and workflow skills for coding agents",
+    "longDescription": "Skills for TypeScript and React idioms, tests, git, specs, briefs, planning, behavior-first bug bashes, and safe autonomous execution, with PreToolUse guards for secrets, verifier bypasses, and publishes.",
     "developerName": "Cristopher Ortega",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
-      "Write a self-contained handoff",
+      "Apply the TypeScript best-practice skills",
       "Plan this work before implementation",
-      "Improve the e2e baseline with a verified loop"
+      "Review git workflow constraints before committing"
     ]
   }
 }

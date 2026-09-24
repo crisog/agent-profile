@@ -13,7 +13,7 @@ Turn `$ARGUMENTS`, or the current conversation, into the smallest useful specifi
 
 Inspect the relevant code and current behavior before asking questions. Establish what already works, whether the feature is in production, and the smallest observable change that would satisfy the request.
 
-Ask only questions whose answers change that first working result. Find facts in the codebase yourself. Use `agent-workflows:grilling` only when the user explicitly asks to stress-test the idea.
+Ask only questions whose answers change that first working result. Find facts in the codebase yourself.
 
 ## Specification contract
 

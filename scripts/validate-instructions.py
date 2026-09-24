@@ -12,10 +12,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def main() -> int:
     errors: list[str] = []
-    skill_roots = [
-        ROOT / "plugins/agent-workflows/skills",
-        ROOT / "plugins/engineering-practices/skills",
-    ]
+    skill_roots = sorted(ROOT.glob("plugins/*/skills"))
+    if not skill_roots:
+        errors.append("no plugins/*/skills directory found")
     runtime_docs = [ROOT / "AGENTS.md", ROOT / "README.md"]
     for skill_root in skill_roots:
         skills = sorted(skill_root.glob("*/SKILL.md"))

@@ -10,7 +10,7 @@ usage() {
 Usage: ./install.sh [--check|--fix] [--replace-existing]
 
   --check             Report instruction and marketplace state. Default.
-  --fix               Create safe symlinks and register local marketplaces.
+  --fix               Create safe symlinks and register the local marketplace with Codex and Claude.
   --replace-existing  Backup and replace non-symlink instruction files.
 EOF
 }

@@ -1,6 +1,6 @@
 ---
 name: ship-stack
-description: Use when the user wants a multi-PR stack shipped from an approved spec through automated review gates — e.g. "ship the N PRs in this spec", a Greptile score gate, a whole-branch review gate, or stacked branches that must land in order.
+description: Use when the user wants a multi-PR stack shipped from an approved spec through automated review gates — e.g. "ship the N PRs in this spec", a whole-branch review gate, or stacked branches that must land in order.
 argument-hint: "[spec path] [base branch, default: the repo's default branch]"
 ---
 
@@ -24,7 +24,6 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 - **Strictly sequential:** PR N+1 starts only after PR N passes every gate. After a lower PR gains commits, rebase the stack above it.
 - **Drafts:** every PR opens as a draft and stays a draft; the user flips them ready and merges.
 - **Execution tier:** implementation, fixes, and exploration run on the executor tier (in Claude Code, the `Agent` tool with `model: opus`). The session model is reserved for review gates and judgment: task reviewers and the final whole-branch review run on the most capable available model. The user overrides this per run.
-- **Target score:** 5/5 unless the user names a different one.
 
 ## Per-PR pipeline
 
@@ -33,10 +32,9 @@ The spec's own PR sections define the count and scope — one branch and one PR 
 3. **Deslopify pass** — `agent-workflows:deslopify` on the branch diff against the stack parent, then rerun the objective checks and commit the result. Runs before the review gate so reviewers grade the code that ships.
 4. **Whole-branch review gate** — the final whole-branch review on the finished branch, run on the most capable available model from a detached worktree at the branch tip with the stack parent as the range base (sidesteps dirty-tree WIP). Retry once on an environmental failure; a second environmental failure blocks the PR and is surfaced to the user. Findings are the normal outcome, not failure.
 5. **Draft PR** — final-state narrative body per the `agent-workflows:create-pr` description rules and the repo's PR conventions. It must name every intentional behavior delta and each declined finding a reviewer would otherwise raise as a question.
-6. **Score gate** — comment `@greptileai review`; poll the score comment (it edits in place). Repeat fix → reply → resolve → re-trigger until it shows the target score for the branch head. Real findings get a fix commit + a reply citing the SHA; false positives get an evidence reply. Resolve each thread either way.
-7. **CI** — confirm the checks execute on a draft in this repository before treating CI as a gate; where they do not, run them on the branch tip and cite the output. Investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.
+6. **CI** — confirm the checks execute on a draft in this repository before treating CI as a gate; where they do not, run them on the branch tip and cite the output. Investigate failures; re-run once when flake-shaped (infra timeouts, unrelated packages). A real failure, or a flake that fails identically on the re-run, blocks the PR.
 
-## Findings triage (both gates)
+## Findings triage (review gate)
 
 - **Fix** findings that are real and proportionate to the PR.
 - **Decline** findings the spec explicitly overrules — with the spec citation recorded in the ledger and, when user-visible, in the PR body. The spec outranks the reviewer. When a declined finding is a stance the user might reverse (compatibility, product trade-offs), also list it in the closing summary for confirmation.
@@ -48,4 +46,4 @@ Keep a ledger file (`.ship-stack/progress.md`) updated after every task, gate, a
 
 ## Done
 
-All PRs are drafts at the target score with CI green, the ledger records every declined finding with its grounding, and the closing summary lists the decisions reserved for the user, the merge order, and the follow-up queue.
+All PRs are drafts with the whole-branch review clean and CI green, the ledger records every declined finding with its grounding, and the closing summary lists the decisions reserved for the user, the merge order, and the follow-up queue.

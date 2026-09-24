@@ -219,7 +219,7 @@ describe("publish-guard: pushes to a deploying ref", () => {
     ["git push origin \"main\"", true],
     ["git push origin 'dev'", true],
     // A push of any other branch stays allowed, including near-miss names.
-    ["git push origin feat/doctrine-floors", false],
+    ["git push origin feat/docs-floors", false],
     ["git push -u origin feat/main-line", false],
     ["git push origin devtools-fix", false],
     ["git fetch origin main", false],
@@ -332,8 +332,18 @@ describe("hooks.json registration", () => {
   }
 
   const manifest = JSON.parse(readFileSync(HOOKS_JSON, "utf8")) as {
-    hooks: { PreToolUse: HookEntry[] };
+    hooks: { PreToolUse: HookEntry[]; SessionStart: HookEntry[]; SubagentStart: HookEntry[] };
   };
+
+  // The fingerprint stamps every session and subagent transcript.
+  for (const event of ["SessionStart", "SubagentStart"] as const) {
+    it(`registers the instruction fingerprint for ${event}`, () => {
+      const commands = manifest.hooks[event]
+        .flatMap((e) => e.hooks.map((h) => h.command))
+        .join("\n");
+      expect(commands).toContain(`instruction-fingerprint.sh ${event}`);
+    });
+  }
 
   // A guard that is not registered for both shell tool names is dead code.
   for (const matcher of ["Bash", "shell"]) {
@@ -350,4 +360,31 @@ describe("hooks.json registration", () => {
       }
     });
   }
+});
+
+describe("instruction-fingerprint", () => {
+  const FINGERPRINT = join(HOOKS_DIR, "instruction-fingerprint.sh");
+
+  for (const event of ["SessionStart", "SubagentStart"]) {
+    it(`emits an additionalContext stamp for ${event}`, () => {
+      const stdout = execFileSync(FINGERPRINT, [event], { encoding: "utf8" });
+      const parsed = JSON.parse(stdout) as {
+        hookSpecificOutput: { hookEventName: string; additionalContext: string };
+      };
+      expect(parsed.hookSpecificOutput.hookEventName).toBe(event);
+      expect(parsed.hookSpecificOutput.additionalContext).toMatch(
+        /^instruction-fingerprint: (unknown|agent-profile@[0-9a-f]+(\+dirty)?( [a-z-]+@\d+\.\d+\.\d+)*)$/,
+      );
+    });
+  }
+
+  it("never blocks session start when the checkout cannot be resolved", () => {
+    const stdout = execFileSync(FINGERPRINT, ["SessionStart"], {
+      encoding: "utf8",
+      env: { ...process.env, HOME: tmpdir() },
+    });
+    expect(JSON.parse(stdout).hookSpecificOutput.additionalContext).toBe(
+      "instruction-fingerprint: unknown",
+    );
+  });
 });
