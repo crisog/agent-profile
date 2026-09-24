@@ -1,0 +1,26 @@
+{
+  "name": "engineering-practices",
+  "version": "4.4.0",
+  "description": "Language, tooling, and delivery-practice skills for agentic coding.",
+  "author": {
+    "name": "Cristopher Ortega",
+    "email": "ortega.cpp@gmail.com"
+  },
+  "repository": "https://github.com/crisog/agent-profile",
+  "skills": "./skills",
+  "license": "MIT",
+  "keywords": ["skills", "engineering", "codex", "claude"],
+  "interface": {
+    "displayName": "Engineering Practices",
+    "shortDescription": "Language and tooling skills for coding agents",
+    "longDescription": "Reusable engineering-practice skills for language idioms, tests, git, specs, briefs, and tool-specific workflows.",
+    "developerName": "Cristopher Ortega",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "Apply the right language best-practice skill",
+      "Use spec and brief guidance for this change",
+      "Review git workflow constraints before committing"
+    ]
+  }
+}

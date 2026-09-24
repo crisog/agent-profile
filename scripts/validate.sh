@@ -1,0 +1,416 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+require_json() {
+  local path="$1"
+  if command -v jq >/dev/null 2>&1; then
+    jq empty "$path" >/dev/null
+  else
+    python3 -m json.tool "$path" >/dev/null
+  fi
+  echo "json ok: $path"
+}
+
+validate_skill() {
+  local skill_dir="$1"
+  python3 - "$skill_dir" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+skill_dir = Path(sys.argv[1])
+skill_md = skill_dir / "SKILL.md"
+if not skill_md.is_file():
+    raise SystemExit(f"missing SKILL.md: {skill_dir}")
+
+content = skill_md.read_text(encoding="utf-8")
+match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+if not match:
+    raise SystemExit(f"missing YAML frontmatter: {skill_md}")
+
+frontmatter = {}
+for raw_line in match.group(1).splitlines():
+    if not raw_line.strip() or raw_line.lstrip().startswith("#"):
+        continue
+    if ":" not in raw_line:
+        raise SystemExit(f"invalid frontmatter line in {skill_md}: {raw_line}")
+    key, value = raw_line.split(":", 1)
+    key = key.strip()
+    value = value.strip().strip('"').strip("'")
+    frontmatter[key] = value
+
+name = frontmatter.get("name", "")
+description = frontmatter.get("description", "")
+if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+    raise SystemExit(f"invalid skill name in {skill_md}: {name!r}")
+if not description:
+    raise SystemExit(f"missing skill description in {skill_md}")
+if not description.startswith("Use when"):
+    raise SystemExit(
+        f"skill description must start with 'Use when' in {skill_md}: "
+        f"{description!r}"
+    )
+if "<" in description or ">" in description:
+    raise SystemExit(f"skill description contains angle brackets in {skill_md}")
+
+print(f"skill ok: {skill_dir}")
+PY
+}
+
+run_python_with_yaml() {
+  local script="$1"
+  shift
+
+  if python3 -c 'import yaml' >/dev/null 2>&1; then
+    python3 "$script" "$@"
+    return
+  fi
+
+  if command -v uv >/dev/null 2>&1; then
+    uv run --with pyyaml python "$script" "$@"
+    return
+  fi
+
+  echo "skip: $script requires PyYAML; install PyYAML or uv" >&2
+  return 0
+}
+
+# Cross-manifest parity gate. The other checks lint each manifest in isolation;
+# this asserts the parallel Claude and Codex manifests describe the same plugins
+# at the same versions, so a release can't ship mismatched claude vs codex (the
+# failure the rest of validate.sh is blind to). Pure stdlib so the pre-push hook
+# has no dependency beyond python3.
+check_manifest_parity() {
+  python3 - "$ROOT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+plugins_dir = root / "plugins"
+errors = []
+
+def load(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        errors.append(f"missing manifest: {path}")
+    except json.JSONDecodeError as exc:
+        errors.append(f"invalid json in {path}: {exc}")
+    return None
+
+# Plugins are discovered from the directory tree; that on-disk set is the source
+# of truth both marketplaces must agree with.
+plugin_dirs = sorted(p for p in plugins_dir.iterdir() if p.is_dir())
+dir_names = {p.name for p in plugin_dirs}
+
+# Versioned Claude marketplace: name -> entry.
+claude_mp = load(root / ".claude-plugin" / "marketplace.json")
+claude_mp_entries = {}
+if claude_mp is not None:
+    for entry in claude_mp.get("plugins", []):
+        claude_mp_entries[entry.get("name")] = entry
+
+# Root (Codex-style) marketplace carries no versions, only the plugin set.
+codex_mp = load(root / "marketplace.json")
+codex_mp_names = set()
+if codex_mp is not None:
+    codex_mp_names = {e.get("name") for e in codex_mp.get("plugins", [])}
+
+if set(claude_mp_entries) != dir_names:
+    errors.append(
+        ".claude-plugin/marketplace.json plugin set "
+        f"{sorted(claude_mp_entries)} != plugin dirs {sorted(dir_names)}"
+    )
+if codex_mp_names != dir_names:
+    errors.append(
+        f"marketplace.json plugin set {sorted(codex_mp_names)} "
+        f"!= plugin dirs {sorted(dir_names)}"
+    )
+
+FIELDS = ("name", "version", "description")
+
+for pdir in plugin_dirs:
+    name = pdir.name
+    before = len(errors)  # so "parity ok" only prints when this plugin is clean
+    claude = load(pdir / ".claude-plugin" / "plugin.json")
+    codex = load(pdir / ".codex-plugin" / "plugin.json")
+    if claude is None or codex is None:
+        continue
+
+    # claude vs codex plugin.json must agree on the shared fields.
+    for field in FIELDS:
+        cv, xv = claude.get(field), codex.get(field)
+        if cv != xv:
+            errors.append(
+                f"{name}: .claude-plugin/plugin.json {field}={cv!r} "
+                f"!= .codex-plugin/plugin.json {field}={xv!r}"
+            )
+
+    # The plugin name must match its directory (and thus its marketplace key).
+    if claude.get("name") != name:
+        errors.append(
+            f"{name}: .claude-plugin/plugin.json name={claude.get('name')!r} "
+            f"!= directory name {name!r}"
+        )
+
+    # The versioned marketplace entry must agree with the plugin manifest.
+    entry = claude_mp_entries.get(name)
+    if entry is not None:
+        for field in FIELDS:
+            mv, pv = entry.get(field), claude.get(field)
+            if mv != pv:
+                errors.append(
+                    f"{name}: .claude-plugin/marketplace.json {field}={mv!r} "
+                    f"!= plugin.json {field}={pv!r}"
+                )
+
+    if len(errors) == before:
+        print(f"parity ok: {name}")
+
+if errors:
+    print("\nmanifest parity check FAILED:", file=sys.stderr)
+    for e in errors:
+        print(f"  - {e}", file=sys.stderr)
+    raise SystemExit(1)
+
+print("manifest parity ok")
+PY
+}
+
+# Pi package gate (additive). The repo installs as a pi package: package.json's
+# pi manifest must resolve on disk, and the hooks extension must keep exec'ing
+# the canonical hook scripts rather than duplicating hook policy inline. Pure
+# stdlib (python3) so the pre-push hook has no dependency beyond python3.
+check_pi_package() {
+  python3 - "$ROOT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+errors = []
+
+
+def load(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        errors.append(f"missing manifest: {path}")
+    except json.JSONDecodeError as exc:
+        errors.append(f"invalid json in {path}: {exc}")
+    return None
+
+
+pkg = load(root / "package.json")
+if pkg is not None:
+    pi = pkg.get("pi")
+    if not isinstance(pi, dict):
+        errors.append("package.json declares no pi manifest")
+        pi = {}
+    for ext in pi.get("extensions") or []:
+        f = root / ext.lstrip("./")
+        if not f.is_file():
+            errors.append(f"pi extension not found: {ext}")
+    for skills in pi.get("skills") or []:
+        d = root / skills.lstrip("./")
+        if not d.is_dir():
+            errors.append(f"pi skills dir not found: {skills}")
+        elif not any(p.name == "SKILL.md" for p in d.rglob("SKILL.md")):
+            errors.append(f"pi skills dir has no SKILL.md anywhere: {skills}")
+    ext_rel = (pi.get("extensions") or ["./extensions/pi-hooks.ts"])[0]
+    ext = root / ext_rel.lstrip("./")
+    if ext.is_file():
+        src = ext.read_text(encoding="utf-8")
+        for hook in ("instruction-fingerprint.sh", "verifier-bypass-guard.sh"):
+            if hook not in src:
+                errors.append(f"pi extension no longer references {hook}")
+    else:
+        errors.append(f"pi extension missing: {ext_rel}")
+
+if errors:
+    print("pi package check FAILED:", file=sys.stderr)
+    for e in errors:
+        print(f"  - {e}", file=sys.stderr)
+    raise SystemExit(1)
+print("pi package ok")
+PY
+}
+
+# Destructive commands shown in routine code blocks are executable advice. Keep
+# data deletion in separately explained boundary prose rather than allowing an
+# example to bypass the surrounding authority rule.
+check_destructive_examples() {
+  python3 - "$ROOT" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+files = (
+    root / "plugins/agent-workflows/skills/host-tidy/SKILL.md",
+    root / "plugins/engineering-practices/skills/orbstack-best-practices/SKILL.md",
+)
+forbidden = re.compile(
+    r"(?:\b(?:docker\s+)?compose\s+down\b[^\n]*\s-v(?:\s|$)|"
+    r"\bdocker\s+volume\s+(?:rm|prune)\b|\borb\s+reset\b)"
+)
+errors = []
+
+for path in files:
+    in_fence = False
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence and forbidden.search(line):
+            errors.append(f"{path}:{line_number}: destructive routine example: {line.strip()}")
+
+if errors:
+    print("destructive example check FAILED:", file=sys.stderr)
+    for error in errors:
+        print(f"  - {error}", file=sys.stderr)
+    raise SystemExit(1)
+
+print("destructive examples ok")
+PY
+}
+
+# Release-tag gate. Plugin versions are consumed by tag (`<plugin>-v<version>`),
+# so a release commit that never got its tag publishes nothing — the marketplace
+# advertises a version no consumer can resolve. Four such tags were missing and
+# had to be backfilled by hand, which is the failure this closes.
+#
+# Both directions matter: a release commit needs its tag, and the version each
+# manifest currently advertises needs one too (a bump whose subject line strays
+# from the convention is invisible to the first check alone).
+check_release_tags() {
+  python3 - "$ROOT" <<'PY'
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+errors = []
+
+
+def git(*args):
+    return subprocess.run(
+        ("git", "-C", str(root)) + args,
+        capture_output=True, text=True, check=True,
+    ).stdout
+
+
+# A tag list that is merely unfetched would make every assertion below pass
+# vacuously, so an empty one is a broken oracle, not a clean result.
+tags = {t for t in git("tag").split() if t}
+if not tags:
+    print(
+        "release tag check FAILED: no tags in this clone, so the check cannot "
+        "run.\n  Run `git fetch --tags` and retry.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+
+def tag_commit(tag):
+    # ^{commit} dereferences annotated tags to the commit they point at.
+    return git("rev-list", "-n", "1", f"{tag}^{{commit}}").strip()
+
+
+# Direction 1: every release commit on the first-parent line of HEAD names
+# plugin/version pairs in its subject, and each pair owes a tag pointing at
+# that same commit. Only the first-parent line is checked: history merged in
+# from another lineage carries its own release commits under its own tag namespace.
+log = git("log", "--first-parent", "--format=%H%x00%s", "HEAD")
+for line in log.splitlines():
+    if not line:
+        continue
+    sha, _, subject = line.partition("\0")
+    if not subject.startswith("chore(release):"):
+        continue
+    pairs = re.findall(r"([a-z0-9][a-z0-9-]*) v(\d+\.\d+\.\d+)", subject)
+    if not pairs:
+        errors.append(f"{sha[:7]}: release commit names no plugin/version: {subject!r}")
+        continue
+    for plugin, version in pairs:
+        tag = f"{plugin}-v{version}"
+        if tag not in tags:
+            errors.append(f"{sha[:7]}: missing tag {tag} for {subject!r}")
+        elif tag_commit(tag) != sha:
+            errors.append(
+                f"{tag} points at {tag_commit(tag)[:7]}, "
+                f"not the {sha[:7]} release commit that declares it"
+            )
+
+# Direction 2: whatever version each manifest advertises right now must be
+# tagged, however its release commit was worded.
+for pdir in sorted(p for p in (root / "plugins").iterdir() if p.is_dir()):
+    manifest = pdir / ".claude-plugin" / "plugin.json"
+    try:
+        version = json.loads(manifest.read_text(encoding="utf-8")).get("version")
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        errors.append(f"{pdir.name}: cannot read version: {exc}")
+        continue
+    tag = f"{pdir.name}-v{version}"
+    if tag not in tags:
+        errors.append(f"{pdir.name}: advertises {version} but {tag} does not exist")
+    else:
+        print(f"release tag ok: {tag}")
+
+if errors:
+    # stdout is block-buffered under a pipe while stderr is not, so without this
+    # the "ok" lines land after the error block in CI logs.
+    sys.stdout.flush()
+    print("\nrelease tag check FAILED:", file=sys.stderr)
+    for e in errors:
+        print(f"  - {e}", file=sys.stderr)
+    raise SystemExit(1)
+
+print("release tags ok")
+PY
+}
+
+require_json "$ROOT/marketplace.json"
+require_json "$ROOT/.claude-plugin/marketplace.json"
+require_json "$ROOT/plugins/engineering-practices/.codex-plugin/plugin.json"
+require_json "$ROOT/plugins/engineering-practices/.claude-plugin/plugin.json"
+require_json "$ROOT/plugins/agent-workflows/.codex-plugin/plugin.json"
+require_json "$ROOT/plugins/agent-workflows/.claude-plugin/plugin.json"
+
+require_json "$ROOT/package.json"
+
+check_manifest_parity
+check_pi_package
+check_destructive_examples
+python3 "$ROOT/scripts/validate-instructions.py"
+check_release_tags
+
+if command -v claude >/dev/null 2>&1; then
+  claude plugin validate --strict "$ROOT/.claude-plugin/marketplace.json"
+  claude plugin validate --strict "$ROOT/plugins/engineering-practices"
+  claude plugin validate --strict "$ROOT/plugins/agent-workflows"
+else
+  echo "skip: claude plugin validation (claude CLI not found)"
+fi
+
+if [ -n "${CODEX_VALIDATOR:-}" ] && [ -f "$CODEX_VALIDATOR" ]; then
+  run_python_with_yaml "$CODEX_VALIDATOR" "$ROOT/plugins/engineering-practices"
+  run_python_with_yaml "$CODEX_VALIDATOR" "$ROOT/plugins/agent-workflows"
+else
+  # Skipping the external Codex schema validator is acceptable: it lives outside
+  # this repo, and check_manifest_parity already asserts claude<->codex field
+  # parity (name/version/description) with no external dependency. The validator
+  # only adds deeper structural checks of the codex manifest shape.
+  echo "skip: codex plugin schema validation (set CODEX_VALIDATOR to validate_plugin.py; manifest parity already enforced)"
+fi
+
+find "$ROOT/plugins" -mindepth 3 -maxdepth 3 -type d -path '*/skills/*' -print0 \
+  | sort -z \
+  | while IFS= read -r -d '' skill_dir; do
+      validate_skill "$skill_dir"
+    done
