@@ -15,7 +15,7 @@ PRD         features in value order, each as what a user or operator can do; sco
 MILESTONES  shippable slices with a user-visible outcome, an estimate with its assumptions, and one gate each
 ISSUES      minted per milestone when that milestone is approved: problem-first, one PR each, parallel by files
 APPROVAL    the human ratifies each milestone and accepts or skips each issue before the first branch
-BUILD       one PR per issue against the base branch; specout and planout per issue; independent PRs, not a stack
+BUILD       one PR per issue against the base branch; a spec when the outcome needs clarification, planout for multi-step work; independent PRs, not a stack
 ```
 
 Templates for each rung are in [references/templates.md](references/templates.md).
@@ -137,10 +137,8 @@ ladder entirely; the ladder governs programs, not fixes.
 
 - One PR per issue against the base branch. A dependency edge between issues is
   executed by landing the producing PR on the base first, never by basing the
-  consumer's packet on the producer's branch. A stack is the exception for one
-  issue whose change must land as several reviewable steps of one atomic
-  behavior change, and it merges the same day it goes green. Work fanned out to
-  parallel executors is never linearized into a stack afterwards.
+  consumer's packet on the producer's branch. When a stack is allowed, how
+  large it may be, and when it merges is the `ship-stack` policy.
 - The pre-merge drive and the bug bash run on a disposable integration branch
   merged from the milestone's open PRs and discarded afterwards. It is not a
   review target and never a packet base. The milestone's driver owns the drive;
@@ -167,7 +165,7 @@ ladder entirely; the ladder governs programs, not fixes.
 - An issue body that locks a mechanism, or copies constants from the PRD.
 - A milestone whose exit is an environment state, or a phase list that is an
   environment ladder.
-- A stack of more than three PRs, or a stack held open while the base moves.
+- A stack outside the `ship-stack` policy.
 - Parallel executors whose packets base on each other's branches.
 - An estimate given to people before an inventory.
 - A gate the plan names that runs on nothing (no CI on drafts, a matrix that
@@ -178,10 +176,10 @@ ladder entirely; the ladder governs programs, not fixes.
 
 ## Handoff
 
-Per accepted issue: `specout` when the outcome needs clarification, then
-`planout`, then build, then `bugbash` on the assembled surface. Issue filing
-mechanics live in `create-github-issue`, the GitHub object mapping in
-`references/github.md`, and flag detail in the `gh` skill; durable
-requirements and decisions in `spec-best-practices`; the stack exception in
-`ship-stack`. `specout` and `create-github-issue` are user-invoked; a driver
-filing without them applies the issue law in the Issues rung directly.
+Per accepted issue: `spec-best-practices` when the outcome needs
+clarification, `planout` for multi-step work, then build, then `bugbash` on
+the assembled surface. Issue filing mechanics live in `create-github-issue`, the GitHub
+object mapping in `references/github.md`, and flag detail in the `gh` skill;
+durable requirements and decisions in `spec-best-practices`; the stack
+exception in `ship-stack`. `create-github-issue` is user-invoked; a driver
+filing without it applies the issue law in the Issues rung directly.

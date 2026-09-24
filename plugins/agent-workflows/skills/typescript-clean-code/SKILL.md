@@ -1,6 +1,6 @@
 ---
 name: typescript-clean-code
-description: Use when writing, reviewing, or refactoring TypeScript in a frontend, backend, library, or CLI project.
+description: Use when reading, writing, reviewing, or refactoring TypeScript or JavaScript (.ts, .tsx, .js files, tsconfig.json) in a frontend, backend, library, or CLI project.
 ---
 
 # TypeScript Clean Code
@@ -15,8 +15,8 @@ A set of defaults for writing strict, predictable, low-noise TypeScript. Reposit
 - Narrow runtime data with a schema, never a hand-rolled `typeof` / `in` chain. A chain proves the shape and then throws the proof away; a schema hands back a typed value the rest of the code can use.
 - `void` is used only as a return type, never as an operator (no `void somePromise()`). Await promises explicitly.
 - Validate data that crosses a runtime trust boundary with the repository's existing runtime validator (Zod is a good default when none exists), then derive the static type from the schema when the library supports it. Boundaries include HTTP and webhook bodies, third-party API responses, environment variables, browser storage, `postMessage`, and URL/query parameters.
-- Parse once at the boundary. Parsing converts `unknown` into a trusted value that downstream code can use directly; do not repeat validation throughout the call graph and discard the proof each time.
-- Colocate each schema next to the code that consumes it — the hook, route, or module that fetches or reads — not in a central `schemas.ts` or a shared `types.ts`. The inferred type lives with its schema; consumers import it from there.
+- Parse once at the boundary. Parsing converts `unknown` into a trusted value that downstream code can use directly; do not repeat validation throughout the call graph and discard the proof each time. Normalize at parse time with `.transform()` (trim strings, parse dates) so downstream code receives the normalized value.
+- Colocate each schema next to the code that consumes it — the hook, route, or module that fetches or reads — not in a central `schemas.ts` or a shared `types.ts`. The inferred type lives with its schema; consumers import it from there. Derive variants with `.pick`, `.omit`, or by spreading the owning schema's `.shape` into a new `z.object` instead of redeclaring the fields; `.merge` is deprecated in Zod 4.
 - Conversely, don't reach for Zod where there's no runtime boundary. Function and hook **params and return types**, internal or derived state, and values built in-code from literals or config are compile-time contracts — use a plain TS `type`. A schema there is dead weight that drifts from the type it mirrors.
 - At a user-facing boundary, use the validator's non-throwing API when available. Surface a clean, human-readable message; never let raw validation internals reach the user.
 - Guard deserialization itself: `await res.json()` throws on an empty or non-JSON body. Treat failure as fatal when the operation cannot complete; deliberately degrade only when the work already succeeded and the response is non-essential display data.
@@ -28,7 +28,7 @@ A set of defaults for writing strict, predictable, low-noise TypeScript. Reposit
 const user = (await res.json()) as User;
 
 // Good — colocated schema, type derived from it, safeParse with a clean message
-const userSchema = z.object({ email: z.string().email() });
+const userSchema = z.object({ email: z.email() });
 type User = z.infer<typeof userSchema>;
 
 const result = userSchema.safeParse(await res.json().catch(() => null));
@@ -68,7 +68,7 @@ function sendInvite({ userId, email, shouldNotify }: SendInviteParams): void {
 }
 ```
 
-Use a discriminated union with a `kind` field for mutually exclusive variants. Parse a flat external input into the union once so downstream code narrows through ordinary control flow instead of scattered type guards.
+Use a discriminated union with a `kind` field for mutually exclusive variants. Parse a flat external input into the union once so downstream code narrows through ordinary control flow instead of scattered type guards. A `switch` over the `kind` ends in a `default` that assigns the value to `never` and throws (`const unhandled: never = value;`), so a new variant fails compilation until every switch handles it.
 
 ```ts
 // Bad — a nested ternary, a clever chain, and a fallback that hides the empty case
@@ -144,7 +144,7 @@ async function update(version: Version): Promise<void> {
 - Use named exports; rely on default exports only where a framework requires them.
 - Boolean variables and props use an `is` / `has` / `should` / `can` prefix.
 - Use full domain words rather than abbreviations or single-letter variables. Conventional loop indices and established domain terms are fine.
-- Identifiers for opaque references use an `Id` suffix (e.g. `UserId`, `OrderId`).
+- Identifiers for opaque references use an `Id` suffix (e.g. `UserId`, `OrderId`). Brand them (`type UserId = string & { readonly __brand: 'UserId' }`, or `z.string().brand<'UserId'>()` when the id enters through a schema) so the compiler rejects an `OrderId` where a `UserId` is expected.
 - Prop/param object types are named `<Name>Props` or `<Name>Params`. Zod schemas are `camelCaseSchema`; the types inferred from them are `PascalCase`.
 - Named constants are `UPPER_SNAKE_CASE`, declared at the top of the file.
 

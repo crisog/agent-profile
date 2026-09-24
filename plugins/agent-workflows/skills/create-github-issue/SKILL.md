@@ -14,9 +14,9 @@ File the problem found in the current session as a GitHub issue.
 An issue states a problem. It never prescribes an implementation.
 
 - Problem-first: what is wrong, who it hurts, and the evidence that it is real.
-- A solution may appear as a single hinted line at most. A plan, a task list, a file-by-file breakdown, or a code sketch belongs in the PR, not the issue. An issue minted for a `program-planning` milestone takes that skill's stricter rule: no mechanism at all.
+- A solution may appear as a single hinted line at most. A plan, a task list, a file-by-file breakdown, or a code sketch belongs in the implementation-plan comment on the issue, not in its body. An issue minted for a `program-planning` milestone takes that skill's stricter rule: no mechanism at all.
 - No implementation contract, no locked mechanism, no numeric constants copied from a plan. Acceptance is observable behavior an operator can produce. The implementation plan is a comment written when the issue is picked up.
-- An issue belongs to an approved milestone. Minting issues for milestones that are not yet approved is `program-planning`'s red flag, not filing.
+- A program issue belongs to an approved `program-planning` milestone. Minting issues for a milestone that is not yet approved breaks that skill's Issues rung. A standalone issue needs no milestone.
 - No references to anything outside the repository's own organization: no other companies, no cross-company links.
 - The body's prose follows `writing-technical-english`: one verb per action, active voice, one idea per sentence.
 - Draft the full issue text and show it to the user before publishing. Never publish an issue the user has not seen.
@@ -82,7 +82,15 @@ An issue states a problem. It never prescribes an implementation.
 
    ...
 
+   ## Evidence
+
+   ...
+
    ## Why it matters
+
+   ...
+
+   ## Acceptance
 
    ...
 

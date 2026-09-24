@@ -1,6 +1,6 @@
 ---
 name: writing-technical-english
-description: Use when writing prose someone else acts on, such as a report, a finding, a PR description, a commit message, an issue body, an instruction or prompt for another agent, a tool description, an error message, or a status line; also when asked to simplify, shorten, or make text readable.
+description: Use when writing prose someone else acts on, such as a report, a finding, a PR description, a commit message, an issue body, an instruction or prompt for another agent, a tool description, an error message, or a status line; also when asked to simplify, shorten, or make text readable, with requests like "simplify this", "too dense", "rewrite in STE", or "ASD-STE100".
 ---
 
 # Writing technical English
@@ -41,6 +41,7 @@ its limit is a floor, not a license.
 | One part of speech per word | Use a word as one part of speech within a text: "apply oil to the valve" | The same text also saying "oil the valve" |
 | Active voice | "The worker deletes the file." Name the actor the source gives; when it gives none, keep the passive and mark the gap. In your own report you are the actor. | "The file is deleted.", or an actor the source never named |
 | Simple tenses | "We received the report." | "We have received the report." |
+| "-ing" forms | Use an "-ing" form only inside a technical noun: "routing table", "staging environment" | An "-ing" verb form: "Restarting the pod clears the cache." |
 | One idea per sentence | "Open the file. Read line 3." | "Open the file and read line 3, then check it matches." |
 | Sentence length | 20 words or fewer for an instruction, 25 for a description; a text that mixes both takes 20 | Chains of subordinate clauses |
 | Noun clusters | 3 words or fewer ("fuel pump valve") | "high pressure fuel pump inlet valve assembly" |
@@ -52,7 +53,8 @@ its limit is a floor, not a license.
 | Risk first | Open with the condition or the command; an error message states the failure, then the cause, then the action the reader takes | A risk buried mid-sentence |
 
 Precision beats brevity. When a shorter sentence would drop a condition, a
-scope qualifier, or a number, keep the longer sentence. A condition keeps its
+scope qualifier, or a number, keep the longer sentence. When you keep a
+sentence over the limit, say why in one line. A condition keeps its
 connective: when a sentence with two or more conditions splits, the lead
 sentence states the outcome and the relation, such as "both must hold" or
 "either is enough", and the conditions follow. A hedge the source puts on a

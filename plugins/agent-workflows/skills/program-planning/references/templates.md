@@ -99,7 +99,8 @@ Links to issues, PRs, or the milestone. Omit when empty.
 ```
 
 The implementation plan is a comment on the issue, written when the issue is
-picked up, naming the PR, the requirement ids, and the verifier.
+picked up, naming the PR, the requirement ids, and the verifier. For
+multi-step work the comment is the `planout` plan.
 
 ## Approval checklist
 

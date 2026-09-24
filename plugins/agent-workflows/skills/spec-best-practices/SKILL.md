@@ -1,12 +1,13 @@
 ---
 name: spec-best-practices
-description: Use when creating, reviewing, updating, interviewing for, completing, or finding gaps in SPEC.md files, or entering the ADF SPEC gate.
+description: Use when creating, reviewing, updating, interviewing for, completing, or finding gaps in SPEC.md files, specifying a change whose outcome or scope needs clarification, or entering the ADF SPEC gate.
 ---
 
 ## Modes
 
 - Interview, complete, or find gaps in a `SPEC.md` → read the [interview workflow](references/interview.md) and apply it alongside the rules below.
 - Create, review, or update a `SPEC.md` → use the rules below directly.
+- Specify a new change whose outcome or scope needs clarification → start with [Minimal spec](#minimal-spec).
 
 ## Naming
 
@@ -16,10 +17,10 @@ Supporting documents linked from a `SPEC.md` TOC may use descriptive names (e.g.
 
 ## Placement
 
-Specs are colocated with the code they describe: root `SPEC.md` for project scope, `apps/foo/SPEC.md` for app scope, `packages/bar/SPEC.md` for package scope.
+Specs are committed and colocated with the code they describe: root `SPEC.md` for project scope, `apps/foo/SPEC.md` for app scope, `packages/bar/SPEC.md` for package scope.
 
 - Avoid `spec/`, `docs/specs/`, and `docs/plans/` directories. Prefer colocated `SPEC.md` files.
-- Plan documents are ephemeral. Absorb durable decisions into the relevant `SPEC.md` and delete the plan doc.
+- Commit Discipline in `git-best-practices` governs plan documents. Absorb durable decisions into the relevant `SPEC.md`.
 - When a spec gets long, add a TOC linking to adjacent supporting files (`./commands.spec.md`, etc.). Supporting files live alongside the `SPEC.md`, not in a subdirectory.
 
 ## Content
@@ -63,7 +64,19 @@ Specs are freeform markdown. No rigid template, no YAML frontmatter, no required
 
 **Pre-ship compatibility is out of scope**: if the feature has not shipped, compatibility with its experimental behavior is not a requirement unless the user states it is.
 
-**Spec vs. plan**: specs describe what and why; plans describe how and when. Plans are ephemeral. Absorb durable decisions into the spec; delete the plan doc.
+**Spec vs. plan**: specs describe what and why; plans describe how and when.
+
+## Minimal spec
+
+Write the smallest spec that yields working software by the simplest path.
+
+- Start from the existing flow. Before any question, inspect the code and current behavior: what already works, whether the feature is in production, and the smallest observable change that satisfies the request.
+- Ask only questions whose answers change the first working result. Find facts in the codebase yourself.
+- The problem and solution narrative states the **Primary outcome**, the single observable result required. The first acceptance line is the **Smallest working proof**, the first end-to-end behavior that proves the outcome works.
+- A constraint enters the spec only on evidence from the user, deployed behavior, an observed failure, or a real trust boundary.
+- A concern without that evidence, and not needed for the smallest working proof, goes under a **Later questions** section. Later questions never become current requirements.
+- Complexity check, before presenting the spec: name the existing flow it reuses, each new subsystem and the requirement that demands it, the first end-to-end proof, and the deferred work. Defer a new subsystem that has no concrete supporting requirement.
+- Handoff: once the user accepts the spec, bounded work uses a session plan and multi-step work uses `planout`.
 
 ## Lifecycle
 

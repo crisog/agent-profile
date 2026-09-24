@@ -31,28 +31,7 @@ Don't throw log statements everywhere hoping something useful sticks. Before wri
 
 ## 2. Structure
 
-### `log-structured` - Use Structured Logging
-
-Bad (unstructured):
-```
-2024-03-22 14:15:32 ERROR Payment failed for customer acct_8472 amount $149.99
-```
-
-Good (structured JSON):
-```json
-{
-  "timestamp": "2024-03-22T14:15:32Z",
-  "level": "error",
-  "event": "payment_failed",
-  "customerId": "acct_8472",
-  "amount": 149.99,
-  "currency": "USD",
-  "gateway": "stripe",
-  "errorCode": "card_declined"
-}
-```
-
-Structured logs enable filtering, searching, and analysis. Use logging frameworks that support this natively.
+Structured fields, canonical log lines, sampling, and the split between logs and metrics follow the Observable section of `code-law`.
 
 ### `log-context` - Include Sufficient Context
 
@@ -81,41 +60,9 @@ Good:
 }
 ```
 
-### `log-canonical` - Use Canonical Log Lines
-
-Instead of logging events as they happen (scattered entries), create one comprehensive log entry per request that captures the entire story:
-
-```json
-{
-  "requestId": "req_e4f8b21a",
-  "userId": "usr_9032",
-  "endpoint": "POST /api/v1/subscriptions",
-  "status": 201,
-  "durationMs": 187,
-  "dbTimeMs": 62,
-  "cacheHit": true,
-  "planType": "pro"
-}
-```
-
-**Better alternative:** Use distributed tracing (OpenTelemetry) to link spans across services while preserving individual steps.
-
 ## 3. Performance
 
-### `log-sampling` - Implement Log Sampling
-
-For high-traffic systems generating terabytes of logs:
-
-- Store a representative sample instead of everything
-- Be selective: keep all errors, sample successes
-- Sample more aggressively on high-traffic endpoints
-- Keep full logs for critical paths
-
-**Result:** Can reduce logging costs by 80%+ while maintaining insights.
-
 ### `log-no-sensitive` - Never Log Sensitive Data
-
-Twitter and GitHub both accidentally logged passwords. Don't be next.
 
 Never log:
 - Passwords (plain or hashed)
@@ -140,21 +87,5 @@ Set up filters in your logging pipeline to catch and redact sensitive patterns b
 Logging costs CPU cycles and memory:
 
 - Choose efficient logging libraries (e.g., Go's slog over logrus)
-- Use sampling in high-traffic paths
 - Log to a separate disk partition
 - Load test to catch logging bottlenecks early
-
-**Example impact:** Basic logging can cause 20% performance drop; optimized libraries reduce this to ~3%.
-
-### `log-vs-metrics` - Use the Right Tool
-
-| Logs | Metrics |
-|------|---------|
-| Tell you what happened | Tell you how often things happen |
-| Good for debugging | Good for real-time monitoring |
-| After-the-fact analysis | Trend detection and alerting |
-
-**Use logs** to debug problems.
-**Use metrics** to know when you have a problem.
-
-Don't grep through logs to answer "is my service healthy right now?" - that's what metrics are for.
