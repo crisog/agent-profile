@@ -1,6 +1,6 @@
 # agent-profile
 
-Portable agent runtime profile for Claude Code, Codex CLI, and pi: one
+Portable agent runtime profile for Claude Code and Codex CLI: one
 shareable instruction file (`AGENTS.md`) and two installable plugins —
 `engineering-practices` (language, tooling, and quality skills) and
 `agent-workflows` (reusable workflow skills) — shipped from a single tree
