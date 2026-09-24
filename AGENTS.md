@@ -113,6 +113,12 @@ Testing law, which holds whether or not `testing-best-practices` is loaded:
   first write down every way it can fail, then write the code against that
   list. The failure list is the test plan, and it exists before the
   implementation does.
+- **A test earns its place by a contract, not by a mistake.** A test kept
+  in the tree guards behavior a user, operator, or caller depends on. A
+  test written to catch the agent's own error during implementation is
+  scaffolding: it is deleted before `done`. A regression test stays only
+  when it reproduces a defect that reached a user, a reviewer, or a
+  release, and its name says which one.
 
 ## The brief
 
