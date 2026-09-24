@@ -30,14 +30,14 @@ git config remote.pushDefault origin     # if multiple remotes exist (skips remo
 **All `gh stack` commands must be run non-interactively.** If a command would prompt for input, it will hang indefinitely.
 
 1. **Always supply branch names as positional arguments** to `init`, `add`, and `checkout`. Branch names are used exactly as given.
-2. **Always use `--auto` with `gh stack submit`.** Without `--auto`, `submit` prompts for a title for each new PR.
+2. **Always use `--auto` with `gh stack submit`.** Without `--auto`, `submit` prompts for a title for each new PR. After `submit --auto`, set each PR title and body per PR Creation in `git-best-practices` with `gh pr edit`.
 3. **Always use `--json` with `gh stack view`.** Without `--json` (including with `--short`), the command launches an interactive TUI.
 4. **Handle multiple remotes.** Pre-configure `git config remote.pushDefault origin`, or pass `--remote <name>` to `push`, `submit`, `sync`, `rebase`, and `link`. `checkout`, `modify`, and `trunk` have **no `--remote` flag** — they rely on `remote.pushDefault`. With multiple remotes and no configured default, these commands exit with an error in non-interactive mode.
 5. **Avoid branches shared across multiple stacks.** If a branch belongs to multiple stacks, commands exit with code 6. Check out a non-shared branch first.
-6. **Plan your stack layers by dependency order before writing code.** Foundational changes go in lower branches; dependent changes go in higher branches. Don't mix unrelated work into a single stack; start a new stack for each distinct effort.
+6. **Plan your stack layers by dependency order before writing code.** When a stack is allowed is the `ship-stack` policy. Foundational changes go in lower branches; dependent changes go in higher branches. Don't mix unrelated work into a single stack; start a new stack for each distinct effort.
 7. **Use standard `git add` and `git commit` for staging and committing.**
 8. **Use `gh stack link` for external tool workflows** (jj, Sapling, etc.). `link` does not create or modify any local state.
-9. **Use `gh stack merge --yes` to merge stacked PRs.** `gh pr merge` does not work with stacked PRs. `gh stack merge` merges the entire stack (bottom to top) atomically. Scope the merge by passing a pull request number (`gh stack merge 42 --yes` merges everything up to and including PR #42) or a stack number (`gh stack merge 7 --yes`, which needs no local checkout). Without a method flag (`--squash`, `--rebase`, `--merge`), the last-used method is used. The merge is all-or-nothing — if any PR can't be merged, none are. Only basic pull request state is checked before merging (open and not a draft); bypassing merge requirements is not supported for stacks. If the base branch uses a merge queue, the stack is added to the queue instead: the queue chooses the merge method, and the pull requests may land in separate groups rather than all at once.
+9. **Merging is the user's publish action.** Run `gh stack merge --yes` only on the user's order for that stack, never on the agent's initiative. `gh pr merge` does not work with stacked PRs. `gh stack merge` merges the entire stack (bottom to top) atomically. Scope the merge by passing a pull request number (`gh stack merge 42 --yes` merges everything up to and including PR #42) or a stack number (`gh stack merge 7 --yes`, which needs no local checkout). Without a method flag (`--squash`, `--rebase`, `--merge`), the last-used method is used. The merge is all-or-nothing — if any PR can't be merged, none are. Only basic pull request state is checked before merging (open and not a draft); bypassing merge requirements is not supported for stacks. If the base branch uses a merge queue, the stack is added to the queue instead: the queue chooses the merge method, and the pull requests may land in separate groups rather than all at once.
 10. **Never run `gh stack checkout <pr-number>` when a different local stack already exists on those branches** — this triggers an unbypassable conflict resolution prompt. Use `gh stack unstack --local` first (this keeps the stack on GitHub intact), then retry the checkout.
 
 ## Workflows
@@ -47,11 +47,12 @@ git config remote.pushDefault origin     # if multiple remotes exist (skips remo
 ```bash
 gh stack init auth                  # creates auth and checks it out
 git add auth.go auth_test.go
-git commit -m "Add auth middleware"
+git commit -m "feat(auth): add auth middleware"
 gh stack add api-routes             # next concern, next branch
 git add api.go
-git commit -m "Add API routes"
+git commit -m "feat(api): add api routes"
 gh stack submit --auto              # push everything and create PRs (drafts by default)
+gh pr edit <number> --title "<title>" --body "<body>"   # per PR, per git-best-practices
 gh stack view --json                # verify the stack
 ```
 
@@ -64,7 +65,7 @@ When you need to change a lower layer (including review feedback), **navigate do
 ```bash
 gh stack down                       # or: gh stack checkout api-routes / gh stack checkout 42
 git add users_api.go
-git commit -m "Add get-user endpoint"
+git commit -m "feat(api): add get-user endpoint"
 gh stack rebase --upstack           # rebase everything above this branch
 gh stack push                       # push the updated stack
 gh stack top                        # navigate back to where you were working

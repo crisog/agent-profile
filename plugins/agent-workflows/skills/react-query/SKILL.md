@@ -82,13 +82,21 @@ A query can hold **stale data and an error at the same time** — React Query ke
 
 ```tsx
 // BAD: a failed *background* refetch rips good data off the screen
-if (todos.isPending) return <Loading />;
-if (todos.error) return <Error />;
+if (todos.isPending) {
+  return <Loading />;
+}
+if (todos.error) {
+  return <Error />;
+}
 return <List data={todos.data} />;
 
 // GOOD: data first
-if (todos.data) return <List data={todos.data} />;
-if (todos.error) return <Error />; // only when we have no data to show
+if (todos.data) {
+  return <List data={todos.data} />;
+}
+if (todos.error) {
+  return <Error />; // only when we have no data to show
+}
 return <Loading />;
 ```
 
@@ -104,7 +112,8 @@ Both `placeholderData` and `initialData` skip the loading state. **`initialData`
 
 - **The `error` property** — for inline error UI (see data-first ordering above).
 - **Error Boundaries** via `throwOnError`. Pass a function to route only some errors, e.g. `(error) => error.response?.status >= 500`.
-- **Global `QueryCache` `onError`** — the right place for toasts. It fires **once per query**, not once per consuming component. Check `query.state.data !== undefined` to toast only for background failures.
+- **Global `QueryCache` `onError`** — the right place for query toasts. It fires **once per query**, not once per consuming component. Check `query.state.data !== undefined` to toast only for background failures.
+- **Global `MutationCache` `onError`**: the place for mutation toasts. The `QueryCache` callbacks never see a mutation.
 
 ## Mutations
 
@@ -115,9 +124,9 @@ Both `placeholderData` and `initialData` skip the loading state. **`initialData`
 
 ```ts
 useMutation({
-  mutationFn: (body: string) => axios.post(`/posts/${postId}/comments`, body),
+  mutationFn: (title: string) => axios.post('/todos', { title }),
   onSuccess: () =>
-    queryClient.invalidateQueries({ queryKey: ['posts', postId, 'comments'] }),
+    queryClient.invalidateQueries({ queryKey: todoKeys.lists() }),
 });
 ```
 

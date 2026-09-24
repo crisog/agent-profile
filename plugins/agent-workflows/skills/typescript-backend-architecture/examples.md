@@ -6,24 +6,32 @@ Concrete code for the patterns in [SKILL.md](SKILL.md), on a neutral `comments` 
 
 ### `repository.ts`
 
-Owns queries and returns explicit shapes. Each function takes a required `database` handle, so the caller passes the client or an open transaction.
+Owns queries and returns explicit shapes. Each function takes a required `database` handle, so the caller passes the client or an open transaction. Ids are branded: `~/db` derives each id type from a branded schema (`const userIdSchema = z.string().brand<'UserId'>()`, `type UserId = z.infer<typeof userIdSchema>`), so a parsed id arrives already branded.
 
 ```ts
 import { z } from 'zod';
 
-import type { Db, Tx } from '~/db';
+import {
+  postIdSchema,
+  userIdSchema,
+  type CommentId,
+  type Db,
+  type PostId,
+  type Tx,
+  type UserId,
+} from '~/db';
 
 export const newCommentSchema = z.object({
-  postId: z.string(),
-  authorId: z.string(),
+  postId: postIdSchema,
+  authorId: userIdSchema,
   body: z.string().min(1).max(2_000),
 });
 type NewComment = z.infer<typeof newCommentSchema>;
 
 export type Comment = {
-  id: string;
-  postId: string;
-  authorId: string;
+  id: CommentId;
+  postId: PostId;
+  authorId: UserId;
   body: string;
   createdAt: Date;
 };
@@ -38,8 +46,8 @@ export async function insertComment({ input, database }: InsertCommentParams): P
 }
 
 type InsertMentionParams = {
-  commentId: string;
-  userId: string;
+  commentId: CommentId;
+  userId: UserId;
   database: Db | Tx;
 };
 
@@ -53,7 +61,7 @@ export async function insertMention({ commentId, userId, database }: InsertMenti
 }
 
 type FindCommentByIdParams = {
-  id: string;
+  id: CommentId;
   database: Db | Tx;
 };
 
@@ -62,7 +70,7 @@ export async function findCommentById({ id, database }: FindCommentByIdParams): 
 }
 
 type ListCommentsForPostParams = {
-  postId: string;
+  postId: PostId;
   database: Db | Tx;
 };
 
@@ -74,7 +82,7 @@ export async function listCommentsForPost({ postId, database }: ListCommentsForP
 }
 
 type DeleteCommentParams = {
-  id: string;
+  id: CommentId;
   database: Db | Tx;
 };
 
@@ -88,14 +96,14 @@ export async function deleteComment({ id, database }: DeleteCommentParams): Prom
 Orchestrates multi-step work and owns the transaction. It threads the `tx` into repository calls so the comment and its mentions commit atomically. `removeComment` runs the ownership check immediately before the delete and returns a typed `kind` result, so the controller picks the transport status.
 
 ```ts
-import type { Db } from '~/db';
+import type { CommentId, Db, PostId, UserId } from '~/db';
 
 import { deleteComment, findCommentById, insertComment, insertMention, type Comment } from './repository';
 import { parseMentionedUserIds } from './mentions';
 
 type AddCommentParams = {
-  postId: string;
-  authorId: string;
+  postId: PostId;
+  authorId: UserId;
   body: string;
   database: Db;
 };
@@ -126,8 +134,8 @@ export async function addComment({ postId, authorId, body, database }: AddCommen
 }
 
 type RemoveCommentParams = {
-  commentId: string;
-  userId: string;
+  commentId: CommentId;
+  userId: UserId;
   database: Db;
 };
 
@@ -165,6 +173,7 @@ Transport only: validate input, require authentication, delegate, and translate 
 ```ts
 import { z } from 'zod';
 
+import { commentIdSchema, postIdSchema } from '~/db';
 import { authedProcedure, publicProcedure, router, toRpcError } from '~/rpc';
 
 import { addComment, removeComment } from './service';
@@ -188,7 +197,7 @@ export const commentsRouter = router({
     ),
 
   list: publicProcedure
-    .input(z.object({ postId: z.string() }))
+    .input(z.object({ postId: postIdSchema }))
     .query(({ input, ctx }) =>
       listCommentsForPost({
         postId: input.postId,
@@ -197,7 +206,7 @@ export const commentsRouter = router({
     ),
 
   remove: authedProcedure
-    .input(z.object({ commentId: z.string() }))
+    .input(z.object({ commentId: commentIdSchema }))
     .mutation(async ({ input, ctx }) => {
       const result = await removeComment({
         commentId: input.commentId,
@@ -234,7 +243,7 @@ export type AppRouter = typeof appRouter;
 
 ## Configuration validation
 
-Parse environment variables through a single Zod schema and export the typed result; put cross-field rules in `.superRefine`.
+Parse environment variables through a single Zod schema and put cross-field rules in `.superRefine`. The module exports a parser, not a parsed value: the composition root calls `parseEnv(process.env)` once at startup and passes the typed result to the clients it builds.
 
 ```ts
 // ~/env.ts
@@ -257,5 +266,9 @@ const envSchema = z
     }
   });
 
-export const env = envSchema.parse(process.env);
+export type Env = z.infer<typeof envSchema>;
+
+export function parseEnv(source: unknown): Env {
+  return envSchema.parse(source);
+}
 ```

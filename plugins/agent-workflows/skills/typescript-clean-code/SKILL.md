@@ -199,6 +199,7 @@ type Server =
 
 - Things that change together stay together. A schema, the type inferred from it, and its consumer belong in one file; don't hoist them into a shared `types.ts`, `schemas.ts`, or common package for a hypothetical importer. If something really does need to be shared, question where the would-be importer lives first.
 - An error class thrown from exactly one place lives in the file that throws it. Only genuinely shared errors belong in a shared `errors.ts`.
+- Keep module imports side-effect free. Build network, process, and storage clients and parse environment variables at the application's composition root, not at module scope.
 - Follow the package's existing organizational convention instead of proposing a hybrid. If the surrounding code groups by capability, add a capability folder; don't introduce a parallel layer-based tree beside it.
 
 ## Abstraction
@@ -212,8 +213,9 @@ type Server =
 
 ## Comments
 
-- Comments are one-liners. Multi-line rationale belongs in the PR body, not in source.
-- No ticket, PRD, or issue references in comments, JSDoc, or test `describe()` blocks. This holds in plan and spec documents too, whose snippets get copied into source verbatim, and a sibling file already carrying one does not excuse a new one.
+- Comments are one-liners.
+- No ticket, PRD, or issue references in comments or JSDoc. This holds in plan and spec documents too, whose snippets get copied into source verbatim, and a sibling file already carrying one does not excuse a new one.
 - No reassurance comments written to pre-empt a reviewer. If the concern is a non-issue, say so on the PR and leave the code alone.
 - Don't restate a constant's value far from its declaration. `// $10` beside the literal is fine; `// the $200 cool-down` in a distant service goes stale silently.
-- Do link the external source — vendor docs, contract, regulation — beside a hardcoded value that came from it, and repeat the link in the PR description. Verify the URL resolves before committing it.
+- Do link the external source (vendor docs, contract, regulation) beside a hardcoded value that came from it. Verify the URL resolves before committing it.
+- Rationale and source links in the PR description follow `git-best-practices`.

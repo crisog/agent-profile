@@ -15,7 +15,7 @@ PRD         features in value order, each as what a user or operator can do; sco
 MILESTONES  shippable slices with a user-visible outcome, an estimate with its assumptions, and one gate each
 ISSUES      minted per milestone when that milestone is approved: problem-first, one PR each, parallel by files
 APPROVAL    the human ratifies each milestone and accepts or skips each issue before the first branch
-BUILD       one PR per issue against the base branch; spec-best-practices and planout per issue; independent PRs, not a stack
+BUILD       one PR per issue against the base branch; a spec when the outcome needs clarification, planout for multi-step work; independent PRs, not a stack
 ```
 
 Templates for each rung are in [references/templates.md](references/templates.md).
@@ -177,8 +177,8 @@ ladder entirely; the ladder governs programs, not fixes.
 ## Handoff
 
 Per accepted issue: `spec-best-practices` when the outcome needs
-clarification, then `planout`, then build, then `bugbash` on the assembled
-surface. Issue filing mechanics live in `create-github-issue`, the GitHub
+clarification, `planout` for multi-step work, then build, then `bugbash` on
+the assembled surface. Issue filing mechanics live in `create-github-issue`, the GitHub
 object mapping in `references/github.md`, and flag detail in the `gh` skill;
 durable requirements and decisions in `spec-best-practices`; the stack
 exception in `ship-stack`. `create-github-issue` is user-invoked; a driver

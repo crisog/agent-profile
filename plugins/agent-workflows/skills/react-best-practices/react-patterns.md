@@ -306,7 +306,9 @@ React remounts components in development to verify cleanup works. If effects fir
 // BAD: Hiding the symptom
 const didInit = useRef(false);
 useEffect(() => {
-  if (didInit.current) return;
+  if (didInit.current) {
+    return;
+  }
   didInit.current = true;
   // ...
 }, []);
@@ -568,49 +570,104 @@ function App() {
 ### API Layer
 
 ```tsx
-// lib/api-client.ts - one configured instance
-export const api = axios.create({ baseURL: env.API_URL });
+// lib/api-client.ts - a factory; importing this module builds nothing
+export type ApiClient = AxiosInstance;
 
-// features/users/api/user-keys.ts - one key factory per feature
+export function createApiClient(baseUrl: string): ApiClient {
+  return axios.create({ baseURL: baseUrl });
+}
+
+export const ApiClientContext = createContext<ApiClient | null>(null);
+
+export function useApiClient(): ApiClient {
+  const api = useContext(ApiClientContext);
+  if (api === null) {
+    throw new Error('useApiClient must run inside AppProvider');
+  }
+  return api;
+}
+
+// features/users/api/user-keys.ts - the key factory rule lives in react-query "Query keys"
 export const userKeys = {
   all: ['users'] as const,
   lists: () => [...userKeys.all, 'list'] as const,
 };
 
 // features/users/api/get-users.ts - colocated with the feature
-export const getUsers = () => api.get('/users');
+export const getUsers = (api: ApiClient) => api.get('/users');
 
-export const getUsersQueryOptions = () => ({
+export const getUsersQueryOptions = (api: ApiClient) => ({
   queryKey: userKeys.lists(),
-  queryFn: getUsers,
+  queryFn: () => getUsers(api),
 });
 
-export const useUsers = () => useQuery(getUsersQueryOptions());
+export const useUsers = () => {
+  const api = useApiClient();
+  return useQuery(getUsersQueryOptions(api));
+};
 ```
 
 ### Cross-Cutting API Errors
 
 ```tsx
-// lib/api-client.ts - transport concerns only
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) logout();
-    return Promise.reject(error);
-  }
-);
-
-// lib/query-client.ts - one toast per failed query, not one per consumer
-export const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error, query) => {
-      // Inline error UI covers the first load; toast only background refetch failures
-      if (query.state.data !== undefined) {
-        toast.error(error.message);
+// lib/api-client.ts - the same factory with transport concerns attached
+export function createApiClient(baseUrl: string): ApiClient {
+  const api = axios.create({ baseURL: baseUrl });
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        logout();
       }
-    },
-  }),
-});
+      return Promise.reject(error);
+    }
+  );
+  return api;
+}
+
+// The module that owns axios maps its errors to user-facing text; the raw axios message never reaches the user
+export function toUserMessage(error: Error): string {
+  if (isAxiosError(error) && error.response?.status === 403) {
+    return 'You do not have permission to do that.';
+  }
+  return 'Something went wrong. Please try again.';
+}
+
+// lib/query-client.ts - one toast per failed query or mutation, not one per consumer
+export function createQueryClient(): QueryClient {
+  return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        // Inline error UI covers the first load; toast only background refetch failures
+        if (query.state.data !== undefined) {
+          toast.error(toUserMessage(error));
+        }
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        toast.error(toUserMessage(error));
+      },
+    }),
+  });
+}
+
+// app/provider.tsx - the composition root parses env and builds each client once
+export function AppProvider({ children }) {
+  const [clients] = useState(() => {
+    const env = parseEnv(import.meta.env);
+    return {
+      api: createApiClient(env.API_URL),
+      query: createQueryClient(),
+    };
+  });
+
+  return (
+    <ApiClientContext.Provider value={clients.api}>
+      <QueryClientProvider client={clients.query}>{children}</QueryClientProvider>
+    </ApiClientContext.Provider>
+  );
+}
 ```
 
 ### Granular Error Boundaries
@@ -651,7 +708,10 @@ export const queryClient = new QueryClient({
 // Role-based
 function RequireRole({ allowedRoles, children }) {
   const { user } = useAuth();
-  return allowedRoles.includes(user.role) ? children : null;
+  if (!allowedRoles.includes(user.role)) {
+    return null;
+  }
+  return children;
 }
 
 <RequireRole allowedRoles={['ADMIN']}>
@@ -661,8 +721,11 @@ function RequireRole({ allowedRoles, children }) {
 // Permission-based, for rules that depend on the resource
 function CanDelete({ resource, children }) {
   const { user } = useAuth();
-  const allowed = user.role === 'ADMIN' || resource.authorId === user.id;
-  return allowed ? children : null;
+  const isAllowed = user.role === 'ADMIN' || resource.authorId === user.id;
+  if (!isAllowed) {
+    return null;
+  }
+  return children;
 }
 
 <CanDelete resource={comment}>

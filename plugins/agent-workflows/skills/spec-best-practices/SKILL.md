@@ -20,7 +20,7 @@ Supporting documents linked from a `SPEC.md` TOC may use descriptive names (e.g.
 Specs are committed and colocated with the code they describe: root `SPEC.md` for project scope, `apps/foo/SPEC.md` for app scope, `packages/bar/SPEC.md` for package scope.
 
 - Avoid `spec/`, `docs/specs/`, and `docs/plans/` directories. Prefer colocated `SPEC.md` files.
-- Plan documents are ephemeral and never committed. Absorb durable decisions into the relevant `SPEC.md`.
+- Commit Discipline in `git-best-practices` governs plan documents. Absorb durable decisions into the relevant `SPEC.md`.
 - When a spec gets long, add a TOC linking to adjacent supporting files (`./commands.spec.md`, etc.). Supporting files live alongside the `SPEC.md`, not in a subdirectory.
 
 ## Content
@@ -76,7 +76,7 @@ Write the smallest spec that yields working software by the simplest path.
 - A constraint enters the spec only on evidence from the user, deployed behavior, an observed failure, or a real trust boundary.
 - A concern without that evidence, and not needed for the smallest working proof, goes under a **Later questions** section. Later questions never become current requirements.
 - Complexity check, before presenting the spec: name the existing flow it reuses, each new subsystem and the requirement that demands it, the first end-to-end proof, and the deferred work. Defer a new subsystem that has no concrete supporting requirement.
-- Handoff: once the user accepts the spec, bounded work goes straight to implementation. Use `planout` only when the user requests a plan or the work truly needs coordinated multi-step execution.
+- Handoff: once the user accepts the spec, bounded work uses a session plan and multi-step work uses `planout`.
 
 ## Lifecycle
 

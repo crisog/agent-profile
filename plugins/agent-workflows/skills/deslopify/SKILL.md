@@ -14,10 +14,10 @@ This pass is the DESLOPIFY gate of the delivery flow in `AGENTS.md`: it runs onc
 Run these first and read the output:
 
 - Current branch: `git branch --show-current`
-- Default branch: `git remote show origin | grep 'HEAD branch' | cut -d' ' -f5`
+- Base branch: the default branch from Branch Discovery in `agent-workflows:git-best-practices`, unless the caller names another base (a stack parent)
 - Git status: `git status --short`
-- Changed files vs base: `git diff --name-only $(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)...HEAD`
-- Full diff vs base: `git diff --no-color $(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)...HEAD`
+- Changed files vs base: `git diff --name-only <base-branch>...HEAD`
+- Full diff vs base: `git diff --no-color <base-branch>...HEAD`
 
 ## Goal
 

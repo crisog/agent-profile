@@ -63,8 +63,11 @@ For each task:
   - Make the minimal change
   - Rerun the same check and observe it green
   - Refactor while green with `code-law`, then rerun
-- Verification: the exact command and its expected result
+- Verification: the exact command, the revision and environment it runs against, and the expected output; for an E2E run these are the fields of its artifact
 - Dependencies: `Task N-1` or `none`
+
+## PR sequencing
+Only when the work ships as a stack: one section per PR in merge order, each with its scope and its tasks. `ship-stack` reads this section.
 
 ## Final verification
 How to demonstrate the primary outcome end to end.
@@ -92,7 +95,7 @@ Do not pre-write implementation code in the plan unless an interface must be fix
 
 ## Execution shape
 
-By default, implementation and exploration run on the executor tier: dispatch them to subagents (in Claude Code, the `Agent` tool with `model: opus`). The session model is reserved for review gates and judgment. The user overrides this per run when a task needs the session model directly.
+Dispatch follows "Model tiering" in `AGENTS.md`. Each candidate runs the delivery-flow order in `AGENTS.md`: the objective checks, then the `deslopify` pass and the objective checks again, then any selected specialist review, then the terminal bug bash on the rebuilt artifact.
 
 Independent sidecar work may run as parallel bounded subagents with non-overlapping ownership; the critical path defaults to the packetized delegation stream of the delivery flow. Revise the plan when implementation reveals a real gap.
 
@@ -111,7 +114,7 @@ State which systems the plan touches, any new infrastructure it introduces, the 
 
 ## Artifact and handoff
 
-Plans are ephemeral and never committed. Use a concise session plan or your harness's plan mechanism for bounded attended work; save a plan file only when the user asks for one or cross-session recovery needs it. Absorb durable decisions into the `SPEC.md`.
+Commit Discipline in `git-best-practices` governs plans. Use a concise session plan or your harness's plan mechanism for bounded attended work; save a plan file only when the user asks for one or unattended multi-session execution or recovery needs it. For a tracked issue, post the plan as a comment on the issue. Absorb durable decisions into the `SPEC.md`.
 
 Present the plan for approval when the user asked for the plan or a task is high-risk. Otherwise proceed on the existing approval and do not request it again.
 
