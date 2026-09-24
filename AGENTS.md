@@ -69,7 +69,7 @@ largest risks and choose the cheapest evidence that exposes each one.
 Discover the project's existing harness first (task runner or scripts, then
 repo docs, then project defaults, then ask) and run it before claiming done.
 For an operable application, the final pre-boundary gate is a task-based bug
-bash on the assembled surface whenever unit or contract checks cannot expose
+bash on the assembled surface whenever isolation or contract checks cannot expose
 the real risk. Generic static review is not a default gate; the ADF's
 high-risk classes get a bounded specialist review that names one risk, a
 severity floor, and a round budget. Mechanics live in
@@ -99,6 +99,26 @@ severity floor, and a round budget. Mechanics live in
   made green.
 - Done claims name the verifier that ran and cite its output. An
   authored-but-unexecuted verifier is "authored, NOT run".
+
+Testing law, which holds whether or not `testing-best-practices` is loaded:
+
+- **E2E is the default and usually the sole test mechanism.** Complex
+  features are verified by exercising the assembled surface, and every E2E
+  run ends in a verifiable, repeatable artifact: the exact command or
+  script, the revision and environment it ran against, and its output,
+  stored where the report or PR cites it.
+- **Never write unit tests after the code.** A test written to match
+  existing code restates it and grades nothing; it is slop, not coverage.
+- **Isolation is failure-first.** When a unit must be tested on its own,
+  first write down every way it can fail, then write the code against that
+  list. The failure list is the test plan, and it exists before the
+  implementation does.
+- **A test earns its place by a contract, not by a mistake.** A test kept
+  in the tree guards behavior a user, operator, or caller depends on. A
+  test written to catch the agent's own error during implementation is
+  scaffolding: it is deleted before `done`. A regression test stays only
+  when it reproduces a defect that reached a user, a reviewer, or a
+  release, and its name says which one.
 
 ## The brief
 
@@ -160,16 +180,18 @@ Ratified Decisions:
 
 ## Agentic delivery flow
 
-The ADF is the macro loop's phases. The agent owns SPEC, PLAN, TDD, DEV,
-DESLOPIFY, and E2E/BUGBASH; publish is the human's. Fix-shaped work defaults
+The ADF is the macro loop's phases. The agent owns SPEC, PLAN, FAILURE MODES,
+DEV, DESLOPIFY, and E2E/BUGBASH; publish is the human's. Fix-shaped work defaults
 to delegation (implementation packet, objective verifier, fresh bug bash
 when the surface is operable, fix-up); reserve attended driving for live-ops
 and incidents. Direct implementation does not waive independence.
 
 - SPEC: IDs, invariants, non-goals, acceptance (load `spec-best-practices`).
   PLAN: task graph with files, types, tests, risk class, and a QA design
-  mapping each material risk to its cheapest faithful evidence. TDD: the new
-  test observed red against the pre-fix tree, output cited. DEV: environment
+  mapping each material risk to its cheapest faithful evidence. FAILURE
+  MODES: the ways the change can fail are written before its code; a bug
+  fix's reproducer is observed red against the pre-fix tree, output cited.
+  DEV: environment
   boots healthy. DESLOPIFY: with the objective checks green and before any
   draft PR or bug bash, a `deslopify` pass over the branch diff removes
   vestigial code, unnecessary fallbacks, and test-driven runtime branches,
@@ -188,7 +210,8 @@ Minimality governs scope, never depth: no unrequested work, and no shallow
 version of requested work. When a design decision arises, choose the
 simplest, most correct design, refactoring if needed; a patch that preserves
 a wrong shape is the expensive option. The craft law and the system
-properties live in the `code-law` skill. Load it before writing code.
+properties live in the `code-law` skill. Load it before writing code, and
+load `testing-best-practices` before writing any test.
 
 ## Operations
 
