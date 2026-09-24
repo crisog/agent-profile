@@ -1,6 +1,6 @@
 {
   "name": "agent-workflows",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Engineering-practice and workflow skills plus guard hooks for agentic coding.",
   "author": {
     "name": "Cristopher Ortega",
