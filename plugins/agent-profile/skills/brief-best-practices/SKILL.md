@@ -7,7 +7,7 @@ description: Use when creating, reviewing, or updating a BRIEF.md (the quality l
 
 A `BRIEF.md` is the **verifier's spec** — the codified taste that says what "good" means for a surface, so an agent can verify its own iterations and run a loop without guessing or interrupting. Where `SPEC.md` is the contract (*what* to build: `REQ-*`, invariants), the brief is the bar (*what "good" is*, and *who judges*).
 
-It is the **BRIEF** rung in the stack `VISION → SPEC + BRIEF → HARNESS → LOOP → BOUNDARY`: the brief is what makes a surface's autonomous loop trustworthy, because the harness runs objective floors and the oracle exercises or judges the dimensions the harness cannot. An optional `.mission/mission.yaml` owns strategic success when an outcome spans campaigns; BRIEF owns surface quality and never duplicates a mission rubric.
+It is the **BRIEF** rung in the stack `VISION → SPEC + BRIEF → HARNESS → LOOP → BOUNDARY`: the brief is what makes a surface's autonomous loop trustworthy, because the harness runs objective floors and the oracle exercises or judges the dimensions the harness cannot.
 
 ## When to author one
 
@@ -17,7 +17,7 @@ Subjective surfaces (a docs page, a report, a visual artifact) get a **mini-brie
 
 ## Naming & placement
 
-Always `BRIEF.md`, colocated with the surface it governs: root for project scope, `apps/foo/BRIEF.md`, `packages/bar/BRIEF.md`, or a docs subtree (e.g. `docs/toys/BRIEF.md`). Working memory never lives beside the brief as sidecar docs (`DELTA.md`, `DEVIATIONS.md`): per-round gaps and iteration facts belong to the campaign's LOOP.md State (loop-brief skill), and an infeasible floor's waiver is law, not working memory — it lives in the brief's own Decisions, dated, naming the floor, the blocker, and the nearest-feasible alternative in force. A sidecar found beside a brief is folded into the brief or the loop and deleted. The brief is present-tense law; git is the changelog.
+Always `BRIEF.md`, colocated with the surface it governs: root for project scope, `apps/foo/BRIEF.md`, `packages/bar/BRIEF.md`, or a docs subtree (e.g. `docs/toys/BRIEF.md`). Working memory never lives beside the brief as sidecar docs (`DELTA.md`, `DEVIATIONS.md`): per-round gaps and iteration facts belong to the campaign's plan, and an infeasible floor's waiver is law, not working memory — it lives in the brief's own Decisions, dated, naming the floor, the blocker, and the nearest-feasible alternative in force. A sidecar found beside a brief is folded into the brief or the plan and deleted. The brief is present-tense law; git is the changelog.
 
 ## The seven slots (required concerns, adaptable shape)
 
@@ -48,7 +48,7 @@ The contract is that all seven *concerns* are present, in this order — not a f
 
 Open every brief with a one-line law statement, e.g.:
 
-> Law doc for `<surface>`, present-tense, no narrated history — git is the changelog. The Boundary and ratified Decisions amend only with human confirmation; the driver appends provisional Decisions, marked and dated. Working memory lives in the campaign's LOOP.md State, not here; floor waivers are dated Decisions below.
+> Law doc for `<surface>`, present-tense, no narrated history — git is the changelog. The Boundary and ratified Decisions amend only with human confirmation; the driver appends provisional Decisions, marked and dated. Working memory lives in the campaign's plan, not here; floor waivers are dated Decisions below.
 
 ## Authoring rules
 
@@ -71,7 +71,7 @@ Open every brief with a one-line law statement, e.g.:
 ## Lifecycle
 
 - **Creation.** When work begins to loop or the cost of being wrong is high. Draft the seven slots; the human ratifies. The harness is built to run the Floors; the Oracle is wired before iteration starts (harness-first).
-- **Maintenance.** Decisions grow from two feeds: answered boundary batches, and provisional entries ratified (or overturned) at the boundary — an interactive question is the exception, not the source. Corrections whose reach outlives the surface route to the doctrine instead. Floors tighten as the bar rises (rewrite as if always true). Cross-check the brief against the implementation whenever both are in context; surface drift.
+- **Maintenance.** Decisions grow from two feeds: answered boundary batches, and provisional entries ratified (or overturned) at the boundary — an interactive question is the exception, not the source. Corrections whose reach outlives the surface route to AGENTS.md instead. Floors tighten as the bar rises (rewrite as if always true). Cross-check the brief against the implementation whenever both are in context; surface drift.
 - **Retirement.** When a surface is removed, remove or archive its `BRIEF.md`. Do not leave a stale law describing deleted behavior.
 
 ## How the brief drives the loop
@@ -79,9 +79,8 @@ Open every brief with a one-line law statement, e.g.:
 The brief is inert until it runs: the **harness** runs objective Floors and emits
 pass/fail with evidence; the **oracle** executes real-use tasks or judges the
 remaining Dimensions independently; the **OODA loop** iterates against them to
-`done` or a bounded, honest `blocked`. In a campaign, LOOP.md targets this
-brief's floors by name (`targets.brief`) and carries the loop's live state and
-decisions.
+`done` or a bounded, honest `blocked`. A campaign targets this brief's floors
+by name and keeps its live state and decisions in its own plan, not here.
 
 ## References
 

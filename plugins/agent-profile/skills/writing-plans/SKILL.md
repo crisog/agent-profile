@@ -35,17 +35,14 @@ If the request covers multiple independent changes, split it into separate plans
 
 ## Plan Format
 
-When a `LOOP.md` exists for the branch, the plan is its `units` list, not a
-separate doc. Each unit names the SPEC requirements, BRIEF floors, or mission
-rubric ids it advances (`targets`). A unit that advances no target is omitted
-unless a SPEC invariant or safety requirement makes it necessary; cite that
-requirement in the unit.
+Each unit names the SPEC requirements or BRIEF floors it advances. A unit
+that advances no target is omitted unless a SPEC invariant or safety
+requirement makes it necessary; cite that requirement in the unit.
 
-Otherwise, use a concise session plan or the harness's plan mechanism for
+Use a concise session plan or the harness's plan mechanism for
 bounded attended work. Save a document only when the user requests one or
-cross-session recovery needs it; use the requested location or the branch's
-`LOOP.md`. Do not create a docs tree for ordinary
-work.
+cross-session recovery needs it, and use the requested location. Do not
+create a docs tree for ordinary work.
 
 Start with:
 

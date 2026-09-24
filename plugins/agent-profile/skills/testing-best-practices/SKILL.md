@@ -197,7 +197,7 @@ it stops being a test and becomes a mirror.
 ### Failure attribution (before waiving anything)
 
 - **A failure that only reproduces on your branch is yours.** No "pre-existing" or "environmental" waiver without reproducing the failure at the base commit — a control worktree at the merge base is the cheap, decisive check.
-- **Proven-pre-existing failures get recorded, not skipped.** Add the failure to the campaign's LOOP.md "Known pre-existing failures" section when a charter exists (else the repo's known-flakes note), with its repro command and evidence; future waivers cite the entry instead of re-litigating.
+- **Proven-pre-existing failures get recorded, not skipped.** Add the failure to the repo's known-flakes note or the campaign's plan, with its repro command and evidence; future waivers cite the entry instead of re-litigating.
 - **An empty or erroring query is not evidence of absence.** Enumerate the namespace first (list the tests, count the files, query totals) and validate the query shape against a known-present row before concluding "not found."
 - **Cross-subsystem changes run every touched side's harness.** A change spanning two toolchains is unverified until both sides' suites ran, no matter how green one side is.
 

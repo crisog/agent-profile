@@ -16,15 +16,15 @@ VISION    direction and commander's intent             (human authors)
 SPEC      contract: REQ-*, invariants, acceptance       (human + agent)
 BRIEF     surface quality law / codified taste          (agent drafts, human ratifies)
 HARNESS   verifier that runs the contract and floors
-LOOP      one bounded LOOP.md campaign: OODA + evidence
+LOOP      one bounded campaign: OODA + evidence
 BOUNDARY  publish / irreversible / synchronous-human   (human handoff)
 ```
 
-The operator leads with intent, not supervision. One `LOOP.md` is one
-campaign's operation order and advances named SPEC requirements or BRIEF
-floors; the Boundary is the rules of engagement. The system is measured by
+The operator leads with intent, not supervision. One campaign advances
+named SPEC requirements or BRIEF floors; the Boundary is the rules of
+engagement. The system is measured by
 how far agents act correctly in the operator's absence: an interruption for
-a decision the doctrine already answers is a training failure.
+a decision a standing Decision already answers is a training failure.
 
 Artifacts stay proportional: existing requirements and a short session plan
 carry bounded attended work. Create persistent campaign artifacts only when
@@ -100,18 +100,15 @@ severity floor, and a round budget. Mechanics live in
 - Done claims name the verifier that ran and cite its output. An
   authored-but-unexecuted verifier is "authored, NOT run".
 
-## The brief and the doctrine
+## The brief
 
 A brief removes guessing about what "good" means for a surface. Author one
 when work will loop or the cost of being wrong is high (load
 `brief-best-practices`). The shape is fixed: Bar, Dimensions, Floors,
 Oracle, Never, Decisions, Boundary. The brief is present-tense law with no
 narrated history; the Boundary and ratified Decisions amend only with human
-confirmation, and the driver appends provisional entries via the ladder.
-
-The doctrine (`doctrine.md` in the `loop-brief` skill) is codified operator
-judgment for acting in the human's absence; a standing answer is applied,
-not re-asked.
+confirmation, and the driver appends provisional entries via the ladder. A
+standing Decision is applied, not re-asked.
 
 ## Rules of engagement
 
@@ -124,7 +121,7 @@ interpretation consistent with commander's intent; a load-bearing ambiguity
 climbs the ladder.
 
 - **Interior decisions are made, not asked.** The ladder: investigate, check
-  Decisions and the doctrine, consult an independent frontier model carrying
+  the brief's Decisions, consult an independent frontier model carrying
   evidence and candidates, decide. Reversible interior calls are logged as
   dated provisional Decisions and ratified at the boundary. Unattended, never
   freeze on one question: accumulate and terminate `blocked: needs N
