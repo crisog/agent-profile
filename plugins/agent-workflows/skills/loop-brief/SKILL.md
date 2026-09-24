@@ -134,7 +134,7 @@ Every terminal shares one write-back, whichever state it is. Settle the loop
 campaign started — processes, fixtures, containers, worktrees, untracked
 scratch files — so nothing outlives it that the next session did not ask
 for. Save non-obvious findings to persistent memory, when the harness has
-one. Then report a sitrep (sitrep skill): attended, the reply is the report;
+one. Then report the terminal state and its evidence: attended, the reply is the report;
 unattended, it also lands in `~/.handoffs/` so it outlives the session. A
 required write-back that cannot run is reported as that limitation with its
 recovery path, never laundered into a clean terminal.

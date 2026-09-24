@@ -26,6 +26,3 @@ Prepare focused commits that are easy to verify and revert.
   invalid intermediate states merely to make it smaller.
 - Mention uncommitted leftovers after committing.
 - If a pre-commit hook fails, fix the issue and create a new commit — never amend.
-- Keep `.hunk/` out of the commit. A `.hunk/agent-context.json` review sidecar is
-  written only on request (see `hunk-notes`); when one is requested, it lands
-  before the commit so its line numbers match the working-tree diff.

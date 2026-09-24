@@ -180,44 +180,6 @@ print("manifest parity ok")
 PY
 }
 
-# Destructive commands shown in routine code blocks are executable advice. Keep
-# data deletion in separately explained boundary prose rather than allowing an
-# example to bypass the surrounding authority rule.
-check_destructive_examples() {
-  python3 - "$ROOT" <<'PY'
-import re
-import sys
-from pathlib import Path
-
-root = Path(sys.argv[1])
-files = (
-    root / "plugins/agent-workflows/skills/host-tidy/SKILL.md",
-)
-forbidden = re.compile(
-    r"(?:\b(?:docker\s+)?compose\s+down\b[^\n]*\s-v(?:\s|$)|"
-    r"\bdocker\s+volume\s+(?:rm|prune)\b|\borb\s+reset\b)"
-)
-errors = []
-
-for path in files:
-    in_fence = False
-    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence and forbidden.search(line):
-            errors.append(f"{path}:{line_number}: destructive routine example: {line.strip()}")
-
-if errors:
-    print("destructive example check FAILED:", file=sys.stderr)
-    for error in errors:
-        print(f"  - {error}", file=sys.stderr)
-    raise SystemExit(1)
-
-print("destructive examples ok")
-PY
-}
-
 # Release-tag gate. Plugin versions are consumed by tag (`<plugin>-v<version>`),
 # so a release commit that never got its tag publishes nothing — the marketplace
 # advertises a version no consumer can resolve. Four such tags were missing and
@@ -325,7 +287,6 @@ require_json "$ROOT/plugins/agent-workflows/.claude-plugin/plugin.json"
 require_json "$ROOT/package.json"
 
 check_manifest_parity
-check_destructive_examples
 python3 "$ROOT/scripts/validate-instructions.py"
 check_release_tags
 

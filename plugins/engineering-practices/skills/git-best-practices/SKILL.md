@@ -23,7 +23,7 @@ Agents may create WIP checkpoint commits during long-running tasks, cleaned up b
 
 - Prefix with `wip:` or use standard conventional commit format
 - Keep changes logically grouped even in WIP state
-- Run the `rewrite-history` skill before opening a PR to craft a clean narrative
+- Rewrite the history into a clean narrative before opening a PR (see below)
 
 ### Commit Discipline
 
@@ -201,7 +201,7 @@ prompt.
 
 ### History Rewriting Before PR
 
-For branches with messy WIP history, use the `rewrite-history` skill to:
+For branches with messy WIP history:
 1. Backup the branch
 2. Reset to the base branch tip
 3. Recommit changes as a clean narrative sequence
