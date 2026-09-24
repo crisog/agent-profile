@@ -19,7 +19,6 @@ components/
     controller.ts      # transport: route definitions, input validation, authz, delegation
     service.ts         # orchestration: multi-step logic, transactions
     repository.ts      # data access: the only layer that touches the DB/ORM client
-    validation.ts      # (optional) shared schemas for the slice
     comments.test.ts   # tests live beside the code they cover
   posts/
   notifications/
@@ -30,7 +29,7 @@ Adding a feature means adding one folder, not editing four sibling layers.
 
 ## Layer responsibilities, top to bottom
 
-- **Transport (controller):** parse and validate input with Zod, enforce authentication/authorization, call down, return. No business rules and no direct DB access. This boundary is worth enforcing with a lint rule (e.g. forbid the transport layer from importing the database client).
+- **Transport (controller):** parse and validate input with the repository's existing runtime validator, enforce authentication/authorization, call down, return. No business rules and no direct DB access. This boundary is worth enforcing with a lint rule (e.g. forbid the transport layer from importing the database client).
 - **Service / use-case:** orchestrates real work — multi-step flows, coordinating several data-access calls, wrapping writes in a transaction. Add a service only when there is more than a single query to run.
 - **Repository / data access:** the only layer that talks to the database or ORM client. It owns queries and maps stored rows to explicit return types (don't leak raw ORM row shapes upward).
 
@@ -55,7 +54,7 @@ Each component exposes its set of endpoints (a router/module); one top-level ent
 
 ## Validate configuration at the boundary
 
-Parse environment variables and runtime config through a single Zod schema and export the typed result; never read raw `process.env` deep in the code. Put cross-field rules (e.g. "if provider is X, these vars are required") in `.superRefine`. See [configuration validation in examples.md](examples.md#configuration-validation).
+Parse environment variables and runtime config through a single Zod schema, once, at the composition root, and pass the typed result down; never read raw `process.env` deep in the code. Put cross-field rules (e.g. "if provider is X, these vars are required") in `.superRefine`. See [configuration validation in examples.md](examples.md#configuration-validation).
 
 ## Make authorization explicit and close to the action
 

@@ -26,8 +26,7 @@ Use this skill when you need to sync a feature branch onto the latest `origin/{b
 - Determine the current branch:
   - `git branch --show-current`
 - Determine the base branch you will rebase onto:
-  - If not provided, use the remote default branch:
-    - `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the `origin/` prefix; if unset, use your forge CLI or `git remote show origin`)
+  - If not provided, use the default branch from Branch Discovery in `agent-workflows:git-best-practices`.
 - Fetch latest:
   - `git fetch origin`
 

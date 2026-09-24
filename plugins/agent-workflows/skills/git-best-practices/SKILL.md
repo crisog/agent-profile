@@ -43,16 +43,16 @@ Agents may create WIP checkpoint commits during long-running tasks, cleaned up b
 - Verify staged content with `git status` before committing
 - Run the relevant verifier before a non-trivial commit.
 - Keep secrets and large binaries out of commits (secret handling: rules of engagement). Never stage `.env` files. Warn the user if staged files look sensitive.
-- Make one logical change per commit in the PR-ready history. Unrelated changes in the tree become separate commits. A behavior-preserving prefactor and the behavior change stay separate commits when each is green on its own; never split a change into invalid intermediate states to make it smaller.
-- Never include unrelated drift because it is present in the tree.
+- Make one logical change per commit in the PR-ready history. Unrelated changes that this task or the user made become separate commits. A behavior-preserving prefactor and the behavior change stay separate commits when each is green on its own; never split a change into invalid intermediate states to make it smaller.
+- Unrelated drift is a change that neither this task nor the user made. Never commit it because it is present in the tree.
 - Never rewrite or discard user changes unless the user asks.
-- Commit `SPEC.md` changes. Never commit plan documents.
+- Commit `SPEC.md` and `BRIEF.md` changes. Never commit plan documents.
 - After committing, mention the uncommitted leftovers.
 - If a pre-commit hook fails, fix the issue and make a new commit. Never amend.
 
 ### Rebasing a Stack
 
-To rebase a branch that other branches stack on, use the `git-rebase-sync` skill.
+A stack that the gh stack extension manages rebases with the `gh-stack` skill. Any other stack rebases with the `git-rebase-sync` skill.
 
 ## Conventional Commits
 
@@ -86,6 +86,9 @@ Types:
 | `ci` | CI/CD pipelines and deploy workflows |
 | `chore` | Maintenance: dependency updates, releases, tooling, `.gitignore` |
 | `style` | Formatting, whitespace (no logic change) |
+
+`wip:` is the one exception to this table. It is valid only for a checkpoint
+commit (see Checkpoint Commits), and it never stays in PR-ready history.
 
 ### Breaking Changes
 
@@ -210,11 +213,9 @@ of creating a duplicate.
 
 - Conventional Commits format (above), under 70 characters, concise and action-oriented
 - Infer type and scope from the full branch diff
-- When the branch name carries a ticket key, the title may carry it in its
-  scope: `feat/PROJ-123-add-sso` gives `feat(PROJ-123): add sso login support`.
-  Commit scopes stay the subsystem.
+- The scope is never a ticket id. The ticket goes in the body as `Closes PROJ-123`.
 - Examples: `feat(auth): add sso login support`,
-  `fix(PROJ-123): resolve race condition in queue processor`
+  `fix(queue): resolve race condition in queue processor`
 
 **Description**
 
@@ -222,7 +223,10 @@ Write the description from `git diff <default-branch> --no-color`. Describe
 the final state of the branch against its base. The reader sees the
 squash-merge result, so intermediate history does not exist for them: a
 line-count reduction, a refactor from one commit to another, or a reverted
-attempt is never mentioned.
+attempt is never mentioned. Rationale that needs more than one line, and
+the source link behind a non-obvious constraint, belong in the description
+rather than in code comments; repeat the link here even when the code
+carries it.
 
 Default structure:
 
@@ -238,6 +242,12 @@ This PR [main change in one sentence].
 ## Breaking Change
 
 [If applicable: before/after usage example. If none: omit the section.]
+
+## Decisions
+
+[If applicable: dated provisional Decisions that no governing SPEC or BRIEF
+holds, one line each, for ratification at the boundary. If none: omit the
+section.]
 ```
 
 Evidence blocks carry what prose cannot. Include one only when the diff calls
@@ -252,6 +262,9 @@ for it, and let it do the explaining instead of more text:
   images or videos
 - A performance change: a before/after table, baseline measured on the target
   branch and candidate on this branch, with the command or harness named
+- An E2E run: a link to its artifact with the exact command or script, the
+  revision and environment it ran against, and its output (the testing law in
+  `AGENTS.md`)
 
 Scale the body to the change. For a high-risk, wide, or difficult change,
 write the body as a technical post: the context, the problem, the approach and
@@ -266,15 +279,18 @@ Writing rules:
 - Keep implementation detail high-level; evidence blocks carry the depth
 - Bullets for the text beyond the opening sentences; no nested bullets
 - Default form: at most 3 bullets and no sections except the optional
-  `## Breaking Change`
+  `## Breaking Change` and `## Decisions`
+- A stacked PR (`ship-stack`) body also lists every intentional behavior delta
+  and each declined review finding a reviewer would otherwise raise, with its
+  spec citation. This list may go beyond the 3-bullet default.
 - Prose follows `writing-technical-english`
 
 Forbidden content:
 
 - sections like `## Problem`, `## Solution`, `## Changes`, `## Testing`,
   `## Validation`, `## Impact`, in either form
-- any statement that tests were run or checks pass; CI and the review gates
-  carry that evidence
+- any prose statement that tests were run or checks pass; CI, the review
+  gates, and an E2E artifact block carry that evidence
 - changelog-style file-by-file summaries or commit-by-commit narration
 - intermediate PR history (size reductions, refactors between commits,
   reverted attempts)

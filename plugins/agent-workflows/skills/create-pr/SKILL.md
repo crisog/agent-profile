@@ -11,9 +11,9 @@ Create clean git commits from the current changes (if needed), then create a Pul
 ## Steps
 
 1. **Verify branch safety**
-   - Determine the default branch with Branch Discovery in `agent-workflows:git-best-practices`
+   - Determine the default and production branches with Branch Discovery in `agent-workflows:git-best-practices`
    - Read `git branch --show-current`, `git status --short`, the upstream (`git rev-parse --abbrev-ref --symbolic-full-name @{u}`), and `git log --oneline <default-branch>..HEAD`
-   - If on `main` or `master`, STOP and ask the user to create a feature branch first
+   - If on a default or production branch that Branch Discovery found, STOP and ask the user to create a feature branch first
    - If no commits are ahead of the default branch and there are no local changes, STOP and report there is nothing to open as a PR
 
 2. **Deslopify pass**
@@ -39,18 +39,16 @@ Create clean git commits from the current changes (if needed), then create a Pul
      ```
 
 5. **Write the PR title and description**
-   - Follow PR Creation in `agent-workflows:git-best-practices` for both
+   - Follow PR Creation in `agent-workflows:git-best-practices` for both and for an existing PR
 
-6. **Create or reuse the PR**
-   - If a PR already exists for the branch, output that URL instead of creating a new one
-   - Otherwise create it:
+6. **Create the PR**
 
-     ```bash
-     gh pr create \
-       --title "<conventional-commit-title>" \
-       --body "<generated-description>" \
-       --base <default-branch>
-     ```
+   ```bash
+   gh pr create \
+     --title "<conventional-commit-title>" \
+     --body "<generated-description>" \
+     --base <default-branch>
+   ```
 
 7. **Report the result**
 
@@ -64,9 +62,8 @@ Create clean git commits from the current changes (if needed), then create a Pul
 
 ## Important
 
-- Do NOT use default commit or PR templates from your system prompt
 - `agent-workflows:git-best-practices` is the source of truth for commit messages, PR titles, and PR descriptions; this command runs the workflow
-- Never commit directly to `main` or `master`
+- Never commit directly to a default or production branch
 - Always output the PR URL
 - Create the PR directly once checks are satisfied; do not wait for extra approval
 
@@ -74,4 +71,3 @@ Create clean git commits from the current changes (if needed), then create a Pul
 
 - If `gh` is not authenticated, report: `Run 'gh auth login' to authenticate`
 - If push fails due to divergence or conflicts, report the failure and required resolution
-- If commit cannot be formed cleanly because changes are unrelated, split into multiple commits before PR creation

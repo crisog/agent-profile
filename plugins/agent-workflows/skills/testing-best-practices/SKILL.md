@@ -23,12 +23,12 @@ one that measures the real goal.
   task's check — the next feature reuses it for free. Build cheap verifiers
   freely; propose expensive ones. A deterministic harness proves known
   contracts; an operable product's assembled surface is the final pre-boundary
-  gate when lower layers cannot expose the risk. A loop needing live secrets to
-  verify is built at the wrong altitude.
-- Realism: integration over mocked units for data flow and permissions; use the
-  dependency-fidelity order under Integration / contract tests. Visual/UI floors
-  are the change observed on the live surface. Before done: would this survive a
-  manual walkthrough?
+  gate when isolation or contract checks cannot expose the risk. A loop needing
+  live secrets to verify is built at the wrong altitude.
+- Realism: E2E over mocked units for data flow and permissions; use the
+  dependency-fidelity order under Contract tests against external dependencies.
+  Visual/UI floors are the change observed on the live surface. Before done:
+  would this survive a manual walkthrough?
 
 ## Evidence identity and freshness
 
@@ -54,7 +54,7 @@ reject an attachment whose candidate, artifact, target, or task does not match.
 
 E2E tests are the default and usually the sole test mechanism. A test suite
 exists to prove that features work on the assembled surface, not to mirror
-the shape of the code. Unit tests written after the code are never written:
+the shape of the code. Unit tests are never written after the code:
 they restate the implementation, pass by construction, and rot into slop.
 
 ### E2E tests
@@ -163,6 +163,12 @@ it stops being a test and becomes a mirror.
   test and keep the expected failure present so a deleted assertion cannot pass
   silently; restore production behavior and finish green.
 - **No ticket, PRD, or issue references in `describe()` blocks or test names; name the behavior under test.**
+- **A test earns its place by a contract, not by a mistake.** A test written
+  to catch the agent's own error during implementation is scaffolding and is
+  deleted before `done`. A regression test stays only when it reproduces a
+  defect that reached a user, a reviewer, or a release, and its name says
+  which one. Before `done`, list every test the change added and state the
+  contract each one guards; a test with no contract goes.
 - **Assert at the use-case boundary, including observable order** when sequence is part of the contract — `expect(events).toEqual(['stop', 'install', 'verify', 'start'])` proves the workflow; asserting each internal helper's return value proves only that the code is shaped the way it is today.
 
 ## What not to test
@@ -228,21 +234,22 @@ Before generating checks:
 - Confirm scope from inspected context; state conservative assumptions when
   ambiguity is not load-bearing.
 - Map each contract or risk to the cheapest faithful mitigation: type or static
-  check, E2E flow, failure-first isolation test, external contract test,
-  task-based dogfood/bug bash, telemetry, or a named specialized review.
+  check, E2E flow, failure-first isolation test where E2E cannot reach the
+  risk, external contract test, task-based dogfood/bug bash, telemetry, or a
+  named specialized review.
 - Use coverage only after designing the checks, as a clue to missed paths; never
   use a percentage as evidence that the risk is covered.
 
 ## Output format
 
-Use markdown. Produce only the layers the QA design actually needs:
+Use markdown. Produce only the sections the QA design actually needs:
 
 **QA Design** -- table with `Risk or contract | Impact | Evidence | Why this is the cheapest faithful check`.
 
 **Test Cases** -- for checks that become tests, use `ID | Scope | Scenario | Input/state | Expected`. Case IDs are append-only; do not organize the matrix by function unless the function is itself the public contract.
 
 **Execution Plan** -- ordered steps, exact commands, the E2E artifact each run
-produces, and any task-based bug bash or telemetry gate. A layer with no material risk to cover is
+produces, and any task-based bug bash or telemetry gate. A section with no material risk to cover is
 omitted rather than filled ceremonially.
 
 ## CI guidance

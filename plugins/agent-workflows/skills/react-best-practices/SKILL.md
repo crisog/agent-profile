@@ -110,13 +110,13 @@ Server data belongs in a server-cache library, not in component state kept in sy
 
 ## API Layer
 
-- One configured client instance in `lib/`, consumed everywhere
+- One client factory in `lib/`; the composition root in `app/` builds the instance once and provides it to every feature
 - Colocate request functions and their query hooks with the feature that owns them
 - Export query options alongside the hook so callers can prefetch and reuse the same key
 
 ## Error Handling
 
-- Show error toasts from the global React Query `QueryCache` `onError`, which fires once per query (see `agent-workflows:react-query`), not from a client interceptor
+- Show error toasts from the global `QueryCache` `onError` for queries and the global `MutationCache` `onError` for mutations, not from a client interceptor; each cache sees only its own kind (see "Error handling" in `agent-workflows:react-query`)
 - Keep the client interceptor for transport concerns: log out on 401 and re-reject so callers still see the error
 - Use several error boundaries, not one app-wide boundary: one per route, independent widget, and third-party component, each with a fallback scoped to what it wraps
 

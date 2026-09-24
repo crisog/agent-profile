@@ -18,7 +18,7 @@
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
-      "Apply the TypeScript best-practice skills",
+      "Apply the TypeScript clean-code skill",
       "Plan this work before implementation",
       "Review git workflow constraints before committing"
     ]
