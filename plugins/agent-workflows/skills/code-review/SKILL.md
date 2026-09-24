@@ -1,11 +1,13 @@
 ---
 name: code-review
-description: Use when reviewing PRs, diffs, or code changes — conducts solution-oriented reviews that evaluate whether a change is the best approach to the problem, not just whether it works.
+description: Use when a PR or diff needs a review of its approach, precedent, or complexity, such as a human-facing design review for its author or a bounded specialist gate on unnecessary complexity; not for a bug hunt.
 ---
 
 # Code Review
 
 ## Scope
+
+A bug hunt on a diff goes to the built-in `/code-review` command, not this skill.
 
 This shape is the human-facing review written for a change's author. As a
 delivery gate it is never generic: a gate is a bounded specialist review that
