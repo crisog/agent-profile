@@ -7,7 +7,7 @@ description: Use when reading, writing, or structuring React code (.tsx, .jsx fi
 
 ## Pair with TypeScript
 
-When working with React, always load both this skill and `typescript-best-practices` together. TypeScript patterns (type-first development, discriminated unions, Zod validation) apply to React code.
+When working with React, always load both this skill and `typescript-clean-code` together. TypeScript patterns (type-first development, discriminated unions, Zod validation) apply to React code.
 
 ## Core Principle: Effects Are Escape Hatches
 
@@ -116,7 +116,8 @@ Server data belongs in a server-cache library, not in component state kept in sy
 
 ## Error Handling
 
-- Handle cross-cutting API failures once in a client interceptor: surface the message, log out on 401, and re-reject so callers still see the error
+- Show error toasts from the global React Query `QueryCache` `onError`, which fires once per query (see `agent-workflows:react-query`), not from a client interceptor
+- Keep the client interceptor for transport concerns: log out on 401 and re-reject so callers still see the error
 - Use several error boundaries, not one app-wide boundary: one per route, independent widget, and third-party component, each with a fallback scoped to what it wraps
 
 ## Security
