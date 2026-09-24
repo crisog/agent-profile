@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILL_ROOT = resolve(ROOT, "plugins/agent-profile/skills");
+const SKILL_ROOT = resolve(ROOT, "plugins/agent-workflows/skills");
 function filesBelow(dir: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -47,12 +47,12 @@ describe("public skill catalog", () => {
 
   it.each([
     {
-      skill: "plugins/agent-profile/skills/spec-best-practices/SKILL.md",
+      skill: "plugins/agent-workflows/skills/spec-best-practices/SKILL.md",
       marker: "Interview, complete, or find gaps in a `SPEC.md`",
       reference: "references/interview.md",
     },
     {
-      skill: "plugins/agent-profile/skills/program-planning/SKILL.md",
+      skill: "plugins/agent-workflows/skills/program-planning/SKILL.md",
       marker: "When the tracker is GitHub",
       reference: "references/github.md",
     },

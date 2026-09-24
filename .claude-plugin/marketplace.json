@@ -7,8 +7,8 @@
   },
   "plugins": [
     {
-      "name": "agent-profile",
-      "source": "./plugins/agent-profile",
+      "name": "agent-workflows",
+      "source": "./plugins/agent-workflows",
       "description": "Engineering-practice and workflow skills plus guard hooks for agentic coding.",
       "version": "5.0.0",
       "author": {

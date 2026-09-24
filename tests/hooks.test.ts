@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const HOOKS_DIR = fileURLToPath(
-  new URL("../plugins/agent-profile/hooks", import.meta.url),
+  new URL("../plugins/agent-workflows/hooks", import.meta.url),
 );
 const SECRET_GUARD = join(HOOKS_DIR, "secret-guard.sh");
 const PUBLISH_GUARD = join(HOOKS_DIR, "publish-guard.sh");

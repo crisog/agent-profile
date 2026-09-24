@@ -147,7 +147,7 @@ climbs the ladder.
   Pipe from the secret manager to stdin; a tool that only accepts plaintext
   argv, env, or file means stop and ask. Never resolve an auth or push
   failure by mutating credential config.
-- The `agent-profile` plugin enforces the verifier, secrets, and publish
+- The `agent-workflows` plugin enforces the verifier, secrets, and publish
   laws as PreToolUse guards on every shell tool.
 
 Ratified Decisions:

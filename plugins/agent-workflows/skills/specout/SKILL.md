@@ -58,4 +58,4 @@ If a new subsystem has no concrete supporting requirement, defer it.
 
 Present the specification for approval. Follow the user's and repository's artifact policy; keep specs local and uncommitted unless explicitly asked to commit them.
 
-Bounded changes proceed directly to implementation after approval. Use `agent-profile:planout` only when the user requests a plan or the approved work genuinely needs coordinated multi-step execution. PR sequencing is a planning decision, not part of the specification.
+Bounded changes proceed directly to implementation after approval. Use `agent-workflows:planout` only when the user requests a plan or the approved work genuinely needs coordinated multi-step execution. PR sequencing is a planning decision, not part of the specification.

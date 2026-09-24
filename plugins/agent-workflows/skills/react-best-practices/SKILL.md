@@ -97,7 +97,7 @@ Pick the state type before picking a library:
 | URL | Filters, pagination, tabs | Router params |
 | Global | Theme, modals, toasts | Zustand, Jotai, Context |
 
-Server data belongs in a server-cache library, not in component state kept in sync by an Effect. See `agent-profile:react-query`.
+Server data belongs in a server-cache library, not in component state kept in sync by an Effect. See `agent-workflows:react-query`.
 
 - Pass an initializer function to `useState` when the initial value is expensive to compute
 

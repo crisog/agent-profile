@@ -15,11 +15,11 @@ A skill should capture reusable judgment, not a story about one session.
 
 Choose the source of truth before editing:
 
-- Shared skill source: edit the repo-managed skill in `agent-profile`, not a generated runtime copy.
+- Shared skill source: edit the repo-managed skill in `agent-workflows`, not a generated runtime copy.
 - Harness-specific adaptation: create a clearly named separate skill instead of installing duplicate skill names with divergent behavior.
 
 In this repo, shared skills live under:
-- `plugins/agent-profile/skills/<skill-name>/`
+- `plugins/agent-workflows/skills/<skill-name>/`
 
 ## When to Create a Skill
 
