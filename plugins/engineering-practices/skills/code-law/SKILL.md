@@ -165,10 +165,6 @@ evidence that would justify adding it.
   generality is not.
 - Wrap an external API when doing so clearly bounds change or gives the domain a
   better contract; do not wrap familiar standard types by reflex.
-- When a CLI, API, control plane, or automation surface is operated by agents,
-  load `agent-operability`. Its inspect/plan/apply/verify contract is the public
-  expression of this skill's deterministic, idempotent, atomic, observable,
-  evented, and contextual properties—not a second implementation path.
 
 ## Properties
 

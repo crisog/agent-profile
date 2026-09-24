@@ -192,7 +192,6 @@ from pathlib import Path
 root = Path(sys.argv[1])
 files = (
     root / "plugins/agent-workflows/skills/host-tidy/SKILL.md",
-    root / "plugins/engineering-practices/skills/orbstack-best-practices/SKILL.md",
 )
 forbidden = re.compile(
     r"(?:\b(?:docker\s+)?compose\s+down\b[^\n]*\s-v(?:\s|$)|"

@@ -50,21 +50,6 @@ describe("public skill catalog", () => {
 
   it.each([
     {
-      skill: "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-      marker: "Electrobun tasks",
-      reference: "references/electrobun/guide.md",
-    },
-    {
-      skill: "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-      marker: "Physical iOS or `pymobiledevice3` tasks",
-      reference: "references/physical-ios/guide.md",
-    },
-    {
-      skill: "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-      marker: "AXe / iOS Simulator tasks",
-      reference: "references/axe-ios-simulator.md",
-    },
-    {
       skill: "plugins/engineering-practices/skills/spec-best-practices/SKILL.md",
       marker: "Interview, complete, or find gaps in a `SPEC.md`",
       reference: "references/interview.md",
@@ -80,18 +65,6 @@ describe("public skill catalog", () => {
 
   it("resolves every archived guide link from its router", () => {
     const routes = [
-      [
-        "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-        "Electrobun tasks",
-      ],
-      [
-        "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-        "Physical iOS or `pymobiledevice3` tasks",
-      ],
-      [
-        "plugins/engineering-practices/skills/platform-tooling/SKILL.md",
-        "AXe / iOS Simulator tasks",
-      ],
       [
         "plugins/engineering-practices/skills/spec-best-practices/SKILL.md",
         "Interview, complete, or find gaps in a `SPEC.md`",

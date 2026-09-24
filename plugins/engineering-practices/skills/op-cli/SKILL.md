@@ -98,7 +98,7 @@ bash -c 'echo LEAKED 2>&1 >/dev/null | head'                   # (nothing)
 ```
 
 This is a property of the shell, not of any one tool: it applies to `op
-read`, `fnox get`, `aws`, and anything else that prints a credential on
+read`, `aws`, and anything else that prints a credential on
 stdout.
 
 The lesson is not "get the redirection right" — that framing invites another

@@ -3,24 +3,24 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const SKILLS = new URL("../plugins/engineering-practices/skills/", import.meta.url);
+const SKILL = new URL(
+  "../plugins/engineering-practices/skills/op-cli/SKILL.md",
+  import.meta.url,
+);
 
 /**
- * The zsh MULTIOS law is shell-level, so it applies to every skill that prints
- * a credential. It is duplicated verbatim rather than referenced, because a
- * pointer fails open when only one of the skills is loaded and the failure mode
- * is a leaked live credential. Duplication is only safe while the copies cannot
- * drift, so identity is a floor rather than a convention.
+ * The zsh MULTIOS law is shell-level: a redirect cannot suppress stdout inside
+ * a pipeline, so a credential printed by `op read` reaches the pipe anyway. The
+ * failure mode is a leaked live credential, so the documented shell results are
+ * a floor the test reproduces rather than prose it trusts.
  */
 const HEADING = "### The zsh MULTIOS trap";
-const CARRIERS = ["op-cli", "fnox-cli"] as const;
 
 /** The block runs from its heading to the next heading at any level. */
-function sharedBlock(skill: string): string {
-  const path = fileURLToPath(new URL(`${skill}/SKILL.md`, SKILLS));
-  const text = readFileSync(path, "utf8");
+function lawBlock(): string {
+  const text = readFileSync(fileURLToPath(SKILL), "utf8");
   const start = text.indexOf(HEADING);
-  if (start === -1) throw new Error(`${skill}/SKILL.md is missing "${HEADING}"`);
+  if (start === -1) throw new Error(`op-cli/SKILL.md is missing "${HEADING}"`);
   const rest = text.slice(start + HEADING.length);
   const end = rest.search(/^#/m);
   return HEADING + (end === -1 ? rest : rest.slice(0, end)).trimEnd();
@@ -58,31 +58,21 @@ function hasShell(shell: string): boolean {
   }
 }
 
-describe("shared MULTIOS law", () => {
-  it("is byte-identical in every skill that carries it", () => {
-    const [canonical, ...copies] = CARRIERS.map(sharedBlock);
-    copies.forEach((copy, index) => {
-      expect(copy, `${CARRIERS[index + 1]} drifted from ${CARRIERS[0]}`).toBe(canonical);
-    });
-  });
-
-  it("names both credential tools it governs", () => {
-    const prose = sharedBlock(CARRIERS[0]).replace(/\s+/g, " ");
-    expect(prose).toContain("op read");
-    expect(prose).toContain("fnox get");
+describe("op-cli MULTIOS law", () => {
+  it("names the credential tool it governs", () => {
+    expect(lawBlock().replace(/\s+/g, " ")).toContain("op read");
   });
 
   it("demonstrates the trap without a real credential", () => {
-    const block = sharedBlock(CARRIERS[0]);
-    for (const probe of probes(block)) {
-      expect(probe.command).not.toMatch(/\b(op|fnox|aws)\b/);
+    for (const probe of probes(lawBlock())) {
+      expect(probe.command).not.toMatch(/\b(op|aws)\b/);
     }
   });
 
   it.skipIf(!hasShell("zsh") || !hasShell("bash"))(
     "reproduces the four documented results",
     () => {
-      for (const probe of probes(sharedBlock(CARRIERS[0]))) {
+      for (const probe of probes(lawBlock())) {
         const stdout = execFileSync("/bin/sh", ["-c", probe.command], { encoding: "utf8" });
         expect(stdout.trim(), `unexpected output from: ${probe.command}`).toBe(
           probe.leaks ? "LEAKED" : "",
