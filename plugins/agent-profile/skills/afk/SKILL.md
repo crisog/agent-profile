@@ -8,7 +8,7 @@ description: Use when the user says they are stepping away and the agent should 
 The user is away: no interactive approval will arrive. Continue the authorized
 work; presence changes neither its scope nor existing authorization. Do not
 start a new campaign or manufacture documents solely because the user left.
-The unblocking ladder, terminal states, and budgets are AGENTS.md law. This
+The decision ladder, terminal states, and budgets are AGENTS.md law. This
 skill adds the operational constraint: nothing you run may block on a prompt.
 
 ## Allowed

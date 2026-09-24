@@ -219,7 +219,7 @@ describe("publish-guard: pushes to a deploying ref", () => {
     ["git push origin \"main\"", true],
     ["git push origin 'dev'", true],
     // A push of any other branch stays allowed, including near-miss names.
-    ["git push origin feat/doctrine-floors", false],
+    ["git push origin feat/docs-floors", false],
     ["git push -u origin feat/main-line", false],
     ["git push origin devtools-fix", false],
     ["git fetch origin main", false],

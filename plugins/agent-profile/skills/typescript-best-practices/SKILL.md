@@ -5,7 +5,7 @@ description: Use when reading or writing TypeScript or JavaScript files (.ts, .t
 
 # TypeScript Best Practices
 
-Follows type-first, functional, and error handling patterns from AGENTS.md. This skill covers language-specific idioms only.
+Follows type-first, functional, and error handling patterns from `code-law`. This skill covers language-specific idioms only.
 
 ## Pair with React Best Practices
 

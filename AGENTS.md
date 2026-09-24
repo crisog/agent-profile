@@ -27,8 +27,8 @@ how far agents act correctly in the operator's absence: an interruption for
 a decision a standing Decision already answers is a training failure.
 
 Artifacts stay proportional: existing requirements and a short session plan
-carry bounded attended work. Create persistent campaign artifacts only when
-unattended multi-session execution or recovery needs them.
+carry bounded attended work. Save a plan document only when unattended
+multi-session execution or recovery needs it.
 
 Three laws hold across the stack:
 
@@ -123,12 +123,13 @@ climbs the ladder.
 - **Interior decisions are made, not asked.** The ladder: investigate, check
   the brief's Decisions, consult an independent frontier model carrying
   evidence and candidates, decide. Reversible interior calls are logged as
-  dated provisional Decisions and ratified at the boundary. Unattended, never
+  dated provisional Decisions, in the governing BRIEF or SPEC, else in the
+  report or PR body, and ratified at the boundary. Unattended, never
   freeze on one question: accumulate and terminate `blocked: needs N
   decisions` with a numbered, evidenced batch.
-- **Campaign scope is declared.** A campaign advances its loop's named
-  targets. Adjacent work that advances none is out of scope unless a SPEC
-  invariant or safety requires it. Git is the archive.
+- **Campaign scope is declared.** A campaign advances the SPEC requirements
+  or BRIEF floors its plan names. Adjacent work that advances none is out of
+  scope unless a SPEC invariant or safety requires it.
 - **Unattended terminals are interior-verifiable.** A required bug bash names
   its tasks, environment, severity floor, and budget, and terminates `green`,
   `findings`, `blocked`, or `budget-exhausted`, never "until approval". A
@@ -178,8 +179,8 @@ and incidents. Direct implementation does not waive independence.
   default: schema or data migrations, auth and security boundaries, public
   API compatibility, infra and deploy config. Low-risk docs or non-runtime
   changes may run SPEC, PLAN, DEV.
-- Traceability: every change maps loop target to REQ-* to tests to commit or
-  artifact evidence. Deviations record a waiver with rationale.
+- Traceability: every change maps a REQ-* id or BRIEF floor to tests to
+  commit or artifact evidence. Deviations record a waiver with rationale.
 
 ## Code law
 

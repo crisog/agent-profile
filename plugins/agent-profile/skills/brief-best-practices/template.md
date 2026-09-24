@@ -2,7 +2,7 @@
 
 > Law doc for <surface>, present-tense, no narrated history — git is the changelog. The Boundary
 > and ratified Decisions amend only with human confirmation; the driver appends provisional
-> Decisions, marked and dated. Working memory lives in the campaign's plan, not here;
+> Decisions, marked and dated. Working memory stays out of this file;
 > floor waivers are dated Decisions below.
 
 ## Bar

@@ -1,6 +1,6 @@
 ---
 name: brief-best-practices
-description: Use when creating, reviewing, or updating a BRIEF.md (the quality law for a surface), defining what "good"/shippable means, or setting up a verified autonomous loop.
+description: Use when creating, reviewing, or updating a BRIEF.md (the quality law for a surface), defining what "good"/shippable means, or setting up the verifier for an autonomous loop.
 ---
 
 ## What a brief is
@@ -17,7 +17,7 @@ Subjective surfaces (a docs page, a report, a visual artifact) get a **mini-brie
 
 ## Naming & placement
 
-Always `BRIEF.md`, colocated with the surface it governs: root for project scope, `apps/foo/BRIEF.md`, `packages/bar/BRIEF.md`, or a docs subtree (e.g. `docs/toys/BRIEF.md`). Working memory never lives beside the brief as sidecar docs (`DELTA.md`, `DEVIATIONS.md`): per-round gaps and iteration facts belong to the campaign's plan, and an infeasible floor's waiver is law, not working memory — it lives in the brief's own Decisions, dated, naming the floor, the blocker, and the nearest-feasible alternative in force. A sidecar found beside a brief is folded into the brief or the plan and deleted. The brief is present-tense law; git is the changelog.
+Always `BRIEF.md`, colocated with the surface it governs: root for project scope, `apps/foo/BRIEF.md`, `packages/bar/BRIEF.md`, or a docs subtree (e.g. `docs/toys/BRIEF.md`). Working memory never lives beside the brief as sidecar docs (`DELTA.md`, `DEVIATIONS.md`): per-round gaps and iteration facts belong in session working notes, not beside the brief, and an infeasible floor's waiver is law, not working memory — it lives in the brief's own Decisions, dated, naming the floor, the blocker, and the nearest-feasible alternative in force. A sidecar found beside a brief has its durable content folded into the brief's Decisions and is deleted. The brief is present-tense law; git is the changelog.
 
 ## The seven slots (required concerns, adaptable shape)
 
@@ -39,7 +39,7 @@ The contract is that all seven *concerns* are present, in this order — not a f
    named quality cannot be exercised. For live systems the oracle extends past
    ship into **telemetry** — the signals that confirm it stays good.
 5. **Never** — outcomes that are always a fail regardless of everything else (the safety invariants / "never events"). Concrete and absolute.
-6. **Decisions** — calls already made, the **tradeoff/priority policy** ("security > latency; security can force a redesign, latency cannot"), and assumptions, so the agent never re-asks. This section **grows**, in two tiers: **ratified** (human-confirmed) and **provisional** (a reversible interior call the driver made via the unblocking ladder — dated, with rationale, ratified or overturned at the boundary). This is where mid-loop questions go to die.
+6. **Decisions** — calls already made, the **tradeoff/priority policy** ("security > latency; security can force a redesign, latency cannot"), and assumptions, so the agent never re-asks. This section **grows**, in two tiers: **ratified** (human-confirmed) and **provisional** (a reversible interior call the driver made via the ladder — dated, with rationale, ratified or overturned at the boundary). This is where mid-loop questions go to die.
 7. **Boundary** — what requires the human: publish, biometric, live secrets, and genuine unknowns. Naming it tells the agent exactly what it may and may not do unattended.
 
 **Show, don't just tell.** Any slot that is ambiguous earns a concrete instance — a golden example and/or an anti-example. Agents ground on exemplars; the Never list and the Oracle especially benefit.
@@ -48,16 +48,12 @@ The contract is that all seven *concerns* are present, in this order — not a f
 
 Open every brief with a one-line law statement, e.g.:
 
-> Law doc for `<surface>`, present-tense, no narrated history — git is the changelog. The Boundary and ratified Decisions amend only with human confirmation; the driver appends provisional Decisions, marked and dated. Working memory lives in the campaign's plan, not here; floor waivers are dated Decisions below.
+> Law doc for `<surface>`, present-tense, no narrated history — git is the changelog. The Boundary and ratified Decisions amend only with human confirmation; the driver appends provisional Decisions, marked and dated. Working memory stays out of this file; floor waivers are dated Decisions below.
 
 ## Authoring rules
 
 - **Match the house first.** If the repo already has ratified briefs, copy *their* shape — section names, voice, any closing coda — over this skeleton. Consistency across the brief set beats the generic template; the seven concerns are the fallback when no house dialect exists yet. Evaluate a brief against the house dialect; matching the repo's own law is not a defect.
 - **Evidence-based.** Ground Dimensions and Floors in the real surface; cite reference exemplars. Do not invent thresholds, signals, or behaviors.
-- **No strategic duplication.** Link mission rubric ids when the surface serves
-  a declared mission, but do not restate outcome criteria as BRIEF dimensions or floors.
-  A mission asks whether the outcome succeeded; a BRIEF asks whether this
-  surface is good enough.
 - **The oracle must be independent where judgment is experiential or
   subjective.** Maker ≠ terminal judge. A fresh bug-bash participant receives
   the task charter and artifact, not the author's reasoning or suspected bugs.
@@ -79,8 +75,8 @@ Open every brief with a one-line law statement, e.g.:
 The brief is inert until it runs: the **harness** runs objective Floors and emits
 pass/fail with evidence; the **oracle** executes real-use tasks or judges the
 remaining Dimensions independently; the **OODA loop** iterates against them to
-`done` or a bounded, honest `blocked`. A campaign targets this brief's floors
-by name and keeps its live state and decisions in its own plan, not here.
+`done` or a bounded, honest `blocked`. A plan names the floors each task
+advances; provisional Decisions land in this brief's Decisions.
 
 ## References
 

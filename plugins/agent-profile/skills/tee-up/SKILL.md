@@ -16,7 +16,7 @@ inherit this review's context.
 Wording cannot be graded until what it already inherits is known.
 
 - Read the `SKILL.md` of every skill the draft names; note what each already
-  mandates (presence, budgets, terminal states, boundaries, cleanup).
+  mandates (presence, budgets, terminal states, boundaries).
 - Read the seed the draft points at — a plan, an issue, a
   handoff — and note what it already declares.
 - Check persistent memory for feedback on this workflow, when the harness

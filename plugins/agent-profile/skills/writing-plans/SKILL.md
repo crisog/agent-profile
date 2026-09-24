@@ -35,9 +35,9 @@ If the request covers multiple independent changes, split it into separate plans
 
 ## Plan Format
 
-Each unit names the SPEC requirements or BRIEF floors it advances. A unit
-that advances no target is omitted unless a SPEC invariant or safety
-requirement makes it necessary; cite that requirement in the unit.
+Each task's Targets line names the REQ-* ids or BRIEF floors it advances. A
+task that advances none is omitted unless a SPEC invariant or safety
+requirement makes it necessary; cite that requirement in the task.
 
 Use a concise session plan or the harness's plan mechanism for
 bounded attended work. Save a document only when the user requests one or
@@ -64,7 +64,7 @@ Then include:
 - Test: `path/to/test_file`
 
 ### Task N: <name>
-- Targets: `<REQ-ID | Floor | RUBRIC-ID>`
+- Targets: `<REQ-ID | Floor>`
 - Outcome: <what is true when this task is done>
 - Reuse: <existing code and behavior it builds on>
 - Steps:
@@ -92,8 +92,8 @@ Then include:
 - Start from a written QA design: map each material risk to the cheapest faithful
   evidence instead of filling every test layer by habit.
 - When the existing structure fights the feature, put a behavior-preserving
-  prefactor unit first when it can be independently green. Keep the behavior
-  change in the following unit so either step is understandable and reversible.
+  prefactor task first when it can be independently green. Keep the behavior
+  change in the following task so either step is understandable and reversible.
 - Include commands that can actually be run from the repo.
 - Keep steps concrete: "add parser for X in `foo.ts`", not "improve parsing".
 - Keep unrelated refactors out unless they are required to make the change safe.
@@ -124,7 +124,7 @@ If the plan will be executed in the same session:
 
 Independent sidecar work may run as parallel bounded subagents with
 non-overlapping ownership; the critical path defaults to the packetized
-delegation stream (rules of engagement).
+delegation stream (agentic delivery flow).
 
 ## Red Flags
 
