@@ -5,101 +5,42 @@ description: Use when writing, reviewing, or architecting data fetching with Rea
 
 # React Query Best Practices
 
-> Distilled from [TkDodo's React Query series](https://tkdodo.eu/blog/practical-react-query) (Dominik Dorfmeister, TanStack Query maintainer). Examples target **v5** (`@tanstack/react-query`); inline notes flag where v3/v4 names differ.
+> Distilled from [TkDodo's React Query series](https://tkdodo.eu/blog/practical-react-query). Examples target **v5** (`@tanstack/react-query`).
 
-For general project structure, feature colocation, and the API-layer pattern, see the `react` skill — this skill owns the React Query specifics.
+For project structure and the API-layer pattern, see `react-best-practices`; this skill owns the React Query specifics.
 
 ## Foundations — the mental model
 
-React Query is an **async state manager**, not a data-fetching library. You bring the fetch function; it owns the *cache* and the *synchronization*. Your app does not own server data — it borrows a snapshot to display, and React Query's job is to keep that snapshot in sync with the server.
+React Query is an **async state manager**, not a data-fetching library: it owns the *cache* and the *synchronization*.
 
-This reframes most decisions:
-
-- **Server state ≠ client state.** Data that lives on a server you don't control is server state — let React Query own it. Form inputs, toggles, and modals are client state — `useState`/`useReducer`/Zustand.
-- **Fresh vs stale.** `staleTime` is how long data stays *fresh*. Fresh data is served from cache with **no network request**. Stale data is also served from cache instantly, but triggers a **background refetch** (stale-while-revalidate). Default `staleTime` is `0` → everything is stale immediately.
-- **Single source of truth.** Don't copy query data into local state — the copy never updates.
-
-```tsx
-// BAD: copying server state into local state — the copy is frozen forever
-function TodoList() {
-  const { data } = useTodos();
-  const [todos, setTodos] = useState(data); // 🔴 snapshot, never revalidates
-  // ...
-}
-
-// GOOD: read straight from the query — always the latest
-function TodoList() {
-  const { data: todos } = useTodos();
-  // ...
-}
-```
-
-The one legitimate exception is seeding a form's initial values. Set `staleTime: Infinity` so you don't fire background refetches the form would ignore anyway.
-
-```tsx
-// GOOD: query data as form defaults — freeze it so it won't refetch under the form
-function EditProfile() {
-  const { data } = useQuery({
-    queryKey: ['profile'],
-    queryFn: fetchProfile,
-    staleTime: Infinity,
-  });
-  return data ? <ProfileForm initialValues={data} /> : null;
-}
-```
-
----
+- **Server state ≠ client state.** Server data belongs to React Query; form inputs, toggles, and modals do not.
+- **Fresh vs stale.** Fresh data (within `staleTime`) is served from cache with **no network request**. Stale data is served from cache and triggers a **background refetch**. Default `staleTime` is `0`.
+- **Single source of truth.** Don't copy query data into local state (`useState(data)`) — the copy never updates. The one exception is seeding a form's initial values; set `staleTime: Infinity` there.
 
 ## Setup & sensible defaults
 
-For most apps, **tuning `staleTime` is the only configuration you need.** A minimum of ~20s deduplicates bursts of refetches. Set it globally; override per key.
+For most apps, **tuning `staleTime` is the only configuration you need.** A minimum of ~20s deduplicates bursts of refetches. Set it globally; override per key family with `queryClient.setQueryDefaults`.
 
-```ts
-// GOOD: one global default; most apps need nothing else
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 20, // 20s — dedupe background refetches
-    },
-  },
-});
-
-// Override per query-key family without touching call sites
-queryClient.setQueryDefaults(todoKeys.all, { staleTime: 1000 * 60 });
-```
-
-- **Tune `staleTime`, not `gcTime`.** `gcTime` (v4: `cacheTime`) is how long *inactive* queries linger before garbage collection — default 5 min. You rarely need to touch it.
-- **Don't reflexively disable `refetchOnWindowFocus`.** It's noisy in dev (focus flips to the editor and back) but valuable in production — a user returning to a stale tab gets fresh data. Fix the dev annoyance with `staleTime`, not by killing the feature. (`refetchOnMount` / `refetchOnReconnect` are the sibling smart-refetch triggers.)
-- **Install the Devtools.** They show what's in the cache and which state each query is in. Throttle the network in browser DevTools to actually see background refetches.
-
----
+- **Tune `staleTime`, not `gcTime`.** You rarely need to touch `gcTime`.
+- **Don't reflexively disable `refetchOnWindowFocus`.** It's valuable in production. Fix the dev noise with `staleTime`.
 
 ## Query keys
 
-A query key is a dependency array for your data. Put **every variable the `queryFn` uses** in the key — when it changes, React Query refetches automatically. Never orchestrate refetches manually through effects.
+A query key is a dependency array. Put **every variable the `queryFn` uses** in the key — when it changes, React Query refetches automatically. Never orchestrate refetches manually through effects.
 
 ```ts
 // BAD: variable used in queryFn but missing from the key → stale / cross-contaminated cache
 useQuery({ queryKey: ['todos'], queryFn: () => fetchTodos(state) });
 
-// GOOD: key is the dependency array; changing `state` refetches
+// GOOD: changing `state` refetches
 useQuery({ queryKey: ['todos', state], queryFn: () => fetchTodos(state) });
 ```
 
-Structure keys **generic → specific** so fuzzy matching can invalidate at any level:
+Structure keys **generic → specific** so fuzzy matching can invalidate at any level: invalidating `['todos']` hits everything todos; `['todos', 'list']` hits all lists, any filter.
+
+**Colocate a key factory per feature** (not a global key file), spreading from less-specific keys:
 
 ```ts
-['todos', 'list', { filters }]; // a filtered list
-['todos', 'detail', id]; // one item
-
-queryClient.invalidateQueries({ queryKey: ['todos'] }); // everything todos
-queryClient.invalidateQueries({ queryKey: ['todos', 'list'] }); // all lists, any filter
-```
-
-**Colocate a key factory per feature** (not a global key file). One object builds every key by spreading from less-specific ones:
-
-```ts
-// features/todos/queries.ts
 const todoKeys = {
   all: ['todos'] as const,
   lists: () => [...todoKeys.all, 'list'] as const,
@@ -109,263 +50,101 @@ const todoKeys = {
 };
 ```
 
-Keys must be arrays (required since v4) and unique per query type — don't share a key between `useQuery` and `useInfiniteQuery` (their cached shapes differ).
-
----
+Keys must be arrays and unique per query type — don't share a key between `useQuery` and `useInfiniteQuery`.
 
 ## Writing queries
 
-**Always wrap `useQuery` in a custom hook.** It keeps fetching out of the UI, co-locates the key + types + transforms in one file, and gives you one place to tune settings.
+**Always wrap `useQuery` in a custom hook.** It keeps fetching out of the UI and co-locates the key, types, and transforms.
 
 ```ts
-// features/todos/queries.ts
 export const useTodos = (state: State) =>
   useQuery({ queryKey: todoKeys.list(state), queryFn: () => fetchTodos(state) });
 ```
 
-Use **`enabled`** to gate execution — it's the most powerful option:
-
-- **Dependent queries:** wait for a prerequisite (`enabled: !!userId`).
-- **Wait for input:** keep filters in the key but don't run until the user applies them.
-- **Pause polling:** flip a `refetchInterval` query off while a modal is open.
-
-```tsx
-// GOOD: dependent query — only runs once we have a userId
-const { data: user } = useUser();
-const { data: projects } = useQuery({
-  queryKey: ['projects', user?.id],
-  queryFn: () => fetchProjects(user!.id),
-  enabled: !!user?.id,
-});
-```
-
----
+Use **`enabled`** to gate execution: dependent queries (`enabled: !!userId`), waiting for user input, or pausing polling.
 
 ## Transforming data
 
-Four places to reshape data, cheapest first:
-
-1. **On the backend** — best when you control it; no frontend transform at all.
-2. **In the `queryFn`** — co-located, but the transformed shape is what lands in the cache (you lose the original) and it runs on every fetch.
-3. **In render** (`useMemo`) — fine, but memoize against `data`, not the whole result object.
-4. **In `select`** — the recommended frontend option: best optimization, and it enables **partial subscriptions**.
+Prefer the backend when you control it. In the `queryFn`, the transformed shape lands in the cache and you lose the original. In render, memoize against `data`, not the whole result object. **`select`** is the recommended frontend option: it enables **partial subscriptions**.
 
 ```ts
-// GOOD: select transforms and lets components subscribe to just a slice
 export const useTodosQuery = <T = Todos>(select?: (data: Todos) => T) =>
   useQuery({ queryKey: todoKeys.lists(), queryFn: fetchTodos, select });
 
 export const useTodoCount = () => useTodosQuery((data) => data.length);
 ```
 
-`select` runs on every render, so memoize an **expensive** transform with a stable function reference (defined outside the hook) or `useCallback`. A component that selects only `data.length` won't re-render when a todo's *name* changes, thanks to structural sharing.
-
-```ts
-// BAD: useMemo depends on the whole result → new object every render, memo does nothing
-React.useMemo(() => queryInfo.data?.map(toName), [queryInfo]);
-
-// GOOD: depend on the narrowest value
-React.useMemo(() => queryInfo.data?.map(toName), [queryInfo.data]);
-```
-
----
+`select` runs on every render, so memoize an **expensive** transform with a stable function reference or `useCallback`.
 
 ## Rendering query state
 
-A query can hold **stale data and an error at the same time** — React Query keeps showing data while a background refetch fails (retrying 3× by default). So the order of your status checks matters.
+A query can hold **stale data and an error at the same time** — React Query keeps showing data while a background refetch fails. Check data first.
 
 ```tsx
-// BAD: a failed *background* refetch rips good data off the screen and shows an error
+// BAD: a failed *background* refetch rips good data off the screen
 if (todos.isPending) return <Loading />;
-if (todos.error) return <Error />; // 🔴 fires even though we still have data
+if (todos.error) return <Error />;
 return <List data={todos.data} />;
 
-// GOOD: data first — keep showing content even if a background refetch failed
+// GOOD: data first
 if (todos.data) return <List data={todos.data} />;
 if (todos.error) return <Error />; // only when we have no data to show
 return <Loading />;
 ```
 
-This isn't dogma — sometimes the error *must* surface, or you show data plus a small background-error indicator. But "data first" is the right default for display screens. (`isPending` is the v5 name; v4 called the no-data state `isLoading`. `isFetching` is a separate axis — true during any in-flight request, including background refetches.)
-
----
+"Data first" is the default for display screens, not dogma. `isFetching` is a separate axis: true during any in-flight request.
 
 ## Avoiding loading spinners
 
-Both `placeholderData` and `initialData` skip the loading state and go straight to `success`. They differ in one thing: **`initialData` is written to the cache; `placeholderData` is not.**
-
-| | `initialData` | `placeholderData` |
-|---|---|---|
-| Persisted to cache | Yes — treated as real data | No — "fake it till you make it" |
-| Respects `staleTime` | Yes (can skip the refetch) | No — always background-refetches |
-| On refetch error | keeps the data | `data` becomes `undefined` |
-| Flag | — | `isPlaceholderData` |
-
-Use **`initialData` when pre-filling from another query's cache** (and pass `initialDataUpdatedAt` so the age is correct); use **`placeholderData` for everything else**.
-
-```ts
-// GOOD: seed a detail query from an already-cached list, keeping refetch timing honest
-const useTodo = (id: number) => {
-  const queryClient = useQueryClient();
-  return useQuery({
-    queryKey: todoKeys.detail(id),
-    queryFn: () => fetchTodo(id),
-    staleTime: 1000 * 30,
-    initialData: () =>
-      queryClient.getQueryData<Todos>(todoKeys.lists())?.find((t) => t.id === id),
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(todoKeys.lists())?.dataUpdatedAt,
-  });
-};
-```
-
----
+Both `placeholderData` and `initialData` skip the loading state. **`initialData` is written to the cache; `placeholderData` is not.** Use `initialData` when pre-filling from another query's cache (with `initialDataUpdatedAt`); use `placeholderData` for everything else.
 
 ## Error handling
 
-**Prerequisite: the `queryFn` must throw (return a rejected promise) on failure.** `axios` rejects on 4xx/5xx automatically; the native `fetch` does **not** — you must check `response.ok` and throw yourself, or every error is treated as success.
+**The `queryFn` must throw on failure.** `axios` rejects on 4xx/5xx; native `fetch` does **not** — check `res.ok` and throw, or every error is treated as success.
 
-```ts
-// GOOD: fetch needs a manual throw
-const fetchTodos = async () => {
-  const res = await fetch('/todos');
-  if (!res.ok) throw new Error('Failed to fetch todos');
-  return res.json();
-};
-```
-
-Three complementary tools — combine them:
-
-- **The `error` property** — for inline, local error UI (see data-first ordering above).
-- **Error Boundaries** via `throwOnError` (v4 and earlier: `useErrorBoundary`). Pass a function to send only some errors to the boundary:
-  ```ts
-  throwOnError: (error) => error.response?.status >= 500, // 5xx → boundary, 4xx stays local
-  ```
-- **Global `QueryCache` `onError`** — the right place for toasts. It fires **once per query** (a per-`useQuery` `onError` fires once *per component* — N consumers, N toasts; and in v5 the `useQuery` callbacks were removed entirely).
-
-```ts
-// GOOD: one toast per failed request, and only for *background* failures (we already have data)
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error, query) => {
-      if (query.state.data !== undefined) {
-        toast.error(`Something went wrong: ${error.message}`);
-      }
-    },
-  }),
-});
-```
-
----
+- **The `error` property** — for inline error UI (see data-first ordering above).
+- **Error Boundaries** via `throwOnError`. Pass a function to route only some errors, e.g. `(error) => error.response?.status >= 500`.
+- **Global `QueryCache` `onError`** — the right place for toasts. It fires **once per query**, not once per consuming component. Check `query.state.data !== undefined` to toast only for background failures.
 
 ## Mutations
 
-Mutations are the imperative counterpart to queries — you invoke them to change server state. `useMutation` gives you `mutate` and `mutateAsync`:
+- **`mutate`** — fire-and-forget; React Query swallows the error. Handle results in callbacks. **Prefer this.**
+- **`mutateAsync`** — returns a promise you must `try/catch`. Use only when you need the promise (`Promise.all`, dependent chains).
 
-- **`mutate`** — fire-and-forget; React Query swallows the error (it's literally `mutateAsync().catch(noop)`). Handle results in callbacks. **Prefer this.**
-- **`mutateAsync`** — returns a promise *you* must `try/catch`. Use only when you genuinely need the promise (e.g. `Promise.all` of several mutations, or dependent chains).
-
-```tsx
-// GOOD: mutate + callbacks, no error-handling boilerplate
-addComment.mutate(newComment, { onSuccess: (data) => router.push(data.url) });
-```
-
-**Tie mutations back to queries with invalidation** (preferred over hand-writing the cache — direct updates duplicate backend logic and need more code to be reliable):
+**Tie mutations back to queries with invalidation**, not hand-written cache updates:
 
 ```ts
-const useAddComment = (postId: string) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (body: string) => axios.post(`/posts/${postId}/comments`, body),
-    // ✅ return the promise so the mutation stays pending until the refetch settles
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['posts', postId, 'comments'] }),
-  });
-};
-```
-
-- **Return** the `invalidateQueries` promise from `onSuccess` to keep the mutation `pending` until queries update; omit `return` for fire-and-forget.
-- **Callback levels:** `useMutation` callbacks fire **before** `mutate`-call callbacks, and the `mutate`-call ones **don't run if the component unmounted**. Put cache work (invalidation — always needed) on `useMutation`; put UI side effects (navigation) on the `mutate` call.
-- **One variables argument** — wrap multiple values in an object: `mutate({ title, body })`.
-- **Be sparing with optimistic updates.** They're worth it only when failures are rare; rollback UX is poor and edge cases (new IDs, sort position) bite. Often a disabled button + spinner is enough. Otherwise prefer `setQueryData` from the mutation *response*, or plain invalidation.
-
----
-
-## Real-time updates (WebSockets)
-
-Don't replace `useQuery` with a socket — keep normal queries fetching, and let the socket signal *when* to update. Two strategies:
-
-1. **Event-based invalidation (default).** The message says *what changed*; you invalidate and let React Query refetch active queries. Minimal payload, server stays the source of truth, handles add/delete naturally.
-2. **Push data into the cache** with `setQueryData` — only for high-frequency partial updates (live counters) where refetching each event is wasteful. Doesn't handle add/delete and is awkward to type.
-
-```ts
-// GOOD: subscribe in an effect, invalidate by a key derived from the message
-const queryClient = useQueryClient();
-useEffect(() => {
-  const ws = new WebSocket(url);
-  ws.onmessage = (event) => {
-    const { entity, id } = JSON.parse(event.data);
-    queryClient.invalidateQueries({ queryKey: [...entity, id].filter(Boolean) });
-  };
-  return () => ws.close();
-}, [queryClient]);
-```
-
-When a socket drives freshness, set `staleTime: Infinity` so time-based refetches don't double up.
-
----
-
-## TypeScript
-
-**Infer types from the `queryFn` return — never pass `useQuery` generics explicitly.** TypeScript has no partial type-argument inference, so supplying one generic forces all four (`TQueryFnData`, `TError`, `TData`, `TQueryKey`) and breaks `select`.
-
-```ts
-// BAD: explicit generics — breaks the moment you add `select`
-useQuery<Group[], Error>({ queryKey, queryFn });
-
-// GOOD: type the queryFn; everything downstream is inferred (data is `Group[] | undefined`)
-const fetchGroups = (): Promise<Group[]> => axios.get('groups').then((r) => r.data);
-useQuery({ queryKey: ['groups'], queryFn: fetchGroups });
-```
-
-- **Errors are `unknown`** by design (anything can be thrown). Narrow with `instanceof Error` before reading `.message`. (v4+ defaults `error` to `Error`; you can register a global error type via module augmentation.)
-- **Narrow on the query object, not destructured fields** (pre-TS 4.6): `if (query.isSuccess) { /* query.data is narrowed */ }`.
-- **`enabled` is not a type guard.** To disable type-safely (v5.25+), use `skipToken`: `queryFn: id ? () => fetchGroup(id) : skipToken`.
-
----
-
-## Testing
-
-See the `testing-best-practices` skill for general testing philosophy. React-Query specifics:
-
-- **Turn off retries** in tests, or error cases time out (default is 3 retries with backoff). Set it on a fresh client per test — and don't hard-code `retry` on the `useQuery` call itself, or you can't override it (use `queryClient.setQueryDefaults` if a specific query needs retries).
-- **A new `QueryClient` per test** keeps cache state isolated (a shared cache → flaky parallel runs).
-- **Mock the network with MSW**, not by mocking `fetch`/`axios`.
-- **Await the state transition** with `waitFor` before asserting.
-
-```tsx
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return ({ children }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
-test('loads todos', async () => {
-  const { result } = renderHook(() => useTodos(), { wrapper: createWrapper() });
-  await waitFor(() => expect(result.current.isSuccess).toBe(true));
-  expect(result.current.data).toBeDefined();
+useMutation({
+  mutationFn: (body: string) => axios.post(`/posts/${postId}/comments`, body),
+  onSuccess: () =>
+    queryClient.invalidateQueries({ queryKey: ['posts', postId, 'comments'] }),
 });
 ```
 
----
+- **Return** the `invalidateQueries` promise from `onSuccess` to keep the mutation `pending` until queries update.
+- **Callback levels:** `useMutation` callbacks fire before `mutate`-call callbacks, and the `mutate`-call ones **don't run if the component unmounted**. Put cache work on `useMutation`; put UI side effects (navigation) on the `mutate` call.
+- **One variables argument** — wrap multiple values: `mutate({ title, body })`.
+- **Be sparing with optimistic updates.** Worth it only when failures are rare; rollback UX is poor and edge cases (new IDs, sort position) bite. Often a disabled button + spinner is enough. Otherwise prefer `setQueryData` from the mutation *response*, or plain invalidation.
+
+## Real-time updates (WebSockets)
+
+Keep normal queries; let the socket signal *when* to update. Default to **event-based invalidation**: the message says what changed, you invalidate. Push data with `setQueryData` only for high-frequency partial updates. Set `staleTime: Infinity` when a socket drives freshness.
+
+## TypeScript
+
+**Infer types from the `queryFn` return — never pass `useQuery` generics explicitly** (`useQuery<Group[], Error>`). Supplying one generic forces all four and breaks `select`. Type the `queryFn` instead: `(): Promise<Group[]>`.
+
+- **Narrow errors** with `instanceof Error` before reading `.message`.
+- **`enabled` is not a type guard.** Use `skipToken` (v5.25+): `queryFn: id ? () => fetchGroup(id) : skipToken`.
+
+## Testing
+
+See the `testing-best-practices` skill. React Query specifics:
+
+- **Turn off retries** on the test client, or error cases time out. Don't hard-code `retry` on the `useQuery` call, or you can't override it.
+- **A new `QueryClient` per test** keeps cache state isolated.
+- **Mock the network with MSW**, and `waitFor` the state transition before asserting.
 
 ## Render optimization (advanced)
 
-Most apps don't need this — React Query's defaults are good, and an unnecessary re-render is cheaper than a missing one. Reach for these only with a measured problem:
-
-- **Tracked queries** (default since v4) only re-render on fields you actually read during render. Don't defeat them with rest-spread: `const { isLoading, ...rest } = useQuery(...)` observes every field.
-- **Structural sharing** preserves referential identity for unchanged parts of the data, so `select`-based partial subscriptions stay stable. With `select` it's applied twice (raw result, then selected result).
-- Use **`select`** for partial subscriptions — a component re-renders only when its selected slice changes (see Transforming data).
+Reach for this only with a measured problem. **Tracked queries** re-render only on fields you read; don't defeat them with rest-spread (`const { isLoading, ...rest } = useQuery(...)`).
