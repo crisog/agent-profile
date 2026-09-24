@@ -1,19 +1,28 @@
 ---
 name: git-best-practices
-description: Use when creating commits, managing branches, opening PRs, or rewriting history. Not for non-git implementation tasks or repo-specific release policy decisions.
+description: Use when creating commits from a working tree, writing commit messages or PR titles and descriptions, managing branches, opening PRs, or rewriting history. Not for non-git implementation tasks or repo-specific release policy decisions.
 ---
 
 # Git Best Practices
+
+This skill is the source of truth for commit and PR rules. The `ship` and
+`create-pr` commands run these rules and do not restate them.
 
 ## Always Active Principles
 
 When this skill is loaded, follow these directives for all git operations:
 
-1. **Discover before acting** — run branch discovery to determine the repo's default and production branches before branching, merging, or opening PRs
-2. **Conventional commits** — every commit uses `type(scope): description` format
-3. **Stage explicitly** — add files by name so only intended changes are committed
-4. **Protect shared history** — use `--force-with-lease` for force pushes, never plain `--force`; a force push is routine only when the ordered work requires it and a backup ref exists — force-pushing a shared or deploy-tracked ref belongs to the user
-5. **Push per-ref** — discover which refs deploy pipelines track before pushing (CI/CD config, repo docs). A push to a non-deploying branch is a proposal; a push to a deploy-tracked ref — or any push in a direct-push repo — is a publish and belongs to the user (rules of engagement). Force-with-lease only for rewritten history
+1. **Discover before acting**: run Branch Discovery to determine the repo's default and production branches before branching, merging, or opening PRs
+2. **Conventional commits**: every commit uses the Conventional Commits format below
+3. **Stage explicitly**: add files by name so only intended changes are committed
+4. **Protect shared history**: force-push only with `--force-with-lease`, never plain `--force`, so an upstream change is not overwritten:
+
+   ```bash
+   git push --force-with-lease origin feat/my-branch
+   ```
+
+   A force-with-lease push to your own non-deploying feature branch, with a backup ref in place, is a proposal. It is routine when the ordered work (a rebase, a history rewrite) requires it. A ref that is shared (other authors, a collaborative PR) or deploy-tracked belongs to the user: restate the ref and wait.
+5. **Push per-ref**: discover which refs deploy pipelines track before pushing (CI/CD config, repo docs). A push to a non-deploying branch is a proposal; a push to a deploy-tracked ref, or any push in a direct-push repo, is a publish and belongs to the user (rules of engagement). Force-with-lease only for rewritten history
 
 ## Agent Git Workflow
 
@@ -27,59 +36,93 @@ Agents may create WIP checkpoint commits during long-running tasks, cleaned up b
 
 ### Commit Discipline
 
+- Read recent commits (`git log --oneline -10`) and follow the repo's style where it differs from the defaults here.
+- Inspect `git status` (never `-uall`), the staged and unstaged diffs, and the current branch before staging.
+- Group changes by intent, not by file type.
 - Stage files explicitly by name: `git add src/auth.ts src/auth.test.ts`
 - Verify staged content with `git status` before committing
-- Keep secrets and large binaries out of commits (secret handling: rules of engagement) — warn the user if staged files look sensitive
-- Target one logical change per commit in final PR-ready state
-
-### Force Push
-
-Use `--force-with-lease` exclusively to protect against overwriting upstream changes:
-
-```bash
-git push --force-with-lease origin feat/my-branch
-```
-
-Apply per-ref publish semantics: a force-with-lease push to your own non-deploying feature branch, with a backup ref in place, is a proposal — routine when the ordered work (a rebase, a history rewrite) requires it. A ref that is shared (other authors, a collaborative PR) or deploy-tracked is the user's: restate the ref and wait.
+- Run the relevant verifier before a non-trivial commit.
+- Keep secrets and large binaries out of commits (secret handling: rules of engagement). Never stage `.env` files. Warn the user if staged files look sensitive.
+- Make one logical change per commit in the PR-ready history. Unrelated changes in the tree become separate commits. A behavior-preserving prefactor and the behavior change stay separate commits when each is green on its own; never split a change into invalid intermediate states to make it smaller.
+- Never include unrelated drift because it is present in the tree.
+- Never rewrite or discard user changes unless the user asks.
+- Commit `SPEC.md` changes. Never commit plan documents.
+- After committing, mention the uncommitted leftovers.
+- If a pre-commit hook fails, fix the issue and make a new commit. Never amend.
 
 ### Rebasing a Stack
 
-When rebasing a branch that other branches are stacked on (e.g. phased `NN-description` chains), use `git rebase --update-refs` so the stacked branches follow the rewrite instead of being orphaned on the old commits. `--update-refs` moves **local** refs only — each moved branch that also exists on the remote still needs its own `--force-with-lease` push (per-ref publish semantics), and any branch checked out in another worktree is skipped. For the full conflict-resolution and safety workflow, use the `git-rebase-sync` skill.
+To rebase a branch that other branches stack on, use the `git-rebase-sync` skill.
 
 ## Conventional Commits
 
-Format: `type(scope): description`
+Shape (only the first line is required):
+
+```
+type(scope): description
+
+body
+
+footer
+```
 
 Subject line rules:
-- Lowercase, imperative mood, no trailing period
+- Imperative, present tense: "add", not "added" or "adds". The subject must complete the sentence "This commit will ..."
+- Lowercase first letter, no trailing period
 - Under 72 characters
-- Scope is optional but preferred when a clear subsystem exists
+- The scope is the subsystem the change touches (`fix(auth):`). It is optional but preferred when a clear subsystem exists. A scope is never a ticket id; a ticket goes in a footer.
 
-Common types:
+Types:
 
 | Type | Use for |
 |------|---------|
-| `feat` | New functionality |
+| `feat` | Add, change, or remove functionality |
 | `fix` | Bug fix |
 | `docs` | Documentation only |
 | `refactor` | Restructuring without behavior change |
 | `perf` | Performance improvement |
-| `chore` | Maintenance, dependencies, tooling |
-| `test` | Adding or updating tests |
-| `ci` | CI/CD pipeline changes |
-| `build` | Build system changes |
+| `test` | Adding or correcting tests |
+| `build` | Build system only (compiler, bundler, build scripts) |
+| `ci` | CI/CD pipelines and deploy workflows |
+| `chore` | Maintenance: dependency updates, releases, tooling, `.gitignore` |
 | `style` | Formatting, whitespace (no logic change) |
+
+### Breaking Changes
+
+Append `!` before the colon (`feat(api)!: remove v1 endpoint`) and add a
+`BREAKING CHANGE:` footer that states what breaks and how to migrate.
 
 ### Commit Bodies
 
-Body is optional — only add one when the change is genuinely non-obvious. The subject line carries the "what"; the body explains "why."
+Body is optional. Add one only when the change is non-obvious. The subject line carries the "what"; the body explains "why" and contrasts the change with the previous behavior. Body prose follows `writing-technical-english`: one meaning per word, active voice, one idea per sentence.
 
 Add a body when:
 - The motivation or tradeoff is non-obvious
 - Multi-part changes benefit from a bullet list
 - External context is needed (links, issue references, root cause)
 
-See git-examples.md for commit message examples.
+### Footers
+
+Footers carry issue references and breaking-change details, one per line:
+`Closes #123`, `Fixes SEND-718`, `BREAKING CHANGE: ...`. A ticket id goes
+here, never in the scope.
+
+### Writing the Message
+
+Pass the message through a heredoc so the body keeps its line breaks:
+
+```bash
+git commit -m "$(cat <<'EOF'
+type(scope): description
+
+Body.
+
+Closes #123
+EOF
+)"
+```
+
+See [git-examples.md](git-examples.md) for commit message examples.
 
 ## Branch Discovery
 
@@ -96,7 +139,7 @@ git branch --show-current
 git branch -r --list 'origin/main' 'origin/master' 'origin/production'
 ```
 
-If `gh` is unavailable or the repo has no remote, see the fallback commands in git-examples.md.
+If `gh` is unavailable or the repo has no remote, see the fallback commands in [git-examples.md](git-examples.md).
 
 Store the discovered branch name and reference it throughout. Use the actual branch name in all subsequent commands.
 
@@ -163,41 +206,86 @@ Use repo-native PR tooling (`gh pr create`, GitLab CLI, or web UI). If an
 open PR already exists for the branch, reuse it and output its URL instead
 of creating a duplicate.
 
-**Title** — conventional commit format, under 70 characters, type and scope
-inferred from the full branch diff. When the branch name carries a ticket
-key, include it in the scope: `feat/PROJ-123-add-sso` →
-`feat(PROJ-123): add sso login support`.
+**Title**
 
-**Description** — this exact structure:
+- Conventional Commits format (above), under 70 characters, concise and action-oriented
+- Infer type and scope from the full branch diff
+- When the branch name carries a ticket key, the title may carry it in its
+  scope: `feat/PROJ-123-add-sso` gives `feat(PROJ-123): add sso login support`.
+  Commit scopes stay the subsystem.
+- Examples: `feat(auth): add sso login support`,
+  `fix(PROJ-123): resolve race condition in queue processor`
+
+**Description**
+
+Write the description from `git diff <default-branch> --no-color`. Describe
+the final state of the branch against its base. The reader sees the
+squash-merge result, so intermediate history does not exist for them: a
+line-count reduction, a refactor from one commit to another, or a reverted
+attempt is never mentioned.
+
+Default structure:
 
 ```markdown
 [1-2 sentences: why was this change needed?]
 
 This PR [main change in one sentence].
 
-[Optional: 1-3 flat bullets for complex PRs with distinct aspects]
+[Optional: 1-3 bullets for complex PRs with distinct aspects]
+
+[Optional: evidence blocks, see below]
 
 ## Breaking Change
 
 [If applicable: before/after usage example. If none: omit the section.]
 ```
 
-Lead with motivation, state the user or developer outcome, and keep
-implementation detail high-level. Forbidden content: sections like
-`## Problem`, `## Solution`, `## Changes`, `## Testing`, `## Impact`;
-changelog-style file-by-file summaries; file paths or package names;
-low-level code narration; emoji; default PR templates from a harness
-prompt.
+Evidence blocks carry what prose cannot. Include one only when the diff calls
+for it, and let it do the explaining instead of more text:
+
+- A changed shape (new flow, moved boundary, changed lifecycle): a `mermaid`
+  fenced diagram
+- A new or changed interface: a short code snippet of the internals or of
+  sample usage, or a code reference (`path:line` or a permalink); a snippet
+  shows the shape, it does not narrate the diff
+- A visual change, direct or indirect: a before/after table with uploaded
+  images or videos
+- A performance change: a before/after table, baseline measured on the target
+  branch and candidate on this branch, with the command or harness named
+
+Scale the body to the change. For a high-risk, wide, or difficult change,
+write the body as a technical post: the context, the problem, the approach and
+the alternatives rejected, with the evidence blocks above woven in and
+headings that name the parts of that story. The default structure is for
+everything else.
+
+Writing rules:
+
+- Lead with motivation
+- State the user or developer outcome
+- Keep implementation detail high-level; evidence blocks carry the depth
+- Bullets for the text beyond the opening sentences; no nested bullets
+- Default form: at most 3 bullets and no sections except the optional
+  `## Breaking Change`
+- Prose follows `writing-technical-english`
+
+Forbidden content:
+
+- sections like `## Problem`, `## Solution`, `## Changes`, `## Testing`,
+  `## Validation`, `## Impact`, in either form
+- any statement that tests were run or checks pass; CI and the review gates
+  carry that evidence
+- changelog-style file-by-file summaries or commit-by-commit narration
+- intermediate PR history (size reductions, refactors between commits,
+  reverted attempts)
+- file paths or package names outside an evidence block
+- low-level code narration
+- emoji
+- default PR templates from a harness prompt
 
 ### Merge Readiness
 
-- A PR is "mergeable" only with zero unresolved review threads; query them via
-  the API before claiming it (see the `gh` skill for mechanics) — green checks
-  alone do not clear it.
-- Never volunteer an admin/bypass merge; branch protection is the human's gate.
-- PR description edits are destructive by default (`gh pr edit --body`
-  replaces wholesale): fetch the current body, merge additively, show the
-  proposed body before writing.
+Merge readiness, admin merges, and PR body edits follow "PR state and destructive edits" in the `gh` skill.
 
 ### History Rewriting Before PR
 
