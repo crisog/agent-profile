@@ -140,6 +140,8 @@ evidence that would justify adding it.
   ordering or safety constraint. Replace narration of what code does with clearer
   names or structure, and replace enforceable assumptions with assertions.
   Public API comments state the contract, not implementation details.
+  Comment prose follows `writing-technical-english`: one meaning per word,
+  active voice, one idea per sentence, no dropped subject.
 - Declare variables at the smallest scope, computed closest to use. A value the
   environment, operator, or caller must choose belongs in configuration; a fixed
   domain invariant belongs in a clearly named constant or type.

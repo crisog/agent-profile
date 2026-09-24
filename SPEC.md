@@ -166,6 +166,12 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
 - REQ-BUGBASH-008 — **Verification:** the skill catalog validates, fixed
   engineering and gate-routing scenarios have no material-or-higher gap in a
   fresh-context run, and `npm run check` plus `./scripts/validate.sh` pass.
+- REQ-BUGBASH-009 — **Deslopify gate:** the ADF runs a `deslopify` pass over
+  the branch diff after the objective checks are green and before a draft PR
+  opens or the E2E/bug-bash gate runs; the objective checks rerun on the
+  result. `create-pr` and `ship-stack` carry the pass as a step, `bugbash` and
+  `e2e` state it as a precondition, and `deslopify` is model-invocable so the
+  workflow can run it. A branch with no runtime code change records the skip.
 
 ### Invariants
 
@@ -193,6 +199,9 @@ Campaign status: unit 1 shipped and E2E'd; this repo's LOOP.md dissolved into th
   on the wiki. (2026-09-03, provisional)
 - Defer plugin version bumps and all publication to a separately authorized
   release action. (2026-09-03, provisional)
+- A deslopify pass is a delivery gate between green objective checks and the
+  draft PR or E2E/bug-bash gate, not an on-request cleanup. (2026-09-23,
+  ratified by the user's request)
 
 ### Acceptance
 

@@ -8,7 +8,9 @@ description: Use when running e2e tests, debugging test failures, or fixing flak
 Scripted E2E encodes known contracts; a bug bash explores the assembled surface
 through real user or operator tasks. When the request is to dogfood, bug-bash,
 or make a behavior-first readiness call, load the `bugbash` skill. Use this skill
-to run and repair the scripted E2E floor that supports that work.
+to run and repair the scripted E2E floor that supports that work. As a delivery
+gate, the floor runs after the branch's `deslopify` pass (the DESLOPIFY gate in
+`AGENTS.md`), so it grades the code that ships.
 
 ## Failure Taxonomy
 

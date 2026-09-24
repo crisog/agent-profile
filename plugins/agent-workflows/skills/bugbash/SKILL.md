@@ -29,6 +29,11 @@ Keep the task set small and high-yield. A scripted E2E suite can establish known
 contracts before the bash; it does not replace exploratory use of the assembled
 surface.
 
+The bash grades the code that ships: the branch has had its `deslopify` pass
+(the DESLOPIFY gate in `AGENTS.md`) and the objective checks are green on the
+result before the charter is written. A bash on code that will still be
+simplified is rerun on the simplified build.
+
 ## Independence
 
 Author-run dogfood is valid discovery. A terminal experiential gate is stronger

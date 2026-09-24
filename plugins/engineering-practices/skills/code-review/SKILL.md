@@ -185,3 +185,7 @@ Structure your review as:
 3. **Implementation** (if concerns): Specific issues with blocking vs non-blocking clearly marked
 4. **Precedent** (if relevant): Whether this establishes patterns worth following
 5. **Verdict**: Approve, Request Changes, or Comment — for the human-facing review; a gate reports findings against its floor instead
+
+The summary and every comment follow `writing-technical-english`: the risk or
+the requested change first, one idea per sentence, one hedge at most, and the
+same verb for the same action across the review.

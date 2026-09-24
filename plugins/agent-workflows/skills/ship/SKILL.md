@@ -64,7 +64,7 @@ Append `!` before the colon: `feat(api)!: remove endpoint`. Add a `BREAKING CHAN
 
 ### Body & Footer
 
-- Body: optional, explains motivation and contrasts with previous behavior.
+- Body: optional, explains motivation and contrasts with previous behavior. Its prose follows `writing-technical-english`: one meaning per word, active voice, one idea per sentence.
 - Footer: reference issues (`Closes #123`), breaking change details.
 
 ## Rules

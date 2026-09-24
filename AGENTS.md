@@ -202,7 +202,7 @@ Ratified Decisions:
 ## Agentic delivery flow
 
 The ADF is the macro loop's phases. Agent owns MISSION → SPEC → PLAN → TDD → DEV →
-E2E/BUGBASH; publish (merge or deployment) is the human's. Fix-shaped work
+DESLOPIFY → E2E/BUGBASH; publish (merge or deployment) is the human's. Fix-shaped work
 defaults to delegation (implementation packet → objective verifier → fresh
 bug bash when the surface is operable → fix-up); reserve attended driving for
 live-ops and incidents. Authoring and judging are separate concerns; direct
@@ -215,12 +215,17 @@ implementation does not waive independence.
   files/types/tests, risk class, and a QA design mapping each material risk to
   its cheapest faithful evidence; data-plane work gets a resource sketch.
   TDD — the new test observed red against the pre-fix tree, output cited.
-  DEV — environment boots healthy. E2E/BUGBASH — representative user or
-  operator tasks, important failure modes, and state transitions exercised on
-  the assembled dev surface. Non-operable artifacts use their declared harness.
-- Within a candidate iteration, run objective checks first, any selected
-  specialist review next, then rebuild and run the terminal bug bash on the
-  resulting artifact.
+  DEV — environment boots healthy. DESLOPIFY — with the objective checks
+  green and before any draft PR or the E2E/BUGBASH gate, a `deslopify` pass
+  over the branch diff against its base removes vestigial code, unnecessary
+  fallbacks, test-driven runtime branches, and weak boundaries; the objective
+  checks rerun on the result. A branch with no runtime code change records
+  that and skips it. E2E/BUGBASH — representative user or operator tasks,
+  important failure modes, and state transitions exercised on the assembled
+  dev surface. Non-operable artifacts use their declared harness.
+- Within a candidate iteration, run objective checks first, the deslopify
+  pass and the objective checks again, any selected specialist review next,
+  then rebuild and run the terminal bug bash on the resulting artifact.
 - High-risk, approval and a matching bounded specialist review required by
   default in PLAN: schema/data migrations, auth/security boundaries, public API
   compatibility or contract changes, infra/deploy config. The human may waive
@@ -276,7 +281,10 @@ live in the `code-law` skill. Load it before writing code.
   evidence. Outward prose (issues, PR bodies, review comments, messages to
   humans) carries no em dashes, no filler openers (`dug into`, `delve`,
   `load-bearing`, `taxonomy`), and no narrated history in edited text; a PR
-  description reads as the diff against its base, not a changelog.
+  description reads as the diff against its base, not a changelog. Outward
+  prose and code comments follow `writing-technical-english` (ASD-STE100 cut
+  to agent prose): one meaning per word, active voice, one idea per sentence,
+  bounded sentence length, the risk or command first.
 - Model tiering: work is executed on the executor tier and judged on the
   judgment tier. In Claude Code that means subagents dispatched for
   implementation, exploration, validation, and log reading carry

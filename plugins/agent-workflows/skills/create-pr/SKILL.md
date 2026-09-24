@@ -24,12 +24,17 @@ Run these first and read the output:
    - If on `main` or `master`, STOP and ask the user to create a feature branch first
    - If no commits are ahead of the default branch and there are no local changes, STOP and report there is nothing to open as a PR
 
-2. **Create commits when local changes exist**
+2. **Deslopify pass**
+   - Run `agent-workflows:deslopify` over the branch diff against the default branch, then rerun the checks the touched areas own
+   - Fold the result into the commits below; it is not a separate cleanup commit
+   - A branch with no runtime code change skips the pass and says so in the report
+
+3. **Create commits when local changes exist**
    - If working tree is clean, skip this step
    - Analyze the diff and split by logical concern when needed
    - Follow the `agent-workflows:ship` skill for commit formatting (Conventional Commits spec, types, scopes, and rules)
 
-3. **Ensure branch is pushed**
+4. **Ensure branch is pushed**
    - If no upstream, push with tracking:
 
      ```bash
@@ -42,7 +47,7 @@ Run these first and read the output:
      git push
      ```
 
-4. **Determine the PR title**
+5. **Determine the PR title**
    - Use Conventional Commits format (per the `agent-workflows:ship` skill, the source of truth for that format)
    - Infer type and scope from the full branch diff
    - Keep it concise and action-oriented
@@ -51,9 +56,13 @@ Run these first and read the output:
      - `feat(auth): add sso login support`
      - `fix(PROJ-123): resolve race condition in queue processor`
 
-5. **Generate the PR description**
+6. **Generate the PR description**
    - Analyze `git diff <default-branch> --no-color`
-   - Write this exact structure:
+   - Describe the final state of the branch against its base. The reader sees
+     the squash-merge result, so intermediate history does not exist for them:
+     a line-count reduction, a refactor from one commit to another, or a
+     reverted attempt is never mentioned
+   - Default structure:
 
      ```markdown
      [1-2 sentences: Why was this change needed?]
@@ -62,28 +71,53 @@ Run these first and read the output:
 
      [Optional: 1-3 bullets for complex PRs with multiple distinct aspects]
 
+     [Optional: evidence blocks, see below]
+
      ## Breaking Change
 
      [If applicable: before/after usage example]
      [If none: omit this section]
      ```
 
+   - Evidence blocks carry what prose cannot. Include one only when the diff
+     calls for it, and let it do the explaining instead of more text:
+     - A changed shape (new flow, moved boundary, changed lifecycle): a
+       `mermaid` fenced diagram
+     - A new or changed interface: a short code snippet of the internals or
+       of sample usage, or a code reference (`path:line` or a permalink); a
+       snippet shows the shape, it does not narrate the diff
+     - A visual change, direct or indirect: a before/after table with
+       uploaded images or videos
+     - A performance change: a before/after table, baseline measured on the
+       target branch and candidate on this branch, with the command or
+       harness named
+   - Scale the body to the change. For a high-risk, wide, or genuinely
+     difficult change, write the body as a technical post: the context, the
+     problem, the approach and the alternatives rejected, with the evidence
+     blocks above woven in and headings that name the parts of that story.
+     The default structure is for everything else
    - Required writing rules:
      - Lead with motivation
      - State user or developer outcome
-     - Keep implementation detail high-level
-     - Use bullets only for distinct multi-part changes
-     - Maximum 3 bullets, no nested bullets
-     - No sections except optional `## Breaking Change`
+     - Keep implementation detail high-level; evidence blocks carry the depth
+     - Bullets for the text beyond the opening sentences; no nested bullets
+     - Default form: at most 3 bullets and no sections except the optional
+       `## Breaking Change`
      - Prose follows `writing-technical-english`
    - Forbidden content:
-     - sections like `## Problem`, `## Solution`, `## Changes`, `## Testing`, `## Impact`
-     - changelog-style file-by-file summaries
-     - file paths or package names
+     - sections like `## Problem`, `## Solution`, `## Changes`, `## Testing`,
+       `## Validation`, `## Impact`, in either form
+     - any statement that tests were run or checks pass; CI and the review
+       gates carry that evidence
+     - changelog-style file-by-file summaries or commit-by-commit narration
+     - intermediate PR history (size reductions, refactors between commits,
+       reverted attempts)
+     - file paths or package names in prose; a code reference belongs in an
+       evidence block
      - low-level code narration
      - emoji
 
-6. **Create or reuse the PR**
+7. **Create or reuse the PR**
    - If a PR already exists for the branch, output that URL instead of creating a new one
    - Otherwise create it:
 
@@ -94,7 +128,7 @@ Run these first and read the output:
        --base <default-branch>
      ```
 
-7. **Report the result**
+8. **Report the result**
 
    Output:
 
@@ -125,11 +159,12 @@ User: open a PR for this branch
 
 Agent:
 1. Checks branch and status
-2. Creates clean conventional commit(s) for unstaged changes
-3. Pushes branch with upstream tracking
-4. Generates PR title and description from diff
-5. Creates PR with gh
-6. Reports:
+2. Runs the deslopify pass and reruns the touched checks
+3. Creates clean conventional commit(s) for unstaged changes
+4. Pushes branch with upstream tracking
+5. Generates PR title and description from diff
+6. Creates PR with gh
+7. Reports:
    Created PR: feat(settings): add user preferences page
    https://github.com/org/repo/pull/123
    Base: main

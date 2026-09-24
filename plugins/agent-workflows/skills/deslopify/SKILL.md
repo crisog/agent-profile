@@ -1,12 +1,13 @@
 ---
 name: deslopify
-description: Use when the user wants the current branch simplified. Removes vestigial code, unnecessary fallbacks, and test-driven runtime branches, and tightens weak boundaries.
-disable-model-invocation: true
+description: Use when the user wants the current branch simplified, and always as the delivery-flow gate after the objective checks are green and before a draft PR opens or the E2E/bug-bash gate runs. Removes vestigial code, unnecessary fallbacks, and test-driven runtime branches, and tightens weak boundaries.
 ---
 
 # Simplify Current Changes
 
 Simplify the current branch so the code is easier to understand and maintain. Preserve behavior unless a behavior change is explicitly required for correctness.
+
+This pass is the DESLOPIFY gate of the delivery flow in `AGENTS.md`: it runs once the objective checks are green and before any draft PR or the E2E/bug-bash gate, and the objective checks rerun on its result. As a gate it always produces the summary below, including when nothing was removed. A branch with no runtime code change records that and skips the review passes.
 
 ## Context
 

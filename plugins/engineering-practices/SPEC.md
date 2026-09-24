@@ -93,6 +93,9 @@ and exceptions that change an agent's decision.
   or article, at most one hedge, and the risk or command first. Precision
   outranks brevity, quoted text and voice-led copy are out of scope, and the
   repository's style rules and always-loaded instructions win on conflict.
+  `AGENTS.md` names it for outward prose and code comments, and the skills
+  that write commit bodies, code comments, review comments, PR bodies, and
+  issue bodies name it at the point of writing.
 - **REQ-DOCTRINE-017 — Human reader:** `code-law` names the reader as a human
   maintainer without the authoring conversation, sets the bar at prose-like
   readability with reviewer struggle as a code defect, and forbids task,
