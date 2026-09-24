@@ -1,6 +1,6 @@
 ---
 name: testing-best-practices
-description: Use when designing tests, writing test cases, planning test strategy, building or judging a verifier, or attributing test failures. Covers verifier design, unit/integration/e2e layering, and verifier discipline (flake attribution, base-commit repro, broken-verifier handling).
+description: Use when designing tests, writing test cases, planning test strategy, building or judging a verifier, or attributing test failures. Covers verifier design, E2E-first test policy, failure-first isolation tests, and verifier discipline (flake attribution, base-commit repro, broken-verifier handling).
 ---
 
 ## Verifier design
@@ -50,38 +50,60 @@ Rerun from the earliest affected gate. Conversely, unchanged identity needs no
 ceremonial rerun—compare and record the identities. An evidence store should
 reject an attachment whose candidate, artifact, target, or task does not match.
 
-## Test layering policy
+## Test policy
 
-Choose scope by the contract and the trade among **speed, maintainability,
-utilization, reliability, and fidelity**. No pyramid shape or layer count is
-universally correct. Improve any dimension that does not make another worse;
-spend slower, broader tests where their fidelity catches risks a smaller test
-cannot.
+E2E tests are the default and usually the sole test mechanism. A test suite
+exists to prove that features work on the assembled surface, not to mirror
+the shape of the code. Unit tests written after the code are never written:
+they restate the implementation, pass by construction, and rot into slop.
 
-### Unit tests
+### E2E tests
 
-Purpose: verify public behaviors and invariants at a small, precise boundary.
-Do not assume one test per method or one test suite per implementation-detail
-class; test a detail directly only when its complexity or diagnostic precision
-earns the coupling.
+Purpose: verify real user and operator workflows through the full stack.
 
-- **Data-driven**: use a parameterized table when every row is the same behavior
-  with the same setup, action, assertion shape, and failure interpretation.
-  Vary independent input dimensions independently unless their interaction is
-  the contract. Give distinct scenarios or outcomes, especially different error
+- Exercise the real path and the highest-fidelity practical dependencies.
+- Cover each important workflow, one representative of each important error
+  class, and the state transitions the SPEC names.
+- **Repeatable artifact**: every run ends in an artifact a reader can rerun and
+  compare: the exact command or script, the revision and environment it ran
+  against, and the captured output (logs, screenshots, or response bodies).
+  The report or PR cites that artifact; an E2E claim without one is "NOT run".
+- **Hermetic environments**: provision isolated, ephemeral state and dispose of
+  it after the run; a clean namespace is a declared input, not an ambient
+  assumption.
+- **Shared environments**: use unique data, discover and tolerate prior state,
+  and make flows idempotent rather than depending on cleanup or a clean slate.
+- **Flow-oriented**: validate real data paths end-to-end rather than isolated
+  assertions.
+
+### Isolation tests: failure modes first
+
+Test a unit on its own only when E2E cannot reach its risk (a parser, a
+pricing rule, a state machine with many transitions). The order is fixed:
+
+1. Write down every way the unit can fail: invalid inputs, boundary crossings,
+   ordering, concurrency, partial failure, resource exhaustion.
+2. Turn that list into tests. Each test names one failure mode and is observed
+   red before the code exists.
+3. Write the code against the list.
+
+A unit test that appears after the code, or that was not derived from a
+written failure list, is deleted, not kept.
+
+- **Cross the boundary**: cover the transition from valid to invalid, not just
+  samples of each; where data moves across the valid/invalid line is where the
+  bugs live.
+- **Property-based**: fuzz invariants that must hold across all inputs
+  (idempotency, sort stability, roundtrip serialization).
+- **Data-driven**: use a parameterized table when every row is the same
+  behavior with the same setup, action, assertion shape, and failure
+  interpretation. Give distinct outcomes, especially different error
   contracts, separate tests even when a table would be shorter.
-- **Property-based**: fuzz invariants that must hold across all inputs (e.g., idempotency, sort stability, roundtrip serialization).
-- **Cross the boundary**: cover the transition from valid to invalid, not just samples of each — where data moves across the valid/invalid line is where the bugs live.
 
-### Integration / contract tests
+### Contract tests against external dependencies
 
-Purpose: verify interactions between components and external services.
+When a boundary to an external service cannot be exercised end to end:
 
-- **API envelope**: request/response shape, status codes, content types, pagination.
-- **Error contract**: error codes, error shapes, rate limiting, retries.
-- **Auth and scoping**: token validation, role-based access, tenant isolation.
-- **Eventual consistency**: verify convergence within bounded time; poll rather than sleep.
-- Reuse auth state across tests where possible; avoid redundant login flows.
 - Prefer, in order, the real dependency; a service-owner fake or hermetic local
   server; a mock of an interface you own. Do not invent a third party's fake or
   mocked contract. If no faithful implementation is practical, wrap that API in
@@ -89,21 +111,9 @@ Purpose: verify interactions between components and external services.
 - Prefer a shared behavioral contract suite that runs against both the real
   implementation and its fake. Without conformance evidence, name fake drift as
   a risk rather than assuming equivalence.
-
-### E2E tests
-
-Purpose: verify real user workflows through the full stack.
-
-- Exercise the real path and the highest-fidelity practical dependencies.
-- Keep the suite small: cover each important user workflow and one representative
-  of each important error class. Lower layers carry variations that do not need
-  the full stack.
-- **Hermetic environments**: provision isolated, ephemeral state and dispose of
-  it after the run; a clean namespace is a declared input, not an ambient
-  assumption.
-- **Shared environments**: use unique data, discover and tolerate prior state,
-  and make flows idempotent rather than depending on cleanup or a clean slate.
-- **Flow-oriented**: validate real data paths end-to-end rather than isolated assertions.
+- Cover the envelope (shapes, status codes, pagination), the error contract
+  (codes, retries, rate limits), and auth scoping (token validation, tenant
+  isolation). Poll for eventual consistency rather than sleeping.
 
 ## Hard rules
 
@@ -218,8 +228,8 @@ Before generating checks:
 - Confirm scope from inspected context; state conservative assumptions when
   ambiguity is not load-bearing.
 - Map each contract or risk to the cheapest faithful mitigation: type or static
-  check, unit/property test, integration contract, E2E flow, task-based
-  dogfood/bug bash, telemetry, or a named specialized review.
+  check, E2E flow, failure-first isolation test, external contract test,
+  task-based dogfood/bug bash, telemetry, or a named specialized review.
 - Use coverage only after designing the checks, as a clue to missed paths; never
   use a percentage as evidence that the risk is covered.
 
@@ -231,33 +241,35 @@ Use markdown. Produce only the layers the QA design actually needs:
 
 **Test Cases** -- for checks that become tests, use `ID | Scope | Scenario | Input/state | Expected`. Case IDs are append-only; do not organize the matrix by function unless the function is itself the public contract.
 
-**Execution Plan** -- ordered red/green/refactor steps, exact commands, and any
-task-based bug bash or telemetry gate. A layer with no material risk to cover is
+**Execution Plan** -- ordered steps, exact commands, the E2E artifact each run
+produces, and any task-based bug bash or telemetry gate. A layer with no material risk to cover is
 omitted rather than filled ceremonially.
 
 ## CI guidance
 
 ### Fast PR smoke lane
 
-- Unit tests + linting + type-check on every PR.
-- Subset of integration tests covering critical contracts.
+- Type-check and lint on every PR, plus the E2E flows that cover the touched
+  surface and any failure-first isolation tests.
 - Target: under 5 minutes.
 
 ### Nightly full lane
 
-Full unit + integration + e2e suite with higher property-based iteration counts. Flag tests that pass on retry but failed initially.
+The full E2E suite with higher property-based iteration counts. Flag tests
+that pass on retry but failed initially.
 
 ## Workflow
 
 1. Spec or code defines the module behavior (types, constraints, API surface).
 2. This skill produces the QA design, selected test cases, and execution plan.
-3. The driver or a dispatched worker translates the plan to runnable tests,
-   observed red before the implementation lands. For a bug fix, first reflect
-   on why the existing suite did not catch the bug — the answer often names a
-   missing floor, not just the missing test.
+3. Failure modes are written before the code. The driver or a dispatched
+   worker turns them into E2E flows or failure-first isolation tests, observed
+   red before the implementation lands. For a bug fix, first reflect on why
+   the existing suite did not catch the bug — the answer often names a missing
+   floor, not just the missing test.
 4. Implementation proceeds to green; apply `code-law`, refactor while
    green, then rerun the affected verifier.
-5. Exercise an operable assembled surface through the declared E2E or bug-bash
-   tasks when the QA design selected that evidence.
+5. Exercise the assembled surface through the declared E2E flows or bug-bash
+   tasks and store the run's repeatable artifact where the report cites it.
 6. If implementation reveals missing cases, propose them first; append to spec
    only when explicitly requested.
