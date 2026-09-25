@@ -1,4 +1,4 @@
-import { SAMPLE_RATE, equalPowerPan, midiToHz, mixMono, samples, softClip } from './dsp.mjs';
+import { SAMPLE_RATE, createStereo, equalPowerPan, midiToHz, mixMono, samples, softClip } from './dsp.mjs';
 import { bell, blip, boom, clap, kick, noiseBurst, noiseSweep } from './instruments.mjs';
 
 const TWO_PI = Math.PI * 2;
@@ -228,12 +228,49 @@ function sparkle(context, { t }) {
 
 const RENDERERS = { hit, riser, whoosh, crash, tick, tap, pop, processing, chime, paper, blip: scannerBlip, laser, beep, confetti, stamp, comet, sparkle };
 
+const PEAK_SMOOTH_SECONDS = 0.002;
+const POINT_EFFECT_SECONDS = 3;
+
+function peakIndex(buffer) {
+  const window = samples(PEAK_SMOOTH_SECONDS);
+  let running = 0;
+  let best = -1;
+  let index = 0;
+  for (let i = 0; i < buffer.length; i++) {
+    running += Math.abs(buffer.left[i]) + Math.abs(buffer.right[i]);
+    if (i >= window) {
+      running -= Math.abs(buffer.left[i - window]) + Math.abs(buffer.right[i - window]);
+    }
+    if (running > best) {
+      best = running;
+      index = Math.max(0, i - Math.floor(window / 2));
+    }
+  }
+  return index;
+}
+
+function addAt(target, source, start) {
+  for (let i = Math.max(0, -start); i < source.length && start + i < target.length; i++) {
+    target.left[start + i] += source.left[i];
+    target.right[start + i] += source.right[i];
+  }
+}
+
 export function renderEffects(context, events) {
   for (const event of events) {
     const renderer = RENDERERS[event.type];
     if (!renderer) {
       throw new Error(`unknown cue type ${event.type}`);
     }
-    renderer(context, event);
+    if (event.t === undefined) {
+      renderer(context, event);
+      continue;
+    }
+    const length = samples(POINT_EFFECT_SECONDS);
+    const scratch = { ...context, sfx: createStereo(length), send: createStereo(length) };
+    renderer(scratch, { ...event, t: 0 });
+    const start = samples(event.t) - peakIndex(scratch.sfx);
+    addAt(context.sfx, scratch.sfx, start);
+    addAt(context.send, scratch.send, start);
   }
 }

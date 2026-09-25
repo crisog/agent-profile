@@ -33,12 +33,12 @@ const truePeak = Number(/Peak:\s+(-?[\d.]+) dBFS/.exec(summary.slice(summary.ind
 const checks = [
   ['video codec h264 high', video?.codec_name === 'h264' && video?.profile === 'High', `${video?.codec_name} ${video?.profile}`],
   ['codec tag avc1', video?.codec_tag_string === 'avc1', video?.codec_tag_string],
-  ['resolution 1920x1080', video?.width === WIDTH && video?.height === HEIGHT, `${video?.width}x${video?.height}`],
-  ['frame rate 60/1', video?.r_frame_rate === `${FPS}/1`, video?.r_frame_rate],
-  ['frame count 900', Number(video?.nb_read_frames) === DURATION_SECONDS * FPS, video?.nb_read_frames],
+  [`resolution ${WIDTH}x${HEIGHT}`, video?.width === WIDTH && video?.height === HEIGHT, `${video?.width}x${video?.height}`],
+  [`frame rate ${FPS}/1`, video?.r_frame_rate === `${FPS}/1`, video?.r_frame_rate],
+  [`frame count ${DURATION_SECONDS * FPS}`, Number(video?.nb_read_frames) === DURATION_SECONDS * FPS, video?.nb_read_frames],
   ['pixel format yuv420p', video?.pix_fmt === 'yuv420p', video?.pix_fmt],
   ['bt709 tags', video?.color_space === 'bt709' && video?.color_primaries === 'bt709' && video?.color_transfer === 'bt709', `${video?.color_space}/${video?.color_primaries}/${video?.color_transfer}`],
-  ['duration 15 s within one frame', Math.abs(Number(probe.format.duration) - DURATION_SECONDS) <= FRAME_SECONDS, probe.format.duration],
+  [`duration ${DURATION_SECONDS} s within one frame`, Math.abs(Number(probe.format.duration) - DURATION_SECONDS) <= FRAME_SECONDS, probe.format.duration],
   ['audio aac 48 kHz stereo', audio?.codec_name === 'aac' && audio?.sample_rate === '48000' && audio?.channels === 2, `${audio?.codec_name} ${audio?.sample_rate} ${audio?.channels}ch`],
   ['loudness -14 LUFS +/- 1', Math.abs(integrated - LOUDNESS_TARGET) <= LOUDNESS_TOLERANCE, `${integrated} LUFS`],
   ['true peak <= -1 dBTP', truePeak <= TRUE_PEAK_MAX, `${truePeak} dBTP`]

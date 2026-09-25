@@ -3,7 +3,7 @@ import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { FPS } from '../src/timing.js';
+import { DURATION_SECONDS, FPS } from '../src/timing.js';
 import { writeSheet } from './sheet.mjs';
 import { PROJECT_ROOT, launchBrowser, startServer } from './stage.mjs';
 
@@ -13,7 +13,7 @@ const { values } = parseArgs({
     every: { type: 'string', default: '0.25' },
     'step-frames': { type: 'string' },
     from: { type: 'string', default: '0' },
-    to: { type: 'string', default: '15' },
+    to: { type: 'string', default: String(DURATION_SECONDS) },
     out: { type: 'string', default: 'out/video-sheet.png' },
     columns: { type: 'string', default: '8' },
     tile: { type: 'string', default: '300' }

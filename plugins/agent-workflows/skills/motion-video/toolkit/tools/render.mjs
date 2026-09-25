@@ -3,11 +3,9 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { DURATION_SECONDS, FAST_RANGES, FPS } from '../src/timing.js';
+import { DURATION_SECONDS, FAST_RANGES, FPS, HEIGHT, WIDTH } from '../src/timing.js';
 import { PROJECT_ROOT, launchBrowser, openStage, startServer } from './stage.mjs';
 
-const OUTPUT_WIDTH = 1920;
-const OUTPUT_HEIGHT = 1080;
 const STATUS_INTERVAL_MS = 5_000;
 const MAX_WORKERS = 14;
 const MAX_SAMPLES = 48;
@@ -85,7 +83,7 @@ function chunks() {
 
 function segmentEncoder(file, count) {
   const filters = [
-    `scale=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:flags=lanczos`,
+    `scale=${WIDTH}:${HEIGHT}:flags=lanczos`,
     'format=gbrp',
     count > 1 ? `tmix=frames=${count}` : null,
     count > 1 ? `select='eq(mod(n\\,${count})\\,${count - 1})'` : null,

@@ -39,7 +39,9 @@ export function createTimeline(cues) {
     }
     return found;
   };
-  return { beat, step, sectionAt, chordAt, section, totalSteps: Math.round(cues.durationSeconds / step) };
+  const offsetSteps = Math.round((cues.barOffsetBeats ?? 0) * 4);
+  const stepInBar = (index) => (((index - offsetSteps) % STEPS_PER_BAR) + STEPS_PER_BAR) % STEPS_PER_BAR;
+  return { beat, step, sectionAt, chordAt, section, stepInBar, totalSteps: Math.round(cues.durationSeconds / step) };
 }
 
 function sidechainGain({ length, kickTimes, depth, release }) {
@@ -105,7 +107,7 @@ export function renderMusic({ cues, random, length }) {
   for (let index = 0; index < timeline.totalSteps; index++) {
     const time = index * timeline.step;
     const name = timeline.sectionAt(time);
-    const stepInBar = index % STEPS_PER_BAR;
+    const stepInBar = timeline.stepInBar(index);
     const chord = timeline.chordAt(time);
     if (GROOVES.has(name)) {
       if (stepInBar % 4 === 0) {

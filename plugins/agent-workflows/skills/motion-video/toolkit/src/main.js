@@ -1,4 +1,5 @@
 import { createExampleScene } from './scenes/example.js';
+import { HEIGHT, WIDTH } from './timing.js';
 
 const FONT_FACES = [];
 
@@ -9,6 +10,8 @@ if (!(scale > 0)) {
 }
 document.body.style.zoom = String(scale);
 const stage = document.getElementById('stage');
+stage.style.width = `${WIDTH}px`;
+stage.style.height = `${HEIGHT}px`;
 
 await Promise.all(FONT_FACES.map((face) => document.fonts.load(face)));
 await document.fonts.ready;

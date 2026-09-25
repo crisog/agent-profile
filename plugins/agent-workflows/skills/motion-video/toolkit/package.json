@@ -6,10 +6,11 @@
     "cues": "node tools/build-cues.mjs",
     "audio": "node audio/synth.mjs",
     "stills": "node tools/still.mjs",
+    "readability": "node tools/readability.mjs",
     "render": "node tools/render.mjs --scale 2 --samples 8 --fast-samples 32 --workers 12",
     "finalize": "node tools/finalize.mjs",
     "verify": "node tools/verify.mjs",
-    "build": "npm run cues && npm run audio && npm run render && npm run finalize && npm run verify"
+    "build": "npm run cues && npm run readability && npm run audio && npm run render && npm run finalize && npm run verify"
   },
   "dependencies": {
     "playwright-core": "^1.63.0",

@@ -98,6 +98,19 @@ export function spring({ duration, bounce }) {
   };
 }
 
+export function track(keys) {
+  if (keys.length === 0) {
+    throw new Error('track needs at least one key');
+  }
+  const [first, ...rest] = keys;
+  const steps = rest.map((key, index) => ({
+    at: key.at,
+    delta: key.value - (index === 0 ? first.value : rest[index - 1].value),
+    curve: spring({ duration: key.duration, bounce: key.bounce })
+  }));
+  return (time) => steps.reduce((value, step) => value + step.delta * step.curve(time - step.at), first.value);
+}
+
 export function tween(time, { start, end, from = 0, to = 1, ease = easeOut }) {
   return lerp(from, to, ease(progress(time, start, end)));
 }
