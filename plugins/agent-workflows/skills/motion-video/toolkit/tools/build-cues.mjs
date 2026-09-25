@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { BPM, CUE, DURATION_SECONDS, beat } from '../src/timing.js';
+import { BAR_OFFSET_BEATS, BPM, CUE, DURATION_SECONDS, beat } from '../src/timing.js';
 
 function round(seconds) {
   return Math.round(seconds * 100_000) / 100_000;
@@ -23,6 +23,7 @@ const events = [
 const cues = {
   bpm: BPM,
   beatsPerBar: 4,
+  barOffsetBeats: BAR_OFFSET_BEATS,
   durationSeconds: DURATION_SECONDS,
   sampleRate: 48_000,
   sections: [

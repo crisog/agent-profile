@@ -1,3 +1,5 @@
+import { HEIGHT, WIDTH } from './timing.js';
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 export function el(tag, { className, style, text, attrs } = {}, children = []) {
@@ -37,8 +39,8 @@ export function layer(parent, { zIndex, background } = {}) {
       position: 'absolute',
       left: '0px',
       top: '0px',
-      width: '1920px',
-      height: '1080px',
+      width: `${WIDTH}px`,
+      height: `${HEIGHT}px`,
       overflow: 'hidden',
       zIndex: String(zIndex ?? 0),
       background: background ?? 'transparent'
@@ -90,7 +92,7 @@ export function impulse(time, start, { frequency, decay }) {
 
 export function measure(node, stage) {
   const stageRect = stage.getBoundingClientRect();
-  const ratio = stageRect.width / 1920;
+  const ratio = stageRect.width / WIDTH;
   const rect = node.getBoundingClientRect();
   return {
     x: (rect.left - stageRect.left) / ratio,
@@ -137,5 +139,5 @@ export function clearMask(node) {
 }
 
 export function coverRadius(point) {
-  return Math.max(Math.hypot(point.x, point.y), Math.hypot(1920 - point.x, point.y), Math.hypot(point.x, 1080 - point.y), Math.hypot(1920 - point.x, 1080 - point.y));
+  return Math.max(Math.hypot(point.x, point.y), Math.hypot(WIDTH - point.x, point.y), Math.hypot(point.x, HEIGHT - point.y), Math.hypot(WIDTH - point.x, HEIGHT - point.y));
 }

@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import { chromium } from 'playwright-core';
 
+import { HEIGHT, WIDTH } from '../src/timing.js';
+
 export const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PLAYWRIGHT_CACHES = [path.join(os.homedir(), 'Library/Caches/ms-playwright'), path.join(os.homedir(), '.cache/ms-playwright')];
 
@@ -31,8 +33,6 @@ function resolveChromium() {
 }
 
 const CHROMIUM = resolveChromium();
-const STAGE_WIDTH = 1920;
-const STAGE_HEIGHT = 1080;
 const READY_TIMEOUT_MS = 60_000;
 const CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -85,7 +85,7 @@ export async function launchBrowser() {
 
 export async function openStage({ browser, origin, scale }) {
   const context = await browser.newContext({
-    viewport: { width: STAGE_WIDTH * scale, height: STAGE_HEIGHT * scale },
+    viewport: { width: WIDTH * scale, height: HEIGHT * scale },
     deviceScaleFactor: 1
   });
   const page = await context.newPage();

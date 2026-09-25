@@ -6,7 +6,7 @@
 
 ## Stage
 
-- The page is authored at 1920x1080 CSS px. Every scene is a layer with a `render(time)` that sets styles from `time` alone. `window.stageReady` flips after fonts load and images decode.
+- The page is authored at `WIDTH` x `HEIGHT` CSS px from `src/timing.js`; the stage, capture, sheets and verifier all read that size. Every scene is a layer with a `render(time)` that sets styles from `time` alone. `window.stageReady` flips after fonts load and images decode.
 - Load every web font with `document.fonts.load(...)` before any layout or measurement. Measure glyph ink (a period, a digit width) with canvas `measureText`, and convert `getBoundingClientRect` values by the stage's on-screen ratio, because the render runs under `zoom`.
 - An SVG shown through `<img>` cannot use page fonts; inline SVG can. Keep element ids unique across inline SVGs.
 - A `clip-path` or mask on an element that also carries a transform is applied in the transformed space. Put the transform on an inner wrapper.

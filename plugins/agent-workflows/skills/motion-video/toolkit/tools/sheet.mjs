@@ -1,13 +1,14 @@
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { HEIGHT, WIDTH } from '../src/timing.js';
 import { PROJECT_ROOT } from './stage.mjs';
 
 const SHEET_GAP = 6;
 const LABEL_HEIGHT = 26;
 
 export async function writeSheet({ browser, origin, stills, sheetPath, columns, tileWidth }) {
-  const tileHeight = Math.round((tileWidth * 1080) / 1920);
+  const tileHeight = Math.round((tileWidth * HEIGHT) / WIDTH);
   const rows = Math.ceil(stills.length / columns);
   const width = columns * tileWidth + (columns + 1) * SHEET_GAP;
   const height = rows * (tileHeight + LABEL_HEIGHT) + (rows + 1) * SHEET_GAP;
