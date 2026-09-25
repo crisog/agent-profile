@@ -1,5 +1,9 @@
 # Pipeline mechanics
 
+## Studying a reference video
+
+`node tools/study-reference.mjs input.mov --out out/reference` prints size, frame rate, hard cuts with shot lengths, integrated loudness, loudness range and tempo candidates, and writes a 1 fps contact sheet, 6 fps motion strips per 6 s window and a waveform. Read the sheet for structure and copy, and the strips for how objects hand off between ideas. Few hard cuts across a long stretch mean the piece moves by transformation, not editing. Converting the container changes nothing: the frames are the viewing medium.
+
 ## Stage
 
 - The page is authored at 1920x1080 CSS px. Every scene is a layer with a `render(time)` that sets styles from `time` alone. `window.stageReady` flips after fonts load and images decode.
