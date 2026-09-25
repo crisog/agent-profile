@@ -20,9 +20,9 @@
 ## Licensed music
 
 - Use a track only when its license covers the use, and record the license in the brief.
-- Measure it: tempo by autocorrelating an onset envelope (`tools/study-reference.mjs` prints candidates), the downbeat as the beat of four with the most energy below about 150 Hz, and a section of whole bars with sustained energy that skips the intro.
+- Measure it: tempo by autocorrelating an onset envelope (`tools/study-reference.mjs` prints candidates; check them for half- and double-tempo picks before choosing), the downbeat as the beat of four with the most energy below about 150 Hz, and a section of whole bars with sustained energy that skips the intro.
 - Refine tempo and phase on the chosen section alone. A fit over the whole song drifts about 20 ms across 8 bars.
-- Set `BPM` and every cue from the measured beat period, cut the section with fades of a few ms, mix the synthesized effects over it, and master as usual.
+- Set `BPM`, every cue, and the duration as whole bars from the measured beat period, cut the section with fades of a few ms, mix the synthesized effects over it, and master as usual.
 
 ## Verification without ears
 
