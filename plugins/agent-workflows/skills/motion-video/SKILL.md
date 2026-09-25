@@ -48,7 +48,7 @@ Mechanics and failure modes of each stage are in [pipeline.md](pipeline.md) and 
 
 - Format follows the destination: vertical 9:16 for social feeds and phones, 16:9 for web pages, decks and screens. A brand's own paid spot for social ran 9:16 at about 40 s.
 - On 1080x1920, keep key text, including UI labels and numbers inside the picture, between y 250 and y 1500 and 80 px in from the sides. Feed UI covers the rest.
-- Feeds replay a video on loop. Decide in direction whether the last frame hands back to the first (cyclic motion, sound tails wrapped to the start) or the piece ends on a held end card.
+- Feeds replay a video on loop. Decide in direction whether the last frame hands back to the first or the piece ends on a held end card. A loop takes time modulo the duration, includes the previous cycle's springs in every value so the last frame equals the first, and wraps sound tails to the start.
 - Budget about 3 s per message and 2-3 s for the end card. That reference carried roughly a dozen messages in 40 s, held text cards 1.5-4 s, and ran its first 23 s as one continuous object journey with no hard cut. A 15-second spot holds about four messages; more than that reads as rushed.
 - Lead with the product's value propositions in short, complete sentences ("Los únicos con 0% de comisión sobre tus ventas"). A verb per scene tells a journey but sells nothing. Conversational pairs (a question, then its answer) and word swaps ("Hazlo realidad" becoming "Hazlo Rápido") land a message twice in one beat.
 - Simplified product UI beats device mockups: a logo header, a chip rail, one card at a time, big type. Typing a URL or search term letter by letter buys natural reading time.
@@ -63,6 +63,8 @@ Mechanics and failure modes of each stage are in [pipeline.md](pipeline.md) and 
 - Size wipes and floods to the radius that covers the frame, and feather hard edges in proportion to their speed.
 - Change a surface's color by flooding the new color from the point of action. Interpolated colors pass through grey, and an opaque shape faded over a contrasting background turns into translucent mud; collapse it into the next shape, slide it, or scale it away.
 - A value that moves through several targets is a sum of springs, one per change (`track` in `src/motion.js`). It stays a pure function of time and keeps its velocity when a new target arrives before the last one settles.
+- Move a selection or range by its two edges on separate springs, the leading edge stiffer, so it stretches in flight and settles.
+- Anticipate on the grid: a press or wind-up starts a fraction of a beat early, so the contact lands on the beat.
 - Fast moves get more motion-blur sub-frames (32 on fast ranges, 8 elsewhere); too few samples show as stacked ghost copies.
 
 ## Readability floors
