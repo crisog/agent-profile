@@ -1,0 +1,82 @@
+---
+name: motion-video
+description: Use when asked to make a motion graphics video, animated promo, showreel, product clip, or any rendered video file built from code, rather than motion inside a running interface.
+---
+
+# Motion Video
+
+A code-rendered video is a pure function of time. One timing module drives picture and sound, the renderer samples that function frame by frame, and a verifier plus a readability floor decide when it is done. For motion inside a live interface, use the UI animation skill instead.
+
+## Toolkit
+
+Copy [toolkit/](toolkit/) into a scratch project and run `npm install`. It needs Node, ffmpeg, and a Playwright `chrome-headless-shell` (or `CHROMIUM_PATH`). The demo scene renders, encodes and verifies out of the box.
+
+| File | Job |
+| --- | --- |
+| `src/timing.js` | BPM grid, `CUE` times, `FAST_RANGES`; the single source of timing |
+| `src/motion.js` | cubic-bezier eases, closed-form springs, keyframes, seeded random |
+| `src/dom.js`, `src/kinetic.js`, `src/roller.js` | layers, measuring, feathered circle masks, masked letter rolls, a word roller |
+| `src/main.js`, `src/scenes/` | the stage: each scene exposes `render(time)`; the page exposes `window.renderFrame` |
+| `tools/still.mjs`, `tools/video-sheet.mjs` | stills and labeled contact sheets, by time or exact frame index |
+| `tools/render.mjs` | parallel capture with adaptive motion blur into lossless segments |
+| `tools/finalize.mjs`, `tools/verify.mjs` | H.264 delivery encode and the objective floors |
+| `tools/build-cues.mjs`, `audio/` | cue sheet generated from timing, and a dependency-free synth that reads it |
+
+Mechanics and failure modes of each stage are in [pipeline.md](pipeline.md) and [audio.md](audio.md).
+
+## Direction, in order
+
+1. Research the product before designing. Read its source and assets for the vector logo, palette tokens, display and UI fonts, its real objects (tickets, cards, maps) with exact strings, and its existing easing curves and keyframes. Recognizability comes from reusing these, not from invented style.
+2. Write a short brief: the bar, objective floors (spec, readability, loudness), a never-list, and dated decisions. Make interior calls yourself; ask only about genuine ambiguity in the request.
+3. Pick a tempo whose whole bars fill the duration (128 BPM: 8 bars = 15.000 s). Scene changes land on bar lines and hits land on beats.
+4. Storyboard one idea and at most one headline word per bar. Give the piece a through-line (a word roller, a recurring shape). Make every scene change a continuity move: a shared element, a morph, an iris through a glyph, a flip, a pan, a whip, a burst. A plain crossfade is a defect. End on the logo, tagline and URL.
+5. Build scene by scene. After each scene, render stills and a contact sheet and look at them; after wiring neighbors, render consecutive-frame strips around every seam.
+6. Render the final, run the verifier, run one independent review, reproduce and fix its findings, re-verify, deliver.
+
+## Motion law
+
+- Motion is a pure function of time: closed-form springs and physics, seeded randomness, no state carried between frames.
+- Reuse the product's easing tokens. Strong ease-out for entrances, ease-in-out for moves, ease-in cubic for exits (a mirrored strong ease-out hangs before it moves), ease-in-out sine for camera drift, springs at bounce 0.1-0.35.
+- A held scene never reaches zero velocity; keep a slow drift through holds.
+- Nothing moves under text while a viewer reads it; settle the background first.
+- Fill the frame. A small object in empty space reads as unfinished.
+- Size wipes and floods to the radius that covers the frame, and feather hard edges in proportion to their speed.
+- Fast moves get more motion-blur sub-frames (32 on fast ranges, 8 elsewhere); too few samples show as stacked ghost copies.
+
+## Readability floors
+
+The pace serves comprehension. These hold unless the user sets another bar:
+
+- Key copy stays complete, still and unoccluded for at least about 1 s; size holds at roughly 15 characters per second plus 0.3 s.
+- The opening line lands early, and the tagline returns on the end card.
+- No text sits cut by the frame edge while it is readable; reframe push-ins.
+- Busy backgrounds get a scrim behind text, and accent colors keep contrast against every scene.
+- The outgoing word exits before a transition sweeps over it.
+- When the duration cannot hold the content at this pace, cut content, not reading time.
+
+## Sound
+
+Synthesize the soundtrack from the same cue sheet, so every hit is on its frame by construction. You cannot hear the result: verify it by measurement and say so in the report. See [audio.md](audio.md).
+
+## Verification and review
+
+- Objective: `tools/verify.mjs` checks container, codec, color tags, frame count, duration, loudness and true peak. Add project checks, such as a logo mask IoU against the reference artwork.
+- Visual: stills per scene, contact sheets selected by frame index, seam strips, and 1:1 crops of fast moves and flat backgrounds.
+- Review once. Fresh reviewers get the brief and rendered artifacts only, never source or your reasoning; two reviewers on different model families, in parallel, are enough. Reproduce every finding before fixing it. Ask before paying for another review round.
+
+## Delegation and budget
+
+- Delegate only separable assets with measurable acceptance, such as vectorizing a logo against an IoU target. Keep the timing module and the choreography with the driver.
+- A delegated job that writes no files and shows no progress for a long stretch has stalled; stop it and do the work.
+- Run renders as background jobs and wait for their completion signal instead of polling.
+
+## Red flags
+
+| Thought | Reality |
+| --- | --- |
+| "The words appear, so they are readable" | Measure the still, complete window of every line against the floor |
+| "A crossfade is fine here" | Find the shared element or shape that carries the viewer across |
+| "8 blur samples everywhere" | Fast moves ghost; sample adaptively |
+| "The review said X, fix it" | Reproduce X on the frame first; some reported issues are measurement artifacts |
+| "The logo is navy, so threshold the alpha" | Sample the reference pixels; marks can carry white fills |
+| "One more review round to be safe" | The user pays for it; verify objectively and ask first |
