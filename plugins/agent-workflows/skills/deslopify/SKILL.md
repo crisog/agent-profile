@@ -9,6 +9,8 @@ Simplify the current branch so the code is easier to understand and maintain. Pr
 
 This pass is the DESLOPIFY gate of the delivery flow in `AGENTS.md`: it runs once the objective checks are green and before any draft PR or the E2E/bug-bash gate, and the objective checks rerun on its result. As a gate it always produces the summary below, including when nothing was removed. A branch with no runtime code change records that and skips the review passes.
 
+This is the author's pass; the Shape Pass in `code-review` is the independent one.
+
 ## Context
 
 Run these first and read the output:
@@ -18,6 +20,8 @@ Run these first and read the output:
 - Git status: `git status --short`
 - Changed files vs base: `git diff --name-only <base-branch>...HEAD`
 - Full diff vs base: `git diff --no-color <base-branch>...HEAD`
+
+Before the passes, read the repo's instruction file and two sibling files in each touched directory.
 
 ## Goal
 
@@ -30,9 +34,10 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
    - Remove code that no longer has a caller.
 
 2. Unnecessary fallbacks and defensive code
-   - Remove fallback logic that hides real failures without a product requirement.
-   - Delete defensive checks that protect impossible states already guaranteed upstream.
-   - Keep only guards that enforce a real runtime contract.
+   - Write an evidence ledger: list every defensive branch, fallback, catch, retry, or race guard the diff adds.
+   - Give each entry its support: an observed failure, a contract (a product invariant or boundary validation), an existing mechanism that already covers it, or nothing.
+   - An "already covered" entry names the mechanism and walks the scenario through it.
+   - Delete each branch whose support is "nothing" or "already covered".
 
 3. Weak boundaries
    - Identify boundaries that are too permissive (input validation, nullability, type widening, leaky abstractions).
@@ -42,10 +47,8 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
    - Find runtime branches added only to make tests pass.
    - Replace with better seams in tests (fixtures, factories, explicit test setup) while keeping production paths clean.
 
-5. Simplicity and readability
-   - Inline trivial abstractions with one caller.
-   - Collapse unnecessary indirection.
-   - Prefer straightforward control flow over cleverness.
+5. Readability
+   - Apply the "Readable, dumb code" rules in `code-law` Craft to the diff.
 
 ## Constraints
 
@@ -68,6 +71,9 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
 ## Output Format
 
 ```text
+Evidence ledger:
+- <file>:<line> <branch>: <support>, kept | deleted
+
 Simplification summary:
 - ...
 

@@ -95,7 +95,7 @@ Do not pre-write implementation code in the plan unless an interface must be fix
 
 ## Execution shape
 
-Dispatch follows "Model tiering" in `AGENTS.md`. Each candidate runs the delivery-flow order in `AGENTS.md`: the objective checks, then the `deslopify` pass and the objective checks again, then any selected specialist review, then the terminal bug bash on the rebuilt artifact.
+Dispatch follows "Model tiering" in `AGENTS.md`. Each candidate runs the delivery-flow order in `AGENTS.md`: the objective checks, then the `deslopify` pass and the objective checks again, then the `code-review` Shape Pass and any selected specialist review, then the terminal bug bash on the rebuilt artifact.
 
 Independent sidecar work may run as parallel bounded subagents with non-overlapping ownership; the critical path defaults to the packetized delegation stream of the delivery flow. Revise the plan when implementation reveals a real gap.
 

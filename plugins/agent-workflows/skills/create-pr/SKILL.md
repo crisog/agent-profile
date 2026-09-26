@@ -16,10 +16,11 @@ Create clean git commits from the current changes (if needed), then create a Pul
    - If on a default or production branch that Branch Discovery found, STOP and ask the user to create a feature branch first
    - If no commits are ahead of the default branch and there are no local changes, STOP and report there is nothing to open as a PR
 
-2. **Deslopify pass**
+2. **Deslopify pass and Shape Pass**
    - Run `agent-workflows:deslopify` over the branch diff against the default branch, then rerun the checks the touched areas own
-   - Fold the result into the commits below; it is not a separate cleanup commit
-   - A branch with no runtime code change skips the pass and says so in the report
+   - A fresh reviewer then runs the `code-review` Shape Pass over the same diff; apply each must-fix that holds against the code, then rerun the checks
+   - Fold the results into the commits below; they are not separate cleanup commits
+   - A branch with no runtime code change skips both passes and says so in the report
 
 3. **Create commits when local changes exist**
    - If working tree is clean, skip this step

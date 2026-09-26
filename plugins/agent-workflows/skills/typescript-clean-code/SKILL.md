@@ -206,14 +206,15 @@ type Server =
 
 ## Abstraction
 
-- Do not add barrel modules, pass-through wrappers, single-constant modules, or extension points without a current consumer. Extract a helper only when it names a useful concept, removes real duplication, or isolates a boundary.
-- Readability beats fewer lines. An abstraction introduced to shorten code usually makes it worse — an inlined query guard reads better than a helper that hides one.
+The general rules are "Readable, dumb code" in `code-law` Craft. In TypeScript:
+
+- Do not add barrel modules, pass-through wrappers, single-constant modules, or extension points without a current consumer.
 - If a helper's body would be shorter than its signature plus its parameter type, inline it and separate the steps with section comments.
-- Prefer the minimum diff that reuses an existing pattern, including one from a sibling package or platform. When a change is rejected, go smaller — do not answer with a different new layer.
 
 ## Evidence Before Complexity
 
 - Do not defend against an edge case until something proves it exists: a runtime log, a test reproduction, persisted bad state, or a user report. "Could", "might", and "what if" are not evidence — name the observed failure and how often it happens.
+- A guard that enforces a product invariant or boundary validation is a contract, not a speculative defense.
 - When evidence does arrive, fix the smallest real failure at the boundary that owns it. One incident earns one fix, not a retry framework, a lifecycle manager, or a general defense against the whole category.
 - Delete stale compatibility code, speculative safeguards, and fallback chains as you touch them. Prefer fewer branches and a net-negative diff whenever behavior allows.
 
