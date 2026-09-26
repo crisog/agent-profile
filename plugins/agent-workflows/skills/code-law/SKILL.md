@@ -1,6 +1,6 @@
 ---
 name: code-law
-description: Use when writing or changing code in any language, or choosing whether to add a dependency or abstraction — the craft law (types, assertions, bounds, errors, naming, comments, scope) and the system properties (deterministic, hermetic, idempotent, isolated, observable, evented, contextual) with the floor that proves each one. Not for prose, docs-only, or config-only changes.
+description: Use when writing or changing code in any language, or choosing whether to add a dependency or abstraction — the craft law (readability, types, assertions, bounds, errors, naming, comments, scope) and the system properties (deterministic, hermetic, idempotent, isolated, observable, evented, contextual) with the floor that proves each one. Not for prose, docs-only, or config-only changes.
 ---
 
 # Code Law
@@ -64,8 +64,25 @@ evidence that would justify adding it.
   seconds has found a defect in the code, not in themselves. Nothing from the
   task leaks in: no names, comments, or structure that refer to the request,
   the conversation, the change's history (`new`, `v2`, `fixed`, `updated`,
-  `refactored`), or the author's reasoning. When a plain form and a clever
-  form are both correct, the plain form ships.
+  `refactored`), or the author's reasoning.
+- **Readable, dumb code.** Readability comes first, because clever code hides
+  bugs. When a plain form and a clever form are both correct, the plain form
+  ships.
+  - Fewer concepts: each new name, type, helper, file, or collection costs the
+    reader; add one only when it removes more than it adds. Two or three
+    literal comparisons beat a collection.
+  - Straight-line flow: early returns, one branch per case with its effect next
+    to it, and no lookup chains.
+  - Locality: one behavior's logic sits in one place, which beats folder,
+    package, and layer conventions. Do not split a flow to satisfy one.
+  - Visible correctness: correctness that rests on object identity, library
+    internals, or unwritten ordering is clever code. Write the dependency down,
+    or pick a plain design.
+  - One name, one meaning: no two functions share a name and differ in behavior.
+  - Smallest change: change the function that already owns the behavior, often
+    with early returns or throws at its top. A rejected change comes back
+    smaller, not restructured.
+  - Tests: a test body shows the scenario and the outcome, cause next to effect.
 - Types first: define types and data models before logic; make illegal
   states unrepresentable; schema changes drive implementation.
 - Assert the invariants code relies on. Programmer errors (violated
@@ -90,10 +107,7 @@ evidence that would justify adding it.
   allocate on the hot path; a structure that is full says so instead of
   growing.
 - Optimize for the reader's cognitive load. Keep each function at one level of
-  abstraction; order statements with their data flow; keep relevant details
-  close and hide only details whose abstraction reduces what the reader must
-  hold. Abstraction and indirection are costs too, so add them only when the
-  resulting contract is clearer.
+  abstraction, and order statements with their data flow.
 - Prefer immutability and pure functions; isolate side effects at system
   boundaries; push `if`s up and `for`s down — parents own control flow and
   state, leaves stay pure. Every branch accounts for its complement: a guard

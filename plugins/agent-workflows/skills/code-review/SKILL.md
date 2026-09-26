@@ -12,7 +12,7 @@ A bug hunt on a diff goes to the built-in `/code-review` command, not this skill
 This shape is the human-facing review written for a change's author. As a
 delivery gate it is never generic: a gate is a bounded specialist review that
 names one risk, a severity floor, and a round budget. The Shape Pass below is
-one. Its terminal is findings at or above the floor, not an approval.
+one. Its terminal is findings against the floor.
 
 ## Philosophy
 
@@ -157,9 +157,9 @@ Does this change normalize something that shouldn't be normal?
 The Shape Pass is the SHAPE REVIEW gate of the delivery flow in `AGENTS.md`.
 It is a bounded specialist review:
 
-- Risk: code that does not fit the codebase. This covers written rules,
-  layers, duplicate paths, unproven defenses, test bloat, and unnecessary
-  complexity. The diff's best outcome is getting shorter.
+- Risk: code that does not fit the codebase. This covers readability, written
+  rules, layers, duplicate paths, unproven defenses, test bloat, and
+  unnecessary complexity. The diff's best outcome is getting shorter.
 - Severity floor: must-fix. A must-fix finding blocks the PR.
 - Round budget: one round, plus a fix-up that confirms the findings.
 
@@ -176,52 +176,40 @@ Each finding carries one tag and cites `file:line` at the PR head.
 - `native:` a dependency or code doing what the platform already does. Name the feature.
 - `yagni:` an abstraction with one implementation, configuration nobody sets, a layer with one caller.
 - `shrink:` the same logic in fewer lines. Show the shorter form.
-- `convention:` code that breaks a written repo rule or the sibling pattern. Cite both, each with `file:line`.
-- `layer:` code in the wrong layer: a business rule, recovery, or math in data access, or protocol mechanics in a UI component. Cite the sibling that does it right.
+- `readability:` code harder to read than it needs to be, by the "Readable, dumb code" rules in `code-law` Craft: extra concepts, lookup chains, a flow split across files, or correctness hidden in internals. Name the dumber version and its line count.
+- `convention:` code that breaks a written repo rule or the sibling pattern. Cite the rule or the sibling with `file:line`.
+- `layer:` code in the wrong layer, such as a business rule in data access. Cite the sibling that does it right.
 - `duplicate:` two or more paths that give one outcome.
-- `unproven:` a defensive branch that no observed failure supports, or that a named existing mechanism already covers.
-- `test-bloat:` scaffolding tests, tests that exist only to reach a defensive branch, constants that name counts, and helpers larger than the behavior they set up.
+- `unproven:` a defensive branch that no observed failure or documented platform behavior supports, or that a named existing mechanism already covers.
+- `test-bloat:` scaffolding tests, tests that exist only to reach a defensive branch, and helpers larger than the behavior they set up.
 
 ### Severity
 
-- must-fix: code the PR adds breaks a written rule or the layering, or adds complexity that no evidence supports.
-- should-fix: the code reads worse than its siblings, but the harm stays contained.
-- nit: style only.
-
-`delete`, `stdlib`, `native`, and `yagni` findings are must-fix by default,
-since each removes a dependency, abstraction, or layer that a higher rung of
-the `code-law` ladder covers. A `shrink` finding is should-fix at most. The
-smallest runnable check for new logic is required, never a finding. Do not
-report a finding you cannot cite, or a "consider" item with no rule behind it.
-
-A `layer:` or `convention:` finding on a shape the PR did not introduce is a
-nit at most. Report it for a separate refactor. It is never must-fix, and the
-PR never fixes it. Inside the diff, a `layer:` or `convention:` finding asks
-for less code or an in-place change, not moved code.
+A finding on code the PR adds is must-fix, except that `shrink` is should-fix
+at most. A finding on code the PR did not add is a nit, reported for a
+separate refactor. The PR never fixes it. Inside the diff, a finding asks for
+less code or an in-place change, not moved code. The smallest runnable check
+for new logic is required, never a finding. Do not report a finding you
+cannot cite, or a "consider" item with no rule behind it.
 
 ### Reviewer discipline
 
-- Read the repo instructions and two or three sibling files before you call anything off-style.
-- The preferred fix for a shape finding is the smallest diff inside the file's existing structure. A suggestion that moves code across files or layers names its runtime diff size and justifies it.
-- Read the whole issue: body, comments, and proposal. Scope and acceptance often live in comments.
-- An "already covered" claim walks the concrete scenario through the named mechanism, with the values each side holds.
-- A guard that protects a product-owner invariant is a contract, not a speculative defense. Examples: never charge twice, never lose data, never tell a user that something failed when it may have succeeded. Also check which side of an irreversible action the guard sits on.
-- Documented platform behavior counts as evidence.
-- Check a reference through the forge API. One failing CLI call is a tooling error, not proof of absence.
-- An expected value you compute uses the fixture's units and the code's actual formula. Label it "unverified" unless you ran it.
+- Read the repo instructions and two sibling files before you call anything off-style.
+- Read the issue body and its comments; scope and acceptance may sit in comments.
+- An "already covered" claim walks the concrete scenario through the named mechanism, with the input values at the guard and at the mechanism.
+- A guard that enforces a product invariant or boundary validation is a contract, not a speculative defense. Examples: never charge twice, never lose data, never tell a user that something failed when it may have succeeded.
 
 ### Output
 
 This output replaces the Output Format below:
 
-1. **Verdict**, in one line: `matches` when no finding reaches should-fix,
-   `minor fixes` when each finding can be fixed in place, or `needs rework`
-   when the PR must be redone with less code.
+1. **Verdict**, in one line: `matches` when no finding is above nit, `fixes`
+   when findings exist and each is a deletion or an in-place change, or
+   `needs rework` when a must-fix deletes the PR's main addition.
 2. **Findings**: a table with severity, tag, `file:line`, the finding, and the
    rule it breaks.
-3. **Deletion candidates**, each with its line count. End with
-   `net: -<N> lines, -<M> dependencies possible`, or `Lean already.` when
-   nothing can go.
+3. End with `net: -<N> lines, -<M> dependencies possible`, or `Lean already.`
+   when nothing can go.
 
 ## Output Format
 
