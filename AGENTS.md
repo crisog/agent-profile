@@ -181,10 +181,15 @@ Ratified Decisions:
 ## Agentic delivery flow
 
 The ADF is the macro loop's phases. The agent owns SPEC, PLAN, FAILURE MODES,
-DEV, DESLOPIFY, and E2E/BUGBASH; publish is the human's. Fix-shaped work defaults
-to delegation (implementation packet, objective verifier, fresh bug bash
-when the surface is operable, fix-up); reserve attended driving for live-ops
-and incidents. Direct implementation does not waive independence.
+DEV, DESLOPIFY, SHAPE REVIEW, and E2E/BUGBASH; publish is the human's.
+Fix-shaped work defaults to delegation (implementation packet, objective
+verifier, fresh bug bash when the surface is operable, fix-up); reserve
+attended driving for live-ops and incidents. A packet states the contract and
+names the sibling pattern to copy; it never prescribes defensive mechanics or
+contradicts repo instructions. The driver, not the implementer, triages review
+findings from bots, models, and humans. A finding that adds code must name an
+observed failure or a path no existing mechanism covers; otherwise it gets a
+reply. Direct implementation does not waive independence.
 
 - SPEC: IDs, invariants, non-goals, acceptance (load `spec-best-practices`).
   PLAN: task graph with files, types, tests, risk class, and a QA design
@@ -195,8 +200,11 @@ and incidents. Direct implementation does not waive independence.
   boots healthy. DESLOPIFY: with the objective checks green and before any
   draft PR or bug bash, a `deslopify` pass over the branch diff removes
   vestigial code, unnecessary fallbacks, and test-driven runtime branches,
-  then the objective checks rerun. E2E/BUGBASH: representative user or
-  operator tasks and failure modes exercised on the assembled dev surface.
+  then the objective checks rerun. SHAPE REVIEW: before a PR leaves draft, a
+  fresh reviewer runs the `code-review` Shape Pass; the driver checks each
+  must-fix against primary sources before applying it. E2E/BUGBASH:
+  representative user or operator tasks and failure modes exercised on the
+  assembled dev surface.
 - High-risk classes require approval and a bounded specialist review by
   default: schema or data migrations, auth and security boundaries, public
   API compatibility, infra and deploy config. Low-risk docs or non-runtime

@@ -9,6 +9,8 @@ Simplify the current branch so the code is easier to understand and maintain. Pr
 
 This pass is the DESLOPIFY gate of the delivery flow in `AGENTS.md`: it runs once the objective checks are green and before any draft PR or the E2E/bug-bash gate, and the objective checks rerun on its result. As a gate it always produces the summary below, including when nothing was removed. A branch with no runtime code change records that and skips the review passes.
 
+This is the author's pass. It does not replace the independent Shape Pass in `code-review`, which a fresh reviewer runs at the SHAPE REVIEW gate.
+
 ## Context
 
 Run these first and read the output:
@@ -18,6 +20,8 @@ Run these first and read the output:
 - Git status: `git status --short`
 - Changed files vs base: `git diff --name-only <base-branch>...HEAD`
 - Full diff vs base: `git diff --no-color <base-branch>...HEAD`
+
+Before the passes, read the repo's instruction file and two sibling files in each touched component.
 
 ## Goal
 
@@ -30,9 +34,10 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
    - Remove code that no longer has a caller.
 
 2. Unnecessary fallbacks and defensive code
-   - Remove fallback logic that hides real failures without a product requirement.
-   - Delete defensive checks that protect impossible states already guaranteed upstream.
-   - Keep only guards that enforce a real runtime contract.
+   - Write an evidence ledger: list every defensive branch, fallback, catch, retry, or race guard the diff adds.
+   - Give each entry its support: an observed failure, a contract (a product invariant or boundary validation), an existing mechanism that already covers it, or nothing.
+   - An "already covered" entry names the mechanism and meets the test in the Reviewer discipline of `code-review`.
+   - Delete each branch whose support is "nothing" or "already covered". Keep the observed failures and the contracts.
 
 3. Weak boundaries
    - Identify boundaries that are too permissive (input validation, nullability, type widening, leaky abstractions).
@@ -68,6 +73,9 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
 ## Output Format
 
 ```text
+Evidence ledger:
+- <file>:<line> <branch>: <support>, kept | deleted
+
 Simplification summary:
 - ...
 

@@ -30,9 +30,10 @@ contracts before the bash; it does not replace exploratory use of the assembled
 surface.
 
 The bash grades the code that ships: the branch has had its `deslopify` pass
-(the DESLOPIFY gate in `AGENTS.md`) and the objective checks are green on the
-result before the charter is written. A bash on code that will still be
-simplified is rerun on the simplified build.
+and its Shape Pass (the DESLOPIFY and SHAPE REVIEW gates in `AGENTS.md`), and
+the objective checks are green on the result before the charter is written. A
+bash on code that will still be simplified or reshaped is rerun on the final
+build.
 
 ## Independence
 

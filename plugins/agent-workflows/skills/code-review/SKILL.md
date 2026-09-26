@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use when a PR or diff needs a review of its approach, precedent, or complexity, such as a human-facing design review for its author or a bounded specialist gate on unnecessary complexity; not for a bug hunt.
+description: Use when a PR or diff needs a review of its approach, precedent, fit with the codebase, or complexity, such as a human-facing design review for its author or the shape review gate of the delivery flow; not for a bug hunt.
 ---
 
 # Code Review
@@ -11,9 +11,8 @@ A bug hunt on a diff goes to the built-in `/code-review` command, not this skill
 
 This shape is the human-facing review written for a change's author. As a
 delivery gate it is never generic: a gate is a bounded specialist review that
-names one risk, a severity floor, and a round budget — the Complexity Pass
-below is one — and its terminal is findings at or above the floor, not a
-verdict.
+names one risk, a severity floor, and a round budget. The Shape Pass below is
+one. Its terminal is findings at or above the floor, not an approval.
 
 ## Philosophy
 
@@ -143,7 +142,7 @@ Is this business logic in a controller? UI logic in a model? Data access in a se
 ### Over-Engineering
 
 Does the abstraction serve a real need, or is it speculative? When the review
-is scoped to this risk alone, run the complexity pass below.
+is scoped to fit and complexity alone, run the Shape Pass below.
 
 ### Under-Engineering
 
@@ -153,30 +152,70 @@ Is this a quick fix for something that will recur? Will the next person copy thi
 
 Does this change normalize something that shouldn't be normal?
 
-## Complexity Pass
+## Shape Pass
 
-A review scoped to one risk — unnecessary complexity — is a bounded specialist
-review: it names that risk, a severity floor, and a round budget, and leaves
-correctness, security, and performance to their own pass. The diff's best
-outcome is getting shorter.
+The Shape Pass is the SHAPE REVIEW gate of the delivery flow in `AGENTS.md`.
+It is a bounded specialist review:
 
-One line per finding, replacing the Output Format below:
-`<file>:L<lines>: <tag> <what to cut>. <replacement>.`
+- Risk: code that does not fit the codebase. This covers written rules,
+  layers, duplicate paths, unproven defenses, test bloat, and unnecessary
+  complexity. The diff's best outcome is getting shorter.
+- Severity floor: must-fix. A must-fix finding blocks the PR.
+- Round budget: one round, plus a fix-up that confirms the findings.
+
+Correctness, security, and performance belong to their own passes. Report a
+bug you see, but do not hunt for one. The pass reports findings and applies
+none.
+
+### Tags
+
+Each finding carries one tag and cites `file:line` at the PR head.
 
 - `delete:` dead code, unused flexibility, a speculative feature. Replacement: nothing.
 - `stdlib:` hand-rolled code the standard library ships. Name the function.
 - `native:` a dependency or code doing what the platform already does. Name the feature.
 - `yagni:` an abstraction with one implementation, configuration nobody sets, a layer with one caller.
 - `shrink:` the same logic in fewer lines. Show the shorter form.
+- `convention:` code that breaks a written repo rule or the sibling pattern. Cite both, each with `file:line`.
+- `layer:` code in the wrong layer: a business rule, recovery, or math in data access, or protocol mechanics in a UI component. Cite the sibling that puts it in the right layer.
+- `duplicate:` two or more paths that give one outcome.
+- `unproven:` a defensive branch that no observed failure supports, or that a named existing mechanism already covers.
+- `test-bloat:` scaffolding tests, tests that exist only to reach a defensive branch, constants that name counts, and helpers larger than the behavior they set up.
 
-Severity: `delete`, `stdlib`, `native`, and `yagni` findings are material,
+### Severity
+
+- must-fix: the code breaks a written rule or the layering, or adds complexity that no evidence supports.
+- should-fix: the code reads worse than its siblings, but the harm stays contained.
+- nit: style only.
+
+`delete`, `stdlib`, `native`, and `yagni` findings are must-fix by default,
 since each removes a dependency, abstraction, or layer that a higher rung of
-the `code-law` ladder covers; `shrink` is minor; material is the blocking
-floor. The default budget is one round plus a fix-up that confirms the
-findings. The smallest runnable check for new logic is required, never a
-finding. End with
-`net: -<N> lines, -<M> dependencies possible`, or `Lean already.` when nothing
-can go. The pass lists cuts and applies none.
+the `code-law` ladder covers. A `shrink` finding is should-fix at most. The
+smallest runnable check for new logic is required, never a finding. Do not
+report a finding you cannot cite, or a "consider" item with no rule behind it.
+
+### Reviewer discipline
+
+- Read the repo instructions and two or three sibling files before you call anything off-style.
+- Read the whole issue: body, comments, and proposal. Scope and acceptance often live in comments.
+- An "already covered" claim walks the concrete scenario through the named mechanism, with the values each side holds.
+- A guard that protects a product-owner invariant is a contract, not a speculative defense. Examples: never charge twice, never lose data, never tell a user that something failed when it may have succeeded. Also check which side of an irreversible action the guard sits on.
+- Documented platform behavior counts as evidence.
+- Check a reference through the forge API. One failing CLI call is a tooling error, not proof of absence.
+- An expected value you compute uses the fixture's units and the code's actual formula. Label it "unverified" unless you ran it.
+
+### Output
+
+This output replaces the Output Format below:
+
+1. **Verdict**, in one line: `matches` when no finding reaches should-fix,
+   `minor fixes` when each finding can be fixed in place, or `needs rework`
+   when a must-fix needs a different design.
+2. **Findings**: a table with severity, tag, `file:line`, the finding, and the
+   rule it breaks.
+3. **Deletion candidates**, each with its line count. End with
+   `net: -<N> lines, -<M> dependencies possible`, or `Lean already.` when
+   nothing can go.
 
 ## Output Format
 
