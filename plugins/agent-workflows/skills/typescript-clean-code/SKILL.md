@@ -214,6 +214,7 @@ type Server =
 ## Evidence Before Complexity
 
 - Do not defend against an edge case until something proves it exists: a runtime log, a test reproduction, persisted bad state, or a user report. "Could", "might", and "what if" are not evidence — name the observed failure and how often it happens.
+- A guard that protects a product invariant or a boundary contract is a contract, not a speculative defense.
 - When evidence does arrive, fix the smallest real failure at the boundary that owns it. One incident earns one fix, not a retry framework, a lifecycle manager, or a general defense against the whole category.
 - Delete stale compatibility code, speculative safeguards, and fallback chains as you touch them. Prefer fewer branches and a net-negative diff whenever behavior allows.
 

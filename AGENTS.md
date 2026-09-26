@@ -202,9 +202,10 @@ reply. Direct implementation does not waive independence.
   vestigial code, unnecessary fallbacks, and test-driven runtime branches,
   then the objective checks rerun. SHAPE REVIEW: before a PR leaves draft, a
   fresh reviewer runs the `code-review` Shape Pass; the driver checks each
-  must-fix against primary sources before applying it. E2E/BUGBASH:
-  representative user or operator tasks and failure modes exercised on the
-  assembled dev surface.
+  must-fix against primary sources before applying it inside the existing
+  structure, and a restructure is its own change. E2E/BUGBASH: representative
+  user or operator tasks and failure modes exercised on the assembled dev
+  surface.
 - High-risk classes require approval and a bounded specialist review by
   default: schema or data migrations, auth and security boundaries, public
   API compatibility, infra and deploy config. Low-risk docs or non-runtime

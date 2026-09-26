@@ -56,7 +56,7 @@ Remove code that is not strictly necessary and tighten weak design boundaries.
 
 - Do not add features.
 - Do not change external behavior unless required to remove incorrect behavior; if that happens, call it out explicitly.
-- Keep the smallest safe diff.
+- Keep the smallest safe diff inside the existing structure; a restructure is its own change.
 - Follow repository conventions in `AGENTS.md`.
 
 ## Execution Steps

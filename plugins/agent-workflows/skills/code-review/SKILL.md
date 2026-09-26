@@ -177,14 +177,14 @@ Each finding carries one tag and cites `file:line` at the PR head.
 - `yagni:` an abstraction with one implementation, configuration nobody sets, a layer with one caller.
 - `shrink:` the same logic in fewer lines. Show the shorter form.
 - `convention:` code that breaks a written repo rule or the sibling pattern. Cite both, each with `file:line`.
-- `layer:` code in the wrong layer: a business rule, recovery, or math in data access, or protocol mechanics in a UI component. Cite the sibling that puts it in the right layer.
+- `layer:` code in the wrong layer: a business rule, recovery, or math in data access, or protocol mechanics in a UI component. Cite the sibling that does it right.
 - `duplicate:` two or more paths that give one outcome.
 - `unproven:` a defensive branch that no observed failure supports, or that a named existing mechanism already covers.
 - `test-bloat:` scaffolding tests, tests that exist only to reach a defensive branch, constants that name counts, and helpers larger than the behavior they set up.
 
 ### Severity
 
-- must-fix: the code breaks a written rule or the layering, or adds complexity that no evidence supports.
+- must-fix: code the PR adds breaks a written rule or the layering, or adds complexity that no evidence supports.
 - should-fix: the code reads worse than its siblings, but the harm stays contained.
 - nit: style only.
 
@@ -194,9 +194,15 @@ the `code-law` ladder covers. A `shrink` finding is should-fix at most. The
 smallest runnable check for new logic is required, never a finding. Do not
 report a finding you cannot cite, or a "consider" item with no rule behind it.
 
+A `layer:` or `convention:` finding on a shape the PR did not introduce is a
+nit at most. Report it for a separate refactor. It is never must-fix, and the
+PR never fixes it. Inside the diff, a `layer:` or `convention:` finding asks
+for less code or an in-place change, not moved code.
+
 ### Reviewer discipline
 
 - Read the repo instructions and two or three sibling files before you call anything off-style.
+- The preferred fix for a shape finding is the smallest diff inside the file's existing structure. A suggestion that moves code across files or layers names its runtime diff size and justifies it.
 - Read the whole issue: body, comments, and proposal. Scope and acceptance often live in comments.
 - An "already covered" claim walks the concrete scenario through the named mechanism, with the values each side holds.
 - A guard that protects a product-owner invariant is a contract, not a speculative defense. Examples: never charge twice, never lose data, never tell a user that something failed when it may have succeeded. Also check which side of an irreversible action the guard sits on.
@@ -210,7 +216,7 @@ This output replaces the Output Format below:
 
 1. **Verdict**, in one line: `matches` when no finding reaches should-fix,
    `minor fixes` when each finding can be fixed in place, or `needs rework`
-   when a must-fix needs a different design.
+   when the PR must be redone with less code.
 2. **Findings**: a table with severity, tag, `file:line`, the finding, and the
    rule it breaks.
 3. **Deletion candidates**, each with its line count. End with
