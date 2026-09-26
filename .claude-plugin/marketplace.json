@@ -10,7 +10,7 @@
       "name": "agent-workflows",
       "source": "./plugins/agent-workflows",
       "description": "Engineering-practice and workflow skills plus guard hooks for agentic coding.",
-      "version": "6.0.0",
+      "version": "6.1.0",
       "author": {
         "name": "Cristopher Ortega",
         "email": "ortega.cpp@gmail.com"
