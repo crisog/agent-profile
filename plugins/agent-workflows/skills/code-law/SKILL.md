@@ -43,8 +43,9 @@ holds:
 The ladder shortens the solution, never the reading: a small diff in the wrong
 place is a second bug. It governs how requested behavior is built, not whether
 it is built — requested work is never shipped shallow, and a request that names
-an approach gets that approach. At equal size, take the option that is correct
-on edge cases.
+an approach gets that approach. A spike is the exception: its depth stops at
+the decision it answers (`AGENTS.md`). At equal size, take the option that is
+correct on edge cases.
 
 Never cut for size: validation at trust boundaries (a client outside the
 process guarantees nothing, so a front-end check never retires a server

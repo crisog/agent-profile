@@ -191,6 +191,26 @@ code must name an observed failure, a product invariant, or a path no existing
 mechanism covers; otherwise it gets a reply. Direct implementation does not
 waive independence.
 
+- **Worth it first.** Work that crosses a high-risk class, spans several
+  surfaces, or runs past a day opens with its value case: who benefits and
+  how many (a number from data, or "unmeasured"), what already serves them,
+  and the cost (surfaces touched, high-risk classes, outside reviews or
+  approvals, what stays one-way). The work is sized to the case. Whether the
+  benefit is worth the cost is the human's call, not an interior decision:
+  when the cost carries a high-risk class and the benefit is small or
+  unmeasured, say so before building and offer the smallest step that
+  informs the call. A value call the human has made is applied, not
+  re-asked.
+- **A spike answers one decision.** A proof of concept, spike, or pitch
+  names the decision it informs and the smallest evidence that settles it,
+  runs about a day, and ends in a decision record: what it proved, what it
+  did not, and the cost the production version would carry. It runs only the
+  checks that make its evidence believable and skips production hardening
+  until the human says go: no review-score loops, no edge-case fixes, no
+  description polish. A finding only the production version needs goes on
+  the record's list, not into the code. When the findings or the scope
+  outgrow the decision, stop and hand the decision back with the cost
+  learned so far.
 - SPEC: IDs, invariants, non-goals, acceptance (load `spec-best-practices`).
   PLAN: task graph with files, types, tests, risk class, and a QA design
   mapping each material risk to its cheapest faithful evidence. FAILURE
@@ -215,7 +235,8 @@ waive independence.
 ## Code law
 
 Minimality governs scope, never depth: no unrequested work, and no shallow
-version of requested work. When a design decision arises, choose the correct
+version of requested work. A spike's depth stops at the decision it answers.
+When a design decision arises, choose the correct
 design that is simplest to read: plain code over clever code, and the smallest
 change inside the existing structure; a restructure is its own change. The
 craft law and the system properties live in the `code-law` skill. Load it

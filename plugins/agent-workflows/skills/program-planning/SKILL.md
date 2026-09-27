@@ -35,8 +35,9 @@ ladder entirely; the ladder governs programs, not fixes.
   labeled untested. The record states what the spike covered and what it did
   not; a spike narrower than the property leaves the assumption untested, and a
   milestone that depends on an untested assumption waits for the spike or for a
-  dated decision record naming the human and the accepted risk. A spike is a
-  day of disposable code on an existing harness, not a phase.
+  dated decision record naming the human and the accepted risk. A spike is
+  disposable code on an existing harness, not a phase, and follows the spike
+  rule in `AGENTS.md`.
 - List the alternatives considered and why they lost, in present tense, so a
   later reversal is a dated decision instead of a rediscovery. Keep the losing
   alternative's design findable; do not gate it behind a trigger clause.
